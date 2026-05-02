@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>DON CAMARÓN · Guía de Atención WhatsApp</title>
+<style>
+/* System fonts - works offline on all devices */
+:root {
+  --rojo: #C0392B;
+  --rojo-dark: #922b21;
+  --rojo-bg: #fdf0ef;
+  --rojo-light: #f5b7b1;
+  --negro: #111111;
+  --negro2: #1e1e1e;
+  --green: #128C7E;
+  --green-light: #25D366;
+  --green-bg: #e9f7ef;
+  --red-bg: #fdecea;
+  --blue: #1a5276;
+  --blue-bg: #eaf1fb;
+  --amber: #7d6608;
+  --amber-bg: #fef9e7;
+  --gray: #5d6d7e;
+  --gray-bg: #f4f6f7;
+  --text: #1c2833;
+  --text-muted: #5d6d7e;
+  --border: #dde1e6;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: #f0f2f5;
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 90px;
+  font-size: 15px;
+}
+
+/* HEADER */
+.app-header {
+  background: linear-gradient(135deg, var(--negro) 0%, #3b0a0a 100%);
+  color: white;
+  padding: 18px 16px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.dc-logo {
+  width: 44px; height: 44px;
+  background: var(--rojo);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900;
+  color: white;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: -1px;
+  flex-shrink: 0;
+}
+.header-title h1 { font-size: 16px; font-weight: 700; color: var(--rojo-light); letter-spacing: 0.5px; font-family: Georgia, 'Times New Roman', serif; }
+.header-title p { font-size: 11px; opacity: 0.65; margin-top: 2px; }
+.header-badge {
+  display: inline-block;
+  background: rgba(192,57,43,0.2);
+  border: 1px solid rgba(192,57,43,0.35);
+  border-radius: 20px;
+  padding: 3px 11px;
+  font-size: 11px;
+  color: var(--rojo-light);
+  margin-top: 8px;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--negro);
+  border-top: 1px solid #2a2a2a;
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.3);
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px 12px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: #555;
+  font-size: 10px;
+  gap: 3px;
+  -webkit-transition: color 0.15s; transition: color 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  position: relative;
+}
+.nav-item.active { color: var(--rojo); }
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--rojo);
+  opacity: 0;
+  -webkit-transition: opacity 0.15s; transition: opacity 0.15s;
+  position: absolute;
+  top: 4px;
+}
+.nav-item.active .nav-dot { opacity: 1; }
+
+/* PAGES */
+.page { display: none; padding: 14px; }
+.page.active { display: block; -webkit-animation: fadeIn 0.2s ease; animation: fadeIn 0.2s ease; }
+@-webkit-keyframes fadeIn { from { opacity: 0; -webkit-transform: translateY(5px); } to { opacity: 1; -webkit-transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 14px 2px 8px;
+}
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* REGLAS */
+.rule-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rule-item:last-child { border-bottom: none; padding-bottom: 0; }
+.rule-num {
+  width: 30px; height: 30px;
+  background: var(--negro);
+  color: var(--rojo);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+  flex-shrink: 0;
+}
+.rule-content h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.rule-content p { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+
+.alert-box {
+  background: var(--rojo-bg);
+  border-left: 4px solid var(--rojo);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #5a0000;
+  margin-top: 4px;
+}
+
+/* PHRASES */
+.phrases-grid { display: flex; flex-direction: column; gap: 0; }
+.phrase-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.phrase-row:last-child { border-bottom: none; }
+.phrase-text { font-size: 13px; color: var(--text); line-height: 1.4; flex: 1; }
+.phrase-copy {
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: white;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  color: var(--negro);
+  flex-shrink: 0;
+  -webkit-transition: all 0.15s; transition: all 0.15s;
+}
+.phrase-copy.done { background: var(--rojo); color: white; border-color: var(--rojo); }
+
+/* ESCENARIOS */
+.scenario-card {
+  background: white;
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+.scenario-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background: white;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  gap: 10px;
+}
+.scenario-header:active { background: var(--gray-bg); }
+.scenario-left { display: flex; align-items: flex-start; gap: 10px; flex: 1; }
+.scenario-emoji { font-size: 22px; flex-shrink: 0; }
+.scenario-info h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+.scenario-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 3px;
+  font-weight: 500;
+}
+.badge-reclamo { background: #fdecea; color: #c0392b; }
+.badge-consulta { background: #eaf1fb; color: #1a5276; }
+.badge-queja { background: #fef9e7; color: #7d6608; }
+.badge-soporte { background: var(--rojo-bg); color: var(--rojo-dark); }
+.badge-pedido { background: #f3e5f5; color: #6c3483; }
+.badge-espera { background: #eaf1fb; color: #1a5276; }
+.badge-delivery { background: #e8f8f5; color: #1a7a64; }
+.chevron { font-size: 13px; color: var(--text-muted); -webkit-transition: -webkit-transform 0.25s; transition: transform 0.25s; flex-shrink: 0; }
+.chevron.open { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
+.scenario-body { display: none; padding: 0 14px 14px; }
+.scenario-body.open { display: block; }
+
+.toggle-bar {
+  display: flex;
+  background: var(--gray-bg);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 12px;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-transition: all 0.15s; transition: all 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.toggle-btn.bad.active { background: #fdecea; color: #c0392b; }
+.toggle-btn.good.active { background: #e9f7ef; color: #145a32; }
+.toggle-btn:not(.active) { color: var(--text-muted); }
+
+.chat-panel { display: none; }
+.chat-panel.active { display: block; }
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  min-height: 60px;
+}
+.bubble {
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 88%;
+  position: relative;
+}
+.bubble::after {
+  content: attr(data-time);
+  display: block;
+  font-size: 10px;
+  opacity: 0.55;
+  text-align: right;
+  margin-top: 2px;
+}
+.bubble.client {
+  background: white;
+  border: 1px solid var(--border);
+  align-self: flex-start;
+  border-bottom-left-radius: 3px;
+  color: var(--text);
+}
+.bubble.agent-bad {
+  background: #fdecea;
+  color: #7b241c;
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+}
+.bubble.agent-good {
+  background: #dcf8c6;
+  color: #1e8449;
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+}
+.why-panel {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.why-bad { background: #fdecea; color: #922b21; border-left: 3px solid #e74c3c; }
+.why-good { background: #e9f7ef; color: #145a32; border-left: 3px solid #27ae60; }
+
+/* PLANTILLAS */
+.tpl-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.tpl-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.tpl-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.tpl-title { font-size: 14px; font-weight: 600; }
+.tpl-tag { font-size: 11px; color: var(--text-muted); }
+.tpl-text {
+  background: var(--gray-bg);
+  border-radius: var(--radius-sm);
+  padding: 12px 13px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text);
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tpl-actions { display: flex; gap: 8px; }
+.tpl-btn {
+  flex: 1;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--text);
+  -webkit-transition: all 0.15s; transition: all 0.15s;
+  text-align: center;
+}
+.tpl-btn:active { -webkit-transform: scale(0.97); transform: scale(0.97); }
+.tpl-btn.primary { background: var(--negro); color: var(--rojo-light); border-color: var(--negro); }
+.tpl-btn.copied { background: #e9f7ef; color: #145a32; border-color: #27ae60; }
+
+/* ERRORS */
+.error-list { display: flex; flex-direction: column; gap: 8px; }
+.error-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+}
+.error-item.bad { background: #fdecea; }
+.error-item.good { background: #e9f7ef; }
+.error-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.error-text { font-size: 13px; line-height: 1.5; }
+.error-text b { font-weight: 600; display: block; margin-bottom: 2px; }
+.error-item.bad .error-text { color: #7b241c; }
+.error-item.good .error-text { color: #145a32; }
+
+/* TONE ANALYZER */
+.tone-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.tone-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: block; font-weight: 500; }
+textarea {
+  width: 100%;
+  min-height: 100px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--text);
+  resize: vertical;
+  line-height: 1.5;
+  background: var(--gray-bg);
+}
+textarea:focus { outline: none; border-color: var(--rojo); background: white; }
+.analyze-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 13px;
+  background: var(--negro);
+  color: var(--rojo-light);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+.analyze-btn:active { background: #333; }
+.result-box { margin-top: 14px; display: none; }
+.score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.score-name { font-size: 12px; font-weight: 500; min-width: 100px; color: var(--text-muted); }
+.score-track { flex: 1; height: 10px; background: var(--gray-bg); border-radius: 5px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 5px; background: var(--rojo); -webkit-transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+.score-val { font-size: 13px; font-weight: 600; min-width: 38px; text-align: right; }
+.overall-score { text-align: center; padding: 16px; border-radius: var(--radius-sm); margin-bottom: 12px; }
+.overall-score .big-num { font-size: 40px; font-weight: 700; line-height: 1; font-family: Georgia, 'Times New Roman', serif; }
+.overall-score .big-label { font-size: 13px; margin-top: 4px; font-weight: 500; }
+.feedback-text { padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.6; font-weight: 500; }
+.suggestion-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.suggestion-item { background: var(--rojo-bg); color: var(--rojo-dark); padding: 9px 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.4; border-left: 3px solid var(--rojo); }
+
+/* QUIZ */
+.quiz-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.quiz-progress { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.quiz-q { font-size: 16px; font-weight: 600; margin-bottom: 16px; line-height: 1.4; font-family: Georgia, 'Times New Roman', serif; }
+.quiz-context {
+  background: var(--rojo-bg);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  font-size: 13px;
+  color: #5a0000;
+  margin-bottom: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  border-left: 3px solid var(--rojo);
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.quiz-opt {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: var(--text);
+  text-align: left;
+  line-height: 1.4;
+  -webkit-transition: all 0.15s; transition: all 0.15s;
+}
+.quiz-opt:active { -webkit-transform: scale(0.98); transform: scale(0.98); }
+.quiz-opt.correct { background: #e9f7ef; border-color: #27ae60; color: #145a32; font-weight: 500; }
+.quiz-opt.wrong { background: #fdecea; border-color: #e74c3c; color: #922b21; }
+.quiz-opt.disabled { cursor: default; }
+.quiz-feedback { padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; display: none; margin-bottom: 12px; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: #e9f7ef; color: #145a32; border-left: 4px solid #27ae60; }
+.quiz-feedback.fail { background: #fdecea; color: #922b21; border-left: 4px solid #e74c3c; }
+.quiz-next { width: 100%; padding: 12px; background: var(--negro); color: var(--rojo-light); border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif; display: none; }
+.quiz-next.show { display: block; }
+.quiz-result { text-align: center; padding: 20px 10px; display: none; }
+.quiz-result.show { display: block; }
+.result-emoji { font-size: 56px; margin-bottom: 10px; }
+.result-score { font-size: 28px; font-weight: 700; color: var(--rojo-dark); font-family: Georgia, 'Times New Roman', serif; }
+.result-msg { font-size: 14px; color: var(--text-muted); margin: 8px 0 18px; line-height: 1.5; }
+.restart-btn { padding: 12px 28px; background: var(--negro); color: var(--rojo-light); border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-top">
+    <div class="dc-logo">DC</div>
+    <div class="header-title">
+      <h1>DON CAMARÓN · Atención al Cliente</h1>
+      <p>Mariscos · Sushi · Pizzas · Guía WhatsApp</p>
+    </div>
+  </div>
+  <span class="header-badge">🦐 Guía para el equipo Don Camarón · v1.0</span>
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <button class="nav-item active" onclick="goPage('reglas',this)"><span class="nav-dot"></span><span class="nav-icon">⭐</span>Reglas</button>
+  <button class="nav-item" onclick="goPage('escenarios',this)"><span class="nav-dot"></span><span class="nav-icon">💬</span>Casos</button>
+  <button class="nav-item" onclick="goPage('plantillas',this)"><span class="nav-dot"></span><span class="nav-icon">📋</span>Plantillas</button>
+  <button class="nav-item" onclick="goPage('revisar',this)"><span class="nav-dot"></span><span class="nav-icon">🔍</span>Revisar</button>
+  <button class="nav-item" onclick="goPage('quiz',this)"><span class="nav-dot"></span><span class="nav-icon">🧠</span>Quiz</button>
+</div>
+
+<!-- ════ PAGE 1: REGLAS ════ -->
+<div id="page-reglas" class="page active">
+  <div class="section-label">Principios de atención Don Camarón</div>
+  <div class="card">
+    <div class="card-title">🦐 Las 8 reglas de oro de Don Camarón</div>
+    <div class="rule-item">
+      <div class="rule-num">1</div>
+      <div class="rule-content">
+        <h3>Responde en máximo 5 minutos</h3>
+        <p>Si estás ocupado en el restaurante, envía un mensaje de espera. Nunca dejes a un cliente sin respuesta más de 5 minutos en horario de atención.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">2</div>
+      <div class="rule-content">
+        <h3>Saluda con calidez desde el primer mensaje</h3>
+        <p>\"¡Hola! 🦐 Bienvenido a Don Camarón\" conecta más que un \"Hola\" frío. Si ya conoces al cliente, personaliza el saludo.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">3</div>
+      <div class="rule-content">
+        <h3>Valida primero, resuelve después</h3>
+        <p>\"Qué pena lo ocurrido, lo resolvemos ahora mismo\" ANTES de explicar qué pasó. El cliente necesita sentirse escuchado primero.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">4</div>
+      <div class="rule-content">
+        <h3>Siempre ofrece una alternativa</h3>
+        <p>Si el ceviche de pulpo está agotado, ofrece el ceviche mixto o el Don Camarón. Nunca solo \"no hay\". Siempre hay algo más que ofrecer.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">5</div>
+      <div class="rule-content">
+        <h3>Tono cálido y profesional</h3>
+        <p>Sin abreviaturas (\"xq\", \"xfa\"), sin mayúsculas (parecen gritos), sin errores de ortografía. Don Camarón es un restaurante de calidad — comunícalo.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">6</div>
+      <div class="rule-content">
+        <h3>Sé claro con el menú y los precios</h3>
+        <p>Si alguien pregunta por un cóctel de camarones, informa precio, tamaños disponibles (pequeño/mediano/grande) y la salsa. No hagas que el cliente pregunte tres veces.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">7</div>
+      <div class="rule-content">
+        <h3>Confirma y cierra bien cada pedido</h3>
+        <p>Repite el pedido completo antes de confirmar. \"¿Quedó todo claro? Con mucho gusto te esperamos 😊\" Un buen cierre genera el próximo pedido.</p>
+      </div>
+    </div>
+    <div class="rule-item">
+      <div class="rule-num">8</div>
+      <div class="rule-content">
+        <h3>Nunca desaparezcas</h3>
+        <p>Si hay demora en el pedido o algo no está disponible — avisa primero. El cliente que se entera solo se molesta el doble.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Recuerda siempre</div>
+  <div class="alert-box">
+    🦐 <strong>Cada mensaje que envías representa a Don Camarón.</strong> La frescura del marisco, la calidad de los platos y el servicio deben sentirse igual de bien por WhatsApp que en el restaurante.
+  </div>
+
+  <div class="section-label">Frases que conectan — toca Copiar</div>
+  <div class="card" style="padding:12px;">
+    <div class="phrases-grid">
+      <div class="phrase-row"><span class="phrase-text">🦐 \"¡Hola! Bienvenido a Don Camarón, con mucho gusto te atiendo\"</span><button class="phrase-copy" onclick="copyPhrase(this,'¡Hola! Bienvenido a Don Camarón, con mucho gusto te atiendo')">Copiar</button></div>
+      <div class="phrase-row"><span class="phrase-text">\"Qué pena lo ocurrido, lo resolvemos ahora mismo\"</span><button class="phrase-copy" onclick="copyPhrase(this,'Qué pena lo ocurrido, lo resolvemos ahora mismo')">Copiar</button></div>
+      <div class="phrase-row"><span class="phrase-text">\"Dame un momento, lo verifico enseguida 🙏\"</span><button class="phrase-copy" onclick="copyPhrase(this,'Dame un momento, lo verifico enseguida 🙏')">Copiar</button></div>
+      <div class="phrase-row"><span class="phrase-text">\"¿Te puedo ayudar con algo más? 😊\"</span><button class="phrase-copy" onclick="copyPhrase(this,'¿Te puedo ayudar con algo más? 😊')">Copiar</button></div>
+      <div class="phrase-row"><span class="phrase-text">\"Fue un placer atenderte, te esperamos en Don Camarón 🦐\"</span><button class="phrase-copy" onclick="copyPhrase(this,'Fue un placer atenderte, te esperamos en Don Camarón 🦐')">Copiar</button></div>
+      <div class="phrase-row"><span class="phrase-text">\"Lo gestionamos de inmediato para ti\"</span><button class="phrase-copy" onclick="copyPhrase(this,'Lo gestionamos de inmediato para ti')">Copiar</button></div>
+      <div class="phrase-row"><span class="phrase-text">\"Entiendo perfectamente, lo solucionamos ya\"</span><button class="phrase-copy" onclick="copyPhrase(this,'Entiendo perfectamente, lo solucionamos ya')">Copiar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE 2: ESCENARIOS ════ -->
+<div id="page-escenarios" class="page">
+  <div class="section-label">Toca cada caso para ver la comparación</div>
+
+  <div class="scenario-card">
+    <button class="scenario-header" onclick="toggleScenario(this)">
+      <div class="scenario-left">
+        <span class="scenario-emoji">🦐</span>
+        <div class="scenario-info">
+          <h3>Pedido de cóctel o ceviche</h3>
+          <span class="scenario-badge badge-pedido">Pedido</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="scenario-body">
+      <div class="toggle-bar">
+        <button class="toggle-btn bad active" onclick="showPanel(this,'bad','s1')">❌ Respuesta apática</button>
+        <button class="toggle-btn good" onclick="showPanel(this,'good','s1')">✅ Respuesta correcta</button>
+      </div>
+      <div id="s1-bad" class="chat-panel active">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="12:10">Hola, quiero pedir un cóctel de camarones grande y un ceviche mixto para llevar</div>
+          <div class="bubble agent-bad" data-time="12:25">Ok</div>
+        </div>
+        <div class="why-panel why-bad">⛔ No confirma el pedido, no da tiempo estimado, no usa nombre del cliente. El cliente no sabe si lo recibieron realmente.</div>
+      </div>
+      <div id="s1-good" class="chat-panel">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="12:10">Hola, quiero pedir un cóctel de camarones grande y un ceviche mixto para llevar</div>
+          <div class="bubble agent-good" data-time="12:12">¡Hola! 🦐 Anotado con mucho gusto. Tu pedido queda así:
+🦐 1 Cóctel de Camarones Grande
+🍋 1 Ceviche Mixto
+📍 Para llevar
+
+¿A qué nombre lo dejamos y en cuánto tiempo pasas? 😊</div>
+        </div>
+        <div class="why-panel why-good">✅ Repite el pedido para confirmar, pide nombre y tiempo de recogida. El cliente confía en que quedó bien registrado.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <button class="scenario-header" onclick="toggleScenario(this)">
+      <div class="scenario-left">
+        <span class="scenario-emoji">📋</span>
+        <div class="scenario-info">
+          <h3>Consulta de menú y precios</h3>
+          <span class="scenario-badge badge-consulta">Consulta</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="scenario-body">
+      <div class="toggle-bar">
+        <button class="toggle-btn bad active" onclick="showPanel(this,'bad','s2')">❌ Respuesta apática</button>
+        <button class="toggle-btn good" onclick="showPanel(this,'good','s2')">✅ Respuesta correcta</button>
+      </div>
+      <div id="s2-bad" class="chat-panel active">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="13:00">Buenas, ¿cuánto vale el cóctel de camarones y en qué salsas lo tienen?</div>
+          <div class="bubble agent-bad" data-time="13:18">Está en el menú de Instagram</div>
+        </div>
+        <div class="why-panel why-bad">⛔ Envía al cliente a buscar solo la información. Respuesta perezosa que genera frustración y pérdida de venta segura.</div>
+      </div>
+      <div id="s2-good" class="chat-panel">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="13:00">Buenas, ¿cuánto vale el cóctel de camarones y en qué salsas lo tienen?</div>
+          <div class="bubble agent-good" data-time="13:02">¡Buenas! 😊 Nuestros cócteles de camarones están disponibles en 3 tamaños:
+🦐 Pequeño: $31.000
+🦐 Mediano: $45.000
+🦐 Grande: $59.000
+
+Las salsas disponibles son:
+🍅 Rosada Tradicional · 🌊 Mediterránea
+🍺 Borracha · 🌶️ Estilo Ceviche
+🥗 Vinagreta · 🌏 Tailandesa
+
+¿Cuál te llama más la atención? Con gusto te lo preparo 🦐</div>
+        </div>
+        <div class="why-panel why-good">✅ Da toda la información, presenta las opciones claramente y abre la conversación hacia el cierre del pedido.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <button class="scenario-header" onclick="toggleScenario(this)">
+      <div class="scenario-left">
+        <span class="scenario-emoji">😤</span>
+        <div class="scenario-info">
+          <h3>Reclamo por calidad del producto</h3>
+          <span class="scenario-badge badge-reclamo">Reclamo</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="scenario-body">
+      <div class="toggle-bar">
+        <button class="toggle-btn bad active" onclick="showPanel(this,'bad','s3')">❌ Respuesta apática</button>
+        <button class="toggle-btn good" onclick="showPanel(this,'good','s3')">✅ Respuesta correcta</button>
+      </div>
+      <div id="s3-bad" class="chat-panel active">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="19:30">El ceviche que pedí no estaba fresco, eso no está bien</div>
+          <div class="bubble agent-bad" data-time="19:50">Eso no nos ha pasado antes. ¿Cómo lo conservó?</div>
+        </div>
+        <div class="why-panel why-bad">⛔ Culpa al cliente, no pide disculpas, no ofrece solución. El cliente se siente atacado. Esto genera una reseña negativa segura.</div>
+      </div>
+      <div id="s3-good" class="chat-panel">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="19:30">El ceviche que pedí no estaba fresco, eso no está bien</div>
+          <div class="bubble agent-good" data-time="19:32">Hola, qué pena lo que te pasó y te pido disculpas de parte de todo el equipo Don Camarón 🙏 Eso no debe ocurrir y lo tomamos muy en serio.
+
+¿Puedes venir o hacer un nuevo pedido? Te reponemos el ceviche y te agregamos algo de nuestra parte. Queremos que tu experiencia sea siempre la mejor 🦐</div>
+        </div>
+        <div class="why-panel why-good">✅ Pide disculpas sin excusas, ofrece solución concreta y un gesto adicional. Convierte un problema en fidelización.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <button class="scenario-header" onclick="toggleScenario(this)">
+      <div class="scenario-left">
+        <span class="scenario-emoji">😕</span>
+        <div class="scenario-info">
+          <h3>Producto agotado</h3>
+          <span class="scenario-badge badge-queja">Disponibilidad</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="scenario-body">
+      <div class="toggle-bar">
+        <button class="toggle-btn bad active" onclick="showPanel(this,'bad','s4')">❌ Respuesta apática</button>
+        <button class="toggle-btn good" onclick="showPanel(this,'good','s4')">✅ Respuesta correcta</button>
+      </div>
+      <div id="s4-bad" class="chat-panel active">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="20:05">Hola, quiero un ceviche de pulpo</div>
+          <div class="bubble agent-bad" data-time="20:20">No hay</div>
+        </div>
+        <div class="why-panel why-bad">⛔ Respuesta de dos palabras. No ofrece alternativa ni muestra interés. Venta perdida y cliente que no regresa.</div>
+      </div>
+      <div id="s4-good" class="chat-panel">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="20:05">Hola, quiero un ceviche de pulpo</div>
+          <div class="bubble agent-good" data-time="20:07">¡Hola! 😊 Qué pena, el ceviche de pulpo de hoy ya se agotó — ¡es de los más pedidos!
+
+Tenemos disponible:
+🍋 Ceviche Mixto (calamar, camarón y filet)
+🦐 Ceviche Don Camarón (el más completo)
+🐟 Ceviche de Salmón
+
+¿Alguno te anima? 🦐</div>
+        </div>
+        <div class="why-panel why-good">✅ Explica con positividad, ofrece alternativas reales. El cliente siente que importa y tiene razones para quedarse.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <button class="scenario-header" onclick="toggleScenario(this)">
+      <div class="scenario-left">
+        <span class="scenario-emoji">⏰</span>
+        <div class="scenario-info">
+          <h3>Cliente molesto por demora en delivery</h3>
+          <span class="scenario-badge badge-espera">Demora</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="scenario-body">
+      <div class="toggle-bar">
+        <button class="toggle-btn bad active" onclick="showPanel(this,'bad','s5')">❌ Respuesta apática</button>
+        <button class="toggle-btn good" onclick="showPanel(this,'good','s5')">✅ Respuesta correcta</button>
+      </div>
+      <div id="s5-bad" class="chat-panel active">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="21:10">Llevo 40 minutos esperando mi pedido y nadie me dice nada</div>
+          <div class="bubble agent-bad" data-time="21:25">Es que hay mucha demanda hoy</div>
+        </div>
+        <div class="why-panel why-bad">⛔ Excusa sin empatía ni solución. El cliente no quiere explicaciones, quiere saber cuándo llega su pedido.</div>
+      </div>
+      <div id="s5-good" class="chat-panel">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="21:10">Llevo 40 minutos esperando mi pedido y nadie me dice nada</div>
+          <div class="bubble agent-good" data-time="21:12">Hola, qué pena la demora y entiendo perfectamente tu molestia 🙏 Verifico tu pedido ahora mismo.
+
+[2 minutos después]
+
+Tu pedido está saliendo en este momento, en unos 10 minuticos llega. Disculpa la espera — te agregamos un acompañamiento de cortesía 🦐</div>
+        </div>
+        <div class="why-panel why-good">✅ Reconoce la molestia, actúa de inmediato, da tiempo concreto y agrega un gesto. Convierte la frustración en buena experiencia.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <button class="scenario-header" onclick="toggleScenario(this)">
+      <div class="scenario-left">
+        <span class="scenario-emoji">🎉</span>
+        <div class="scenario-info">
+          <h3>Pedido para evento o grupo</h3>
+          <span class="scenario-badge badge-soporte">Evento</span>
+        </div>
+      </div>
+      <span class="chevron">▼</span>
+    </button>
+    <div class="scenario-body">
+      <div class="toggle-bar">
+        <button class="toggle-btn bad active" onclick="showPanel(this,'bad','s6')">❌ Respuesta apática</button>
+        <button class="toggle-btn good" onclick="showPanel(this,'good','s6')">✅ Respuesta correcta</button>
+      </div>
+      <div id="s6-bad" class="chat-panel active">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="10:00">Buenas, ¿manejan pedidos para grupos de 20 personas?</div>
+          <div class="bubble agent-bad" data-time="10:18">No manejamos eso</div>
+        </div>
+        <div class="why-panel why-bad">⛔ Cierra la puerta sin explorar. Un pedido para 20 personas puede ser la venta más grande del día. Nunca digas no sin preguntar antes.</div>
+      </div>
+      <div id="s6-good" class="chat-panel">
+        <div class="chat-wrap">
+          <div class="bubble client" data-time="10:00">Buenas, ¿manejan pedidos para grupos de 20 personas?</div>
+          <div class="bubble agent-good" data-time="10:03">¡Hola! ¡Qué bueno! 🎉 Sí atendemos grupos y eventos con mucho gusto. Cuéntame:
+📅 ¿Para qué fecha?
+👥 ¿Cuántas personas?
+🦐 ¿Qué platos te interesan?
+📍 ¿Es para llevar o en el restaurante?
+
+Con esos datos te preparo una propuesta 🦐</div>
+        </div>
+        <div class="why-panel why-good">✅ Muestra entusiasmo, hace las preguntas clave y avanza hacia el cierre. Abre la puerta a la venta más grande del día.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE 3: PLANTILLAS ════ -->
+<div id="page-plantillas" class="page">
+  <div class="section-label">Toca "Copiar" y pega en WhatsApp</div>
+
+  <div class="tpl-card">
+    <div class="tpl-header">
+      <div class="tpl-icon" style="background:#fdf0ef;">🦐</div>
+      <div><div class="tpl-title">Saludo de bienvenida</div><div class="tpl-tag">Cuando un cliente escribe por primera vez</div></div>
+    </div>
+    <div class="tpl-text">¡Hola! 🦐 Bienvenido a Don Camarón. Con mucho gusto te atiendo.
+
+¿Qué deseas hoy?
+🦐 Ceviches y cócteles
+🍣 Sushi (frío o tempura)
+🍕 Pizzas
+🍽️ Especialidades de la casa
+📋 Consultar el menú completo</div>
+    <div class="tpl-actions">
+      <button class="tpl-btn primary" onclick="copyTpl(this,'¡Hola! 🦐 Bienvenido a Don Camarón. Con mucho gusto te atiendo.\n\n¿Qué deseas hoy?\n🦐 Ceviches y cócteles\n🍣 Sushi (frío o tempura)\n🍕 Pizzas\n🍽️ Especialidades de la casa\n📋 Consultar el menú completo')">📋 Copiar plantilla</button>
+    </div>
+  </div>
+
+  <div class="tpl-card">
+    <div class="tpl-header">
+      <div class="tpl-icon" style="background:#e9f7ef;">⏳</div>
+      <div><div class="tpl-title">Mensaje de espera</div><div class="tpl-tag">Cuando estás ocupado en el restaurante</div></div>
+    </div>
+    <div class="tpl-text">¡Hola! 🦐 Gracias por escribirnos. En este momento estamos atendiendo en el restaurante.
+
+Te respondemos en máximo 10 minutos. ¡Gracias por tu paciencia! 🙏</div>
+    <div class="tpl-actions">
+      <button class="tpl-btn primary" onclick="copyTpl(this,'¡Hola! 🦐 Gracias por escribirnos. En este momento estamos atendiendo en el restaurante.\n\nTe respondemos en máximo 10 minutos. ¡Gracias por tu paciencia! 🙏')">📋 Copiar plantilla</button>
+    </div>
+  </div>
+
+  <div class="tpl-card">
+    <div class="tpl-header">
+      <div class="tpl-icon" style="background:#eaf1fb;">📦</div>
+      <div><div class="tpl-title">Confirmación de pedido</div><div class="tpl-tag">Cuando anotas un pedido para llevar o delivery</div></div>
+    </div>
+    <div class="tpl-text">¡Perfecto! 🎉 Tu pedido queda confirmado:
+
+[Lista lo que pidió]
+
+📍 Modalidad: [Para llevar / Delivery]
+⏱️ Tiempo estimado: [TIEMPO]
+👤 A nombre de: [NOMBRE]
+
+¡Con mucho gusto te esperamos en Don Camarón! 🦐</div>
+    <div class="tpl-actions">
+      <button class="tpl-btn primary" onclick="copyTpl(this,'¡Perfecto! 🎉 Tu pedido queda confirmado:\n\n[Lista lo que pidió]\n\n📍 Modalidad: [Para llevar / Delivery]\n⏱️ Tiempo estimado: [TIEMPO]\n👤 A nombre de: [NOMBRE]\n\n¡Con mucho gusto te esperamos en Don Camarón! 🦐')">📋 Copiar plantilla</button>
+    </div>
+  </div>
+
+  <div class="tpl-card">
+    <div class="tpl-header">
+      <div class="tpl-icon" style="background:#fdecea;">🙏</div>
+      <div><div class="tpl-title">Disculpa por inconveniente</div><div class="tpl-tag">Cuando hay un reclamo de calidad o demora</div></div>
+    </div>
+    <div class="tpl-text">Hola [NOMBRE], qué pena lo que te pasó y te pido disculpas de parte de todo el equipo Don Camarón 🙏
+
+Eso no debe ocurrir y lo tomamos muy en serio. Queremos resolverlo: [SOLUCIÓN CONCRETA].
+
+Queremos que tu experiencia con nosotros sea siempre la mejor 🦐</div>
+    <div class="tpl-actions">
+      <button class="tpl-btn primary" onclick="copyTpl(this,'Hola [NOMBRE], qué pena lo que te pasó y te pido disculpas de parte de todo el equipo Don Camarón 🙏\n\nEso no debe ocurrir y lo tomamos muy en serio. Queremos resolverlo: [SOLUCIÓN CONCRETA].\n\nQueremos que tu experiencia con nosotros sea siempre la mejor 🦐')">📋 Copiar plantilla</button>
+    </div>
+  </div>
+
+  <div class="tpl-card">
+    <div class="tpl-header">
+      <div class="tpl-icon" style="background:#f3e5f5;">🎉</div>
+      <div><div class="tpl-title">Cotización para evento o grupo</div><div class="tpl-tag">Cuando piden pedido grande o reunión</div></div>
+    </div>
+    <div class="tpl-text">¡Hola [NOMBRE]! 🎉 Qué bueno que nos contactas para tu evento, con mucho gusto lo organizamos.
+
+Para preparar tu propuesta necesito:
+📅 Fecha del evento:
+👥 Número de personas:
+🦐 Platos de tu preferencia:
+📍 ¿En el restaurante o para llevar?
+🕐 Hora de atención:
+
+¡Te enviamos la propuesta a la brevedad! 🦐🍣🍕</div>
+    <div class="tpl-actions">
+      <button class="tpl-btn primary" onclick="copyTpl(this,'¡Hola [NOMBRE]! 🎉 Qué bueno que nos contactas para tu evento, con mucho gusto lo organizamos.\n\nPara preparar tu propuesta necesito:\n📅 Fecha del evento:\n👥 Número de personas:\n🦐 Platos de tu preferencia:\n📍 ¿En el restaurante o para llevar?\n🕐 Hora de atención:\n\n¡Te enviamos la propuesta a la brevedad! 🦐🍣🍕')">📋 Copiar plantilla</button>
+    </div>
+  </div>
+
+  <div class="tpl-card">
+    <div class="tpl-header">
+      <div class="tpl-icon" style="background:#e9f7ef;">✅</div>
+      <div><div class="tpl-title">Cierre de atención</div><div class="tpl-tag">Para cerrar cualquier conversación</div></div>
+    </div>
+    <div class="tpl-text">¡Fue un placer atenderte! 🦐 Que disfrutes mucho [PRODUCTO].
+
+Recuerda que estamos aquí de [HORARIO]. ¡Te esperamos pronto en Don Camarón! 😊</div>
+    <div class="tpl-actions">
+      <button class="tpl-btn primary" onclick="copyTpl(this,'¡Fue un placer atenderte! 🦐 Que disfrutes mucho [PRODUCTO].\n\nRecuerda que estamos aquí de [HORARIO]. ¡Te esperamos pronto en Don Camarón! 😊')">📋 Copiar plantilla</button>
+    </div>
+  </div>
+
+  <div class="section-label">Errores comunes — Evítalos siempre</div>
+  <div class="card">
+    <div class="error-list">
+      <div class="error-item bad"><span class="error-icon">❌</span><div class="error-text"><b>\"No hay\" (sin alternativa)</b>Si se agotó algo, siempre ofrece otra opción del menú.</div></div>
+      <div class="error-item bad"><span class="error-icon">❌</span><div class="error-text"><b>\"Ok\" o \"Listo\" (respuesta de 1 palabra)</b>Son frías y poco profesionales. Siempre agrega al menos una acción o pregunta.</div></div>
+      <div class="error-item bad"><span class="error-icon">❌</span><div class="error-text"><b>\"Eso no es culpa nuestra\"</b>Nunca culpes al cliente ni te desentiendas. Asume y resuelve.</div></div>
+      <div class="error-item bad"><span class="error-icon">❌</span><div class="error-text"><b>Mayúsculas sostenidas: \"ESO NO SE PUEDE\"</b>En WhatsApp las mayúsculas se perciben como gritos. Evítalas siempre.</div></div>
+      <div class="error-item good"><span class="error-icon">✅</span><div class="error-text"><b>Siempre repite el pedido para confirmar</b>Evita errores y demuestra que prestaste atención al cliente.</div></div>
+      <div class="error-item good"><span class="error-icon">✅</span><div class="error-text"><b>Usa emojis con moderación</b>🦐 🍋 😊 🙏 — uno o dos por mensaje dan calidez sin exagerar.</div></div>
+      <div class="error-item good"><span class="error-icon">✅</span><div class="error-text"><b>Da siempre un tiempo concreto</b>\"En 20 minutos\" es mejor que \"ahorita\". El cliente necesita saber cuándo.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAGE 4: REVISAR ════ -->
+<div id="page-revisar" class="page">
+  <div class="section-label">Analiza tu respuesta antes de enviarla</div>
+  <div class="tone-card">
+    <span class="tone-label">✍️ Pega o escribe tu respuesta de WhatsApp aquí:</span>
+    <textarea id="tone-input" placeholder="Ej: Hola, qué pena lo ocurrido. Lo resolvemos ahora mismo..."></textarea>
+    <button class="analyze-btn" onclick="analyzeTone()">🦐 Analizar mi respuesta</button>
+  </div>
+
+  <div class="result-box" id="result-box">
+    <div class="overall-score" id="overall-score"></div>
+    <div class="score-section">
+      <div class="score-row"><span class="score-name">😊 Empatía</span><div class="score-track"><div class="score-fill" id="f-emp" style="width:0%"></div></div><span class="score-val" id="v-emp">0%</span></div>
+      <div class="score-row"><span class="score-name">🎯 Claridad</span><div class="score-track"><div class="score-fill" id="f-cla" style="width:0%"></div></div><span class="score-val" id="v-cla">0%</span></div>
+      <div class="score-row"><span class="score-name">🔧 Solución</span><div class="score-track"><div class="score-fill" id="f-sol" style="width:0%"></div></div><span class="score-val" id="v-sol">0%</span></div>
+      <div class="score-row"><span class="score-name">💼 Profesional</span><div class="score-track"><div class="score-fill" id="f-pro" style="width:0%"></div></div><span class="score-val" id="v-pro">0%</span></div>
+    </div>
+    <div class="feedback-text" id="feedback-text"></div>
+    <div class="suggestion-list" id="suggestion-list"></div>
+  </div>
+</div>
+
+<!-- ════ PAGE 5: QUIZ ════ -->
+<div id="page-quiz" class="page">
+  <div class="section-label">Pon a prueba tu conocimiento — Don Camarón Edition</div>
+  <div class="quiz-card">
+    <div id="quiz-questions">
+      <div class="quiz-progress" id="quiz-prog"></div>
+      <div class="quiz-q" id="quiz-q"></div>
+      <div class="quiz-context" id="quiz-ctx" style="display:none"></div>
+      <div class="quiz-options" id="quiz-opts"></div>
+      <div class="quiz-feedback" id="quiz-fb"></div>
+      <button class="quiz-next" id="quiz-next" onclick="nextQuestion()"></button>
+    </div>
+    <div class="quiz-result" id="quiz-result">
+      <div class="result-emoji" id="r-emoji"></div>
+      <div class="result-score" id="r-score"></div>
+      <div class="result-msg" id="r-msg"></div>
+      <button class="restart-btn" onclick="startQuiz()">🔄 Volver a intentar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleScenario(btn) {
+  const body = btn.nextElementSibling;
+  const chev = btn.querySelector('.chevron');
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+function showPanel(btn, type, sid) {
+  const parent = btn.closest('.scenario-body');
+  parent.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  parent.querySelectorAll('.chat-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(sid+'-'+type).classList.add('active');
+}
+
+function copyToClipboard(text) {
+  // Safari-compatible clipboard copy
+  const el = document.createElement('textarea');
+  el.value = text;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.left = '-9999px';
+  document.body.appendChild(el);
+  const selected = document.getSelection().rangeCount > 0
+    ? document.getSelection().getRangeAt(0) : false;
+  el.select();
+  el.setSelectionRange(0, 99999);
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(el);
+  if (selected) {
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(selected);
+  }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => {});
+  }
+}
+
+function copyPhrase(btn, text) {
+  copyToClipboard(text);
+  btn.textContent = '✓';
+  btn.classList.add('done');
+  setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('done'); }, 2000);
+}
+
+function copyTpl(btn, text) {
+  copyToClipboard(text);
+  const orig = btn.textContent;
+  btn.textContent = '✅ ¡Copiado!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2200);
+}
+
+function analyzeTone() {
+  const text = document.getElementById('tone-input').value.trim();
+  if (!text) return;
+  const low = text.toLowerCase();
+  const empPos = ['entiendo','lamento','disculpa','disculpe','perdón','gracias','comprendo','con gusto','con placer','ayudo','apoyo','qué pena','qué lástima','aquí estoy','con mucho gusto','bienvenido'];
+  const empNeg = ['no es nuestro','no es mi','no se puede','no depende','eso no es culpa'];
+  const solPos = ['vamos a','voy a','resolvemos','solucionamos','revisamos','gestiono','te ayudo','procedo','de inmediato','ahora mismo','enseguida','te repongo','te agregamos'];
+  const solNeg = ['no se puede hacer','imposible','no hay solución','nada que hacer','no manejamos'];
+
+  let e = 25, c = 35, s = 20, p = 40;
+  empPos.forEach(w => { if(low.includes(w)) e += 12; });
+  empNeg.forEach(w => { if(low.includes(w)) { e -= 18; p -= 10; } });
+  solPos.forEach(w => { if(low.includes(w)) s += 15; });
+  solNeg.forEach(w => { if(low.includes(w)) s -= 20; });
+  if(text.includes('?')) c += 15;
+  if(text.length > 80) c += 20;
+  if(text.length < 25) { c -= 30; e -= 15; p -= 15; }
+  if(/[A-ZÁÉÍÓÚ]{4,}/.test(text)) p -= 20;
+  if(text.includes('!')) p += 5;
+  if(low.includes('hola') || low.includes('buenos') || low.includes('bienvenido')) p += 12;
+  if(low.includes('don camarón') || low.includes('don camaron') || low.includes('🦐')) p += 8;
+
+  e = Math.min(100, Math.max(5, e));
+  c = Math.min(100, Math.max(5, c));
+  s = Math.min(100, Math.max(5, s));
+  p = Math.min(100, Math.max(5, p));
+  const avg = Math.round((e+c+s+p)/4);
+
+  document.getElementById('result-box').style.display = 'block';
+
+  setTimeout(() => {
+    setScore('emp', e); setScore('cla', c); setScore('sol', s); setScore('pro', p);
+    const os = document.getElementById('overall-score');
+    let bg, col, label;
+    if(avg>=72){ bg='#fdf0ef'; col='#7d0000'; label='¡Respuesta Don Camarón de primera! 🦐'; }
+    else if(avg>=50){ bg='#fef9e7'; col='#7d6608'; label='Aceptable, puede mejorar'; }
+    else { bg='#fdecea'; col='#922b21'; label='Necesita trabajo'; }
+    os.style.background = bg; os.style.color = col;
+    os.innerHTML = `<div class="big-num">${avg}/100</div><div class="big-label">${label}</div>`;
+
+    const fb = document.getElementById('feedback-text');
+    let msg;
+    if(avg>=72){ msg='✅ Excelente respuesta. El cliente se sentirá bien atendido y querrá volver a Don Camarón.'; fb.style.background='#fdf0ef'; fb.style.color='#7d0000'; }
+    else if(avg>=50){ msg='⚠️ Respuesta aceptable. Agrega más empatía al inicio y ofrece un paso concreto.'; fb.style.background='#fef9e7'; fb.style.color='#7d6608'; }
+    else { msg='❌ Esta respuesta puede generar insatisfacción. Añade una disculpa, muestra empatía y da al menos un paso concreto.'; fb.style.background='#fdecea'; fb.style.color='#922b21'; }
+    fb.textContent = msg;
+
+    const sl = document.getElementById('suggestion-list');
+    sl.innerHTML = '';
+    const tips = [];
+    if(e < 50) tips.push('💡 Empieza con empatía: \"Qué pena lo ocurrido\" o \"Entiendo perfectamente\"');
+    if(s < 50) tips.push('💡 Ofrece un paso concreto: \"Lo resolvemos ahora mismo\" o \"Te lo reponemos enseguida\"');
+    if(c < 50) tips.push('💡 Haz una pregunta para mostrar interés: \"¿Cuándo fue?\" o \"¿Cómo podemos ayudarte?\"');
+    if(p < 50) tips.push('💡 Evita respuestas muy cortas y revisa mayúsculas y tono');
+    if(text.length < 25) tips.push('💡 Tu respuesta es muy corta. El cliente necesita sentir que le dedicaste tiempo');
+    if(!low.includes('don camarón') && !low.includes('🦐')) tips.push('💡 Menciona Don Camarón o usa 🦐 para reforzar la identidad del restaurante');
+    tips.forEach(t => { const d = document.createElement('div'); d.className = 'suggestion-item'; d.textContent = t; sl.appendChild(d); });
+  }, 80);
+}
+
+function setScore(key, val) {
+  document.getElementById('f-'+key).style.width = val+'%';
+  document.getElementById('v-'+key).textContent = val+'%';
+}
+
+const questions = [
+  {
+    q: "Un cliente pide un ceviche de pulpo pero se agotó. ¿Qué haces?",
+    opts: [
+      "Le dices 'No hay ceviche de pulpo'",
+      "Le ofreces el ceviche mixto, el Don Camarón o el de salmón como alternativas",
+      "Le dices que pase mañana",
+      "Le pides que espere sin dar más información"
+    ],
+    correct: 1,
+    fb_ok: "✅ ¡Exacto! Nunca solo 'no hay'. Siempre ofreces alternativas y mantienes al cliente interesado.",
+    fb_fail: "❌ La respuesta correcta es ofrecer alternativas disponibles. Un 'no hay' sin más es una venta y un cliente perdido."
+  },
+  {
+    q: "¿Cuánto tiempo máximo tienes para responder un WhatsApp en horario de atención?",
+    opts: ["1 hora","30 minutos","5 minutos","Cuando puedas"],
+    correct: 2,
+    fb_ok: "✅ ¡Correcto! 5 minutos es el estándar. Si habrá más demora, envías el mensaje de espera de inmediato.",
+    fb_fail: "❌ El máximo es 5 minutos. Si no puedes responder completo, envías el mensaje de espera y luego resuelves."
+  },
+  {
+    q: "Un cliente dice que su ceviche no estaba fresco. ¿Cuál es la mejor respuesta?",
+    ctx: "Cliente: 'El ceviche que pedí ayer no estaba fresco, eso no está bien'",
+    opts: [
+      "'Eso no nos ha pasado antes, ¿cómo lo conservó?'",
+      "'Qué pena lo ocurrido, lo resolvemos: te reponemos el ceviche y te agregamos algo de nuestra parte'",
+      "'Pase a hablar con el encargado'",
+      "'Le devolvemos el dinero'"
+    ],
+    correct: 1,
+    fb_ok: "✅ Perfecto. Disculpa sin excusas, solución concreta y un gesto adicional que convierte el problema en fidelización.",
+    fb_fail: "❌ La respuesta correcta pide disculpas sin culpar al cliente, ofrece reposición y agrega un gesto de cortesía."
+  },
+  {
+    q: "¿Cuál de estas frases NUNCA debes usar con un cliente de Don Camarón?",
+    opts: [
+      "'Con mucho gusto te ayudo 🦐'",
+      "'Déjame verificar eso para ti'",
+      "'Eso no depende de mí'",
+      "'Lo solucionamos ahora mismo'"
+    ],
+    correct: 2,
+    fb_ok: "✅ ¡Exacto! 'Eso no depende de mí' es inaceptable. Tú representas a Don Camarón entero ante el cliente.",
+    fb_fail: "❌ La frase prohibida es 'Eso no depende de mí'. Para el cliente, TÚ eres Don Camarón. Asume y escala internamente si hace falta."
+  },
+  {
+    q: "Un cliente pregunta por un pedido para su empresa de 30 personas. ¿Qué haces?",
+    opts: [
+      "Le dices 'no manejamos pedidos tan grandes'",
+      "Le dices que llame al restaurante",
+      "Le preguntas fecha, número de personas, platos y hora para preparar una propuesta",
+      "Le mandas el menú y ya"
+    ],
+    correct: 2,
+    fb_ok: "✅ ¡Excelente! Un pedido para evento es la mejor venta del día. Reúne la información y cotiza con entusiasmo.",
+    fb_fail: "❌ Nunca rechaces un pedido grande sin explorar. Las preguntas correctas abren la puerta a la venta más importante."
+  },
+  {
+    q: "¿Qué debes hacer SIEMPRE al anotar un pedido para llevar o delivery?",
+    opts: [
+      "Decir 'listo'",
+      "Repetir el pedido completo, el tiempo estimado y pedir el nombre del cliente",
+      "Esperar a que llegue el cliente",
+      "Anotar solo la cantidad"
+    ],
+    correct: 1,
+    fb_ok: "✅ Perfecto. Repetir el pedido completo evita errores, genera confianza y muestra que prestaste atención.",
+    fb_fail: "❌ Siempre debes repetir el pedido completo, confirmar tiempo estimado y pedir el nombre. Así evitas errores y el cliente confía en que quedó bien."
+  }
+];
+
+let current = 0, score = 0, answered = false;
+
+function startQuiz() {
+  current = 0; score = 0; answered = false;
+  document.getElementById('quiz-questions').style.display = 'block';
+  document.getElementById('quiz-result').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('quiz-prog').textContent = `Pregunta ${current+1} de ${questions.length}`;
+  document.getElementById('quiz-q').textContent = q.q;
+  const ctx = document.getElementById('quiz-ctx');
+  if(q.ctx){ ctx.style.display='block'; ctx.textContent=q.ctx; } else { ctx.style.display='none'; }
+  const opts = document.getElementById('quiz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const b = document.createElement('button');
+    b.className='quiz-opt'; b.textContent=opt;
+    b.onclick = () => selectOpt(i, q.correct, q.fb_ok, q.fb_fail);
+    opts.appendChild(b);
+  });
+  const fb = document.getElementById('quiz-fb');
+  fb.className='quiz-feedback'; fb.textContent='';
+  document.getElementById('quiz-next').className='quiz-next';
+}
+
+function selectOpt(idx, correct, ok, fail) {
+  if(answered) return;
+  answered = true;
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  const fb = document.getElementById('quiz-fb');
+  if(idx === correct){
+    opts[idx].classList.add('correct');
+    fb.textContent = ok;
+    fb.className = 'quiz-feedback show ok';
+    score++;
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[correct].classList.add('correct');
+    fb.textContent = fail;
+    fb.className = 'quiz-feedback show fail';
+  }
+  const nxt = document.getElementById('quiz-next');
+  nxt.textContent = current < questions.length-1 ? 'Siguiente pregunta →' : 'Ver resultados 🏁';
+  nxt.className = 'quiz-next show';
+}
+
+function nextQuestion() {
+  current++;
+  if(current >= questions.length){ showResult(); return; }
+  showQuestion();
+}
+
+function showResult() {
+  document.getElementById('quiz-questions').style.display='none';
+  const res = document.getElementById('quiz-result');
+  res.classList.add('show');
+  const pct = Math.round(score/questions.length*100);
+  let emoji, msg;
+  if(pct>=83){ emoji='🏆'; msg='¡Excelente! Tienes todo el conocimiento para brindar una atención Don Camarón de primera. ¡El equipo te necesita como referente!'; }
+  else if(pct>=60){ emoji='🦐'; msg='¡Buen trabajo! Tienes buenas bases. Repasa los escenarios donde dudaste y aplícalos desde hoy.'; }
+  else { emoji='📚'; msg='Necesitas repasar el material. Lee de nuevo los ejemplos y las reglas de oro. ¡Con práctica lo dominas!'; }
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-score').textContent = `${score}/${questions.length} correctas (${pct}%)`;
+  document.getElementById('r-msg').textContent = msg;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
