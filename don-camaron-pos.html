@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DON CAMARÓN — POS</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --pr:#0D47A1;--prl:#1565C0;--acc:#E65100;--acc2:#FF8F00;
+  --bg:#F0F4F8;--sf:#fff;--sf2:#EEF2F7;--brd:#D0D7E2;
+  --tx:#1A2340;--tx2:#546080;--tx3:#8A94A8;--r:12px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+.scr{display:none;min-height:100vh;flex-direction:column}
+.scr.on{display:flex}
+
+/* LOGIN */
+#login{background:linear-gradient(160deg,#0A2472 0%,#0D47A1 60%,#1565C0 100%);align-items:center;justify-content:center;padding:1.5rem}
+.lcard{background:white;border-radius:20px;padding:2rem;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.35)}
+.logo-wrap{text-align:center;margin-bottom:1.5rem}
+.logo-emoji{font-size:56px;display:block;margin-bottom:.5rem}
+.brand{font-size:28px;font-weight:800;color:var(--pr);letter-spacing:-1px}
+.brand span{color:var(--acc)}
+.sub{font-size:12px;color:var(--tx2);margin-top:2px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.2rem}
+.rb{padding:14px 8px;border:2px solid var(--brd);border-radius:10px;background:white;cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:var(--tx2);transition:all .2s}
+.rb .ri{display:block;font-size:24px;margin-bottom:5px}
+.rb:hover,.rb.sel{border-color:var(--pr);color:var(--pr);background:#E8F0FE}
+.rb.full{grid-column:span 2}
+.ltitle{font-size:13px;color:var(--tx2);text-align:center;margin-bottom:.8rem;font-weight:500}
+.lbtn{width:100%;padding:14px;background:var(--pr);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.lbtn:hover{background:var(--prl)}
+
+/* SHELL */
+#app{background:var(--bg)}
+.topbar{background:var(--pr);color:white;padding:0 1rem;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.topbar-brand{font-size:14px;font-weight:800;letter-spacing:-.3px}
+.topbar-brand span{color:var(--acc2)}
+.topbar-role{font-size:11px;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;margin-left:auto}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#4CAF50;margin-left:8px;flex-shrink:0}
+.sync-dot.off{background:#F44336}
+.logout-btn{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:22px;padding:4px;margin-left:4px}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--brd);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;cursor:pointer;border:none;background:none;color:var(--tx3);font-size:9px;gap:3px;position:relative}
+.ni .icon{font-size:22px}
+.ni.on{color:var(--pr)}
+.ni .nbadge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--acc);color:white;border-radius:10px;font-size:9px;padding:1px 5px;font-weight:700;min-width:16px;text-align:center}
+.cnt{flex:1;padding:.8rem;padding-bottom:76px;overflow-y:auto}
+.panel{display:none}
+.panel.on{display:block}
+.sec-title{font-size:17px;font-weight:800;margin-bottom:.8rem;color:var(--tx)}
+
+/* SEARCH + CATS */
+.search-row{display:flex;gap:8px;margin-bottom:.7rem}
+.search-row input{flex:1;padding:10px 14px;border:1.5px solid var(--brd);border-radius:10px;font-size:14px;background:white;outline:none}
+.search-row input:focus{border-color:var(--pr)}
+.cats{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;margin-bottom:.8rem;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cc{padding:7px 14px;border-radius:20px;border:1.5px solid var(--brd);background:white;font-size:12px;cursor:pointer;white-space:nowrap;font-weight:600;color:var(--tx2);flex-shrink:0;transition:all .2s}
+.cc.on{background:var(--pr);color:white;border-color:var(--pr)}
+
+/* PRODUCT GRID */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pc{background:white;border-radius:var(--r);border:1px solid var(--brd);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.pc:active{transform:scale(.97)}
+.pimg{width:100%;height:88px;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
+.pinfo{padding:8px 10px}
+.pname{font-size:12px;font-weight:600;color:var(--tx);line-height:1.3;margin-bottom:5px;min-height:32px}
+.prow{display:flex;justify-content:space-between;align-items:center}
+.pprice{font-size:13px;font-weight:800;color:var(--pr)}
+.padd{width:28px;height:28px;border-radius:50%;background:var(--pr);color:white;border:none;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ORDER */
+.order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.mesa-sel{padding:7px 10px;border-radius:8px;border:1.5px solid var(--brd);font-size:12px;font-weight:600;background:white;color:var(--tx);outline:none}
+.oi{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--brd)}
+.oi-em{font-size:24px;flex-shrink:0}
+.oi-info{flex:1;min-width:0}
+.oi-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oi-sub{font-size:12px;color:var(--tx2);margin-top:2px}
+.qc{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qb{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--tx)}
+.qn{font-size:14px;font-weight:800;min-width:20px;text-align:center;color:var(--pr)}
+.ototal{background:var(--sf2);border-radius:10px;padding:.9rem;margin:.8rem 0;border:1px solid var(--brd)}
+.otr{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--tx2)}
+.otr.big{font-weight:800;font-size:16px;border-top:1px solid var(--brd);padding-top:8px;margin-top:4px;color:var(--tx)}
+.pay-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.8rem}
+.pb{padding:10px 4px;border-radius:10px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:11px;font-weight:700;text-align:center;color:var(--tx2);transition:all .2s}
+.pb:hover{border-color:var(--acc);color:var(--acc);background:#FFF3E0}
+.pb .pbi{display:block;font-size:20px;margin-bottom:4px}
+.cobrar-btn{width:100%;padding:14px;background:var(--acc);color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;transition:background .2s}
+.cobrar-btn:hover{background:#BF360C}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--tx3)}
+.empty-state .big-icon{font-size:52px;display:block;margin-bottom:.8rem}
+
+/* TABLES */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tc{border-radius:var(--r);padding:.9rem;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.tc.libre{background:#E8F5E9;border-color:#A5D6A7}
+.tc.ocupada{background:#FFF3E0;border-color:#FFCC80}
+.tc.reservada{background:#EDE7F6;border-color:#CE93D8}
+.tc:active{transform:scale(.95)}
+.tnum{font-size:22px;font-weight:800;margin-bottom:3px}
+.tstat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tc.libre .tstat{color:#2E7D32}
+.tc.ocupada .tstat{color:#E65100}
+.tc.reservada .tstat{color:#6A1B9A}
+.tguests{font-size:11px;color:var(--tx2);margin-top:3px}
+
+/* INVENTORY */
+.inv-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.iitem{background:white;border-radius:var(--r);border:1px solid var(--brd);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.iico{width:42px;height:42px;border-radius:9px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--pr);flex-shrink:0}
+.iname{font-size:13px;font-weight:700}
+.istock{font-size:12px;color:var(--tx2);margin-top:2px}
+.ibar{height:5px;background:var(--brd);border-radius:3px;margin-top:6px}
+.ibf{height:5px;border-radius:3px;transition:width .5s}
+.ibf.ok{background:var(--pr)}
+.ibf.low{background:#F57C00}
+.ibf.crit{background:#D32F2F}
+.itag{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700;flex-shrink:0}
+.tok{background:#E8F5E9;color:#2E7D32}
+.tlow{background:#FFF3E0;color:#E65100}
+.tcrit{background:#FFEBEE;color:#C62828}
+
+/* REPORTS */
+.scards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.8rem}
+.scard{background:white;border-radius:var(--r);border:1px solid var(--brd);padding:12px}
+.slabel{font-size:11px;color:var(--tx2);font-weight:600;margin-bottom:4px}
+.sval{font-size:22px;font-weight:800;color:var(--pr)}
+.schange{font-size:11px;margin-top:3px}
+.up{color:#2E7D32}.dn{color:#C62828}
+.sec{background:white;border-radius:var(--r);border:1px solid var(--brd);padding:12px;margin-bottom:.8rem}
+.sec h3{font-size:14px;font-weight:700;color:var(--pr);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--brd);font-size:13px}
+.rrow:last-child{border:none}
+.rval{font-weight:700}
+
+/* KITCHEN */
+.ko{background:white;border-radius:var(--r);border:1px solid var(--brd);border-left:4px solid var(--acc);padding:12px;margin-bottom:10px}
+.ko.urg{border-left-color:#D32F2F}
+.ko.done{border-left-color:#2E7D32;opacity:.6}
+.kh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.ktable{font-size:15px;font-weight:700}
+.ktime{font-size:11px;color:var(--tx2)}
+.kitem{padding:4px 0;font-size:13px;color:var(--tx)}
+.kbtns{display:flex;gap:8px;margin-top:10px}
+.kbtn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:700}
+.kgreen{background:#E8F5E9;color:#2E7D32}
+.kblue{background:#E8EAF6;color:#283593}
+.urgbadge{background:#FFEBEE;color:#C62828;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:800}
+
+/* ADMIN */
+.asec{background:white;border-radius:var(--r);border:1px solid var(--brd);padding:12px;margin-bottom:.8rem}
+.asec h3{font-size:14px;font-weight:700;color:var(--pr);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.arow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--brd);font-size:13px}
+.arow:last-child{border:none}
+.tog{width:44px;height:24px;border-radius:12px;background:#ccc;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--pr)}
+.tog::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:white;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog.on::after{left:22px}
+.uchip{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--brd)}
+.uchip:last-child{border:none}
+.uav{width:36px;height:36px;border-radius:50%;background:var(--pr);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.uname{font-size:13px;font-weight:600}
+.urole{font-size:11px;color:var(--tx2)}
+.ubadge{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:700;background:#E8F0FE;color:var(--pr);margin-left:auto;flex-shrink:0}
+.addbtn{background:var(--pr);color:white;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin-top:10px}
+.fbbtn{width:100%;padding:12px;border-radius:10px;border:1.5px solid var(--pr);background:#E8F0FE;color:var(--pr);font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .2s}
+.fbbtn:hover{background:var(--pr);color:white}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#323232;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:white;border-radius:20px 20px 0 0;padding:1.5rem;width:100%;max-width:500px;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:17px;font-weight:800;margin-bottom:1rem;color:var(--tx)}
+.modal input,.modal select{width:100%;padding:10px 14px;border:1.5px solid var(--brd);border-radius:10px;font-size:14px;margin-bottom:.8rem;outline:none}
+.modal input:focus{border-color:var(--pr)}
+.modal-btns{display:flex;gap:10px;margin-top:.5rem}
+.mbtn{flex:1;padding:12px;border-radius:10px;border:none;cursor:pointer;font-size:14px;font-weight:700}
+.mbtn.pri{background:var(--pr);color:white}
+.mbtn.sec{background:var(--sf2);color:var(--tx2)}
+
+/* STATUS BAR */
+.status-bar{background:#E8F5E9;border-bottom:1px solid #C8E6C9;padding:4px 1rem;font-size:11px;color:#2E7D32;font-weight:600;display:flex;align-items:center;gap:6px}
+.status-bar.err{background:#FFEBEE;border-color:#FFCDD2;color:#C62828}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="scr on">
+  <div class="lcard">
+    <div class="logo-wrap">
+      <span class="logo-emoji">🦐</span>
+      <div class="brand">DON <span>CAMARÓN</span></div>
+      <div class="sub">Sistema de Punto de Venta</div>
+    </div>
+    <div class="ltitle">Selecciona tu rol para continuar</div>
+    <div class="role-grid">
+      <button class="rb" onclick="selRole('admin',this)"><span class="ri">🛡️</span>Administrador</button>
+      <button class="rb" onclick="selRole('supervisor',this)"><span class="ri">📊</span>Supervisor</button>
+      <button class="rb" onclick="selRole('cajero',this)"><span class="ri">💰</span>Cajero</button>
+      <button class="rb" onclick="selRole('mesero',this)"><span class="ri">🍽️</span>Mesero</button>
+      <button class="rb full" onclick="selRole('cocina',this)"><span class="ri">👨‍🍳</span>Cocina / Chef</button>
+    </div>
+    <button class="lbtn" onclick="doLogin()">Ingresar al sistema →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="scr">
+  <div class="topbar">
+    <span style="font-size:20px">🦐</span>
+    <span class="topbar-brand">DON <span>CAMARÓN</span></span>
+    <span class="topbar-role" id="rlabel">Cajero</span>
+    <div class="sync-dot" id="syncdot" title="Firebase conectado"></div>
+    <button class="logout-btn" onclick="doLogout()">⏻</button>
+  </div>
+  <div id="statusbar" class="status-bar" style="display:none"></div>
+  <div class="cnt">
+
+    <!-- CATALOGO -->
+    <div id="p-catalog" class="panel on">
+      <div class="search-row">
+        <input type="text" id="searchinput" placeholder="🔍 Buscar producto..." oninput="filterP(this.value)">
+      </div>
+      <div class="cats" id="catsbar"></div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+
+    <!-- ORDEN -->
+    <div id="p-order" class="panel">
+      <div class="order-header">
+        <div class="sec-title">Orden actual</div>
+        <select class="mesa-sel" id="mesa-sel">
+          <option>Mesa 1</option><option>Mesa 2</option><option>Mesa 3</option>
+          <option>Mesa 4</option><option>Mesa 5</option><option>Mesa 6</option>
+          <option>Mesa 7</option><option>Mesa 8</option><option>Mesa 9</option>
+          <option>Mesa 10</option><option>Mesa 11</option><option>Mesa 12</option>
+          <option>Para llevar</option><option>Delivery</option>
+        </select>
+      </div>
+      <div id="olist"></div>
+      <div class="ototal" id="ototal" style="display:none">
+        <div class="otr"><span>Subtotal</span><span id="osub">$0</span></div>
+        <div class="otr"><span>IVA (19%)</span><span id="oiva">$0</span></div>
+        <div class="otr big"><span>TOTAL A PAGAR</span><span id="otot">$0</span></div>
+      </div>
+      <div id="pay-section" style="display:none">
+        <div style="font-size:13px;font-weight:700;margin-bottom:.6rem;color:var(--tx2)">Método de pago:</div>
+        <div class="pay-btns">
+          <button class="pb" onclick="cobrar('Efectivo')"><span class="pbi">💵</span>Efectivo</button>
+          <button class="pb" onclick="cobrar('Tarjeta')"><span class="pbi">💳</span>Tarjeta</button>
+          <button class="pb" onclick="cobrar('Transferencia')"><span class="pbi">🏦</span>Transf.</button>
+        </div>
+      </div>
+      <button class="cobrar-btn" id="cobrar-btn" onclick="showPay()" style="display:none">Cobrar orden →</button>
+      <div class="empty-state" id="oempty">
+        <span class="big-icon">🛒</span>
+        <div style="font-size:15px;font-weight:600">Orden vacía</div>
+        <div style="font-size:12px;margin-top:6px;color:var(--tx3)">Agrega productos desde el catálogo</div>
+      </div>
+    </div>
+
+    <!-- MESAS -->
+    <div id="p-tables" class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem">
+        <div class="sec-title">Mesas</div>
+        <div style="display:flex;gap:5px;font-size:10px;font-weight:700;flex-wrap:wrap;gap:4px">
+          <span style="background:#E8F5E9;color:#2E7D32;padding:3px 8px;border-radius:20px">● Libre</span>
+          <span style="background:#FFF3E0;color:#E65100;padding:3px 8px;border-radius:20px">● Ocupada</span>
+          <span style="background:#EDE7F6;color:#6A1B9A;padding:3px 8px;border-radius:20px">● Reservada</span>
+        </div>
+      </div>
+      <div class="tgrid" id="tgrid"></div>
+    </div>
+
+    <!-- INVENTARIO -->
+    <div id="p-inventory" class="panel">
+      <div class="inv-header">
+        <div class="sec-title">Inventario</div>
+        <button class="addbtn" onclick="openInvModal()">+ Agregar</button>
+      </div>
+      <div id="ilist"></div>
+    </div>
+
+    <!-- INFORMES -->
+    <div id="p-reports" class="panel">
+      <div class="sec-title">Informes del día</div>
+      <div class="scards" id="report-cards">
+        <div class="scard"><div class="slabel">Ventas totales</div><div class="sval" id="r-ventas">$0</div></div>
+        <div class="scard"><div class="slabel">Órdenes</div><div class="sval" id="r-ordenes">0</div></div>
+        <div class="scard"><div class="slabel">Ticket promedio</div><div class="sval" id="r-ticket">$0</div></div>
+        <div class="scard"><div class="slabel">Mesas activas</div><div class="sval" id="r-mesas">0/12</div></div>
+      </div>
+      <div class="sec">
+        <h3>🏆 Más vendidos hoy</h3>
+        <div id="r-top"></div>
+      </div>
+      <div class="sec">
+        <h3>💰 Cierre de caja</h3>
+        <div class="rrow"><span>Efectivo</span><span class="rval" id="r-efectivo">$0</span></div>
+        <div class="rrow"><span>Tarjeta</span><span class="rval" id="r-tarjeta">$0</span></div>
+        <div class="rrow"><span>Transferencia</span><span class="rval" id="r-transf">$0</span></div>
+        <div class="rrow" style="font-weight:800"><span>Total del día</span><span class="rval" style="color:var(--pr)" id="r-total">$0</span></div>
+      </div>
+    </div>
+
+    <!-- COCINA -->
+    <div id="p-kitchen" class="panel">
+      <div class="sec-title">Cocina — Pedidos activos</div>
+      <div id="klist"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="p-admin" class="panel">
+      <div class="sec-title">Administración</div>
+      <div class="asec">
+        <h3>👥 Usuarios del sistema</h3>
+        <div class="uchip"><div class="uav">AD</div><div><div class="uname">Administrador</div><div class="urole">Acceso completo</div></div><span class="ubadge">Admin</span></div>
+        <div class="uchip"><div class="uav">SU</div><div><div class="uname">Supervisor</div><div class="urole">Informes y mesas</div></div><span class="ubadge" style="background:#E8F5E9;color:#2E7D32">Supervisor</span></div>
+        <div class="uchip"><div class="uav">CA</div><div><div class="uname">Cajero</div><div class="urole">Ventas y cobros</div></div><span class="ubadge">Cajero</span></div>
+        <div class="uchip"><div class="uav">ME</div><div><div class="uname">Mesero</div><div class="urole">Toma de pedidos</div></div><span class="ubadge" style="background:#FFF3E0;color:#E65100">Mesero</span></div>
+        <div class="uchip"><div class="uav">CO</div><div><div class="uname">Cocina</div><div class="urole">Preparación de platos</div></div><span class="ubadge" style="background:#FCE4EC;color:#880E4F">Cocina</span></div>
+      </div>
+      <div class="asec">
+        <h3>⚙️ Configuración</h3>
+        <div class="arow"><span>IVA automático (19%)</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="arow"><span>Notificaciones a cocina</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="arow"><span>Delivery activo</span><div class="tog on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="arow"><span>Reservas de mesa</span><div class="tog" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="asec">
+        <h3>🔥 Firebase — Estado</h3>
+        <div id="fb-status" style="font-size:13px;color:var(--tx2);margin-bottom:10px">Verificando conexión...</div>
+        <div style="font-size:12px;color:var(--tx3)">Proyecto: <strong>don-camaron-pos</strong></div>
+        <div style="font-size:12px;color:var(--tx3);margin-top:4px">Base de datos: <strong>don-camaron-pos-default-rtdb</strong></div>
+      </div>
+      <div class="asec">
+        <h3>📦 Cargar menú a Firebase</h3>
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">Sube todos los productos del menú a Firebase Realtime Database</div>
+        <button class="fbbtn" onclick="uploadMenu()">⬆️ Subir menú completo a Firebase</button>
+      </div>
+    </div>
+
+  </div>
+  <nav class="bnav" id="bnav"></nav>
+</div>
+
+<!-- MODAL INVENTARIO -->
+<div class="modal-bg" id="inv-modal">
+  <div class="modal">
+    <h3>Agregar producto al inventario</h3>
+    <input type="text" id="inv-name" placeholder="Nombre del producto">
+    <input type="number" id="inv-stock" placeholder="Stock actual" min="0">
+    <input type="number" id="inv-max" placeholder="Stock máximo" min="1">
+    <input type="text" id="inv-unit" placeholder="Unidad (kg, L, uds...)">
+    <div class="modal-btns">
+      <button class="mbtn sec" onclick="closeInvModal()">Cancelar</button>
+      <button class="mbtn pri" onclick="saveInvItem()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBIPj0XXuOXx6e7QfFVCdo2PLgthOYjwA4",
+  authDomain: "don-camaron-pos.firebaseapp.com",
+  databaseURL: "https://don-camaron-pos-default-rtdb.firebaseio.com",
+  projectId: "don-camaron-pos",
+  storageBucket: "don-camaron-pos.firebasestorage.app",
+  messagingSenderId: "118189597356",
+  appId: "1:118189597356:web:2419a3a3e32ec9ca173509"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+// ==================== DATOS DEL MENÚ ====================
+const menuData = {
+  'Entradas':[
+    {n:'Chips de plátano (ración)',p:7000,e:'🍌'},{n:'Chips de plátano y queso crema',p:12000,e:'🍌'},
+    {n:'Ensalada de atún',p:40000,e:'🥗'},{n:'Ensalada primavera pollo crispy bbq',p:52000,e:'🥗'},
+    {n:'Entrada Jamón serrano',p:35000,e:'🥩'},{n:'Jamón serrano/queso burrata',p:50000,e:'🧀'},
+    {n:'Papas con Foundeu de queso',p:27000,e:'🍟'},{n:'Papas fritas',p:8000,e:'🍟'},
+    {n:'Ración pan al ajillo',p:6000,e:'🍞'},{n:'Tostones (ración)',p:8000,e:'🟡'},
+    {n:'Atún rojo a la marinera',p:68000,e:'🐟'},{n:'Brusquetas',p:18000,e:'🍞'},
+    {n:'Dedos de mozzarella',p:22000,e:'🧀'},{n:'Ensalada de cangrejo',p:52000,e:'🦀'},
+    {n:'Ensalada de cangrejo y camarones',p:52000,e:'🦀'},{n:'Galleta de soda',p:2000,e:'🍪'},
+    {n:'Mero a la marinera',p:68000,e:'🐟'},{n:'Ración de arroz',p:5000,e:'🍚'},
+  ],
+  'Menús':[
+    {n:'Promo sushi con mitad topping',p:60000,e:'🍣'},{n:'Promo sushi sin topping',p:50000,e:'🍣'},
+    {n:'Plato navideño',p:40000,e:'🍽️'},{n:'Menú ejecutivo',p:25000,e:'🍽️'},
+  ],
+  'Hamburguesas':[
+    {n:'Hamburguesa (PROMO)',p:20000,e:'🍔'},{n:'Hamburguesa de Camarón crispy',p:35000,e:'🍔'},
+    {n:'Hamburguesa de Cerdo (cochino)',p:28000,e:'🍔'},{n:'Hamburguesa de Pollo crispy',p:32000,e:'🍔'},
+    {n:'Hamburguesa de croqueta de Carne',p:29000,e:'🍔'},{n:'Hamburguesa de solomo',p:29000,e:'🍔'},
+    {n:'Hamburguesa Premium DC',p:40000,e:'🍔'},{n:'Hamburguesa croqueta de Carne (PROMO)',p:18000,e:'🍔'},
+    {n:'Hamburguesa de cerdo agridulce',p:35000,e:'🍔'},{n:'Hamburguesa de salmón crispy',p:55000,e:'🍔'},
+    {n:'Hamburguesa doble croqueta carne',p:32000,e:'🍔'},{n:'Hamburguesa pollo a la plancha',p:29000,e:'🍔'},
+    {n:'Hamburguesa de camarones salteados',p:39000,e:'🍔'},{n:'Hamburguesa parrillera',p:37000,e:'🍔'},
+  ],
+  'Bebidas':[
+    {n:'Agua mineral',p:3000,e:'💧'},{n:'Vaso de agua',p:1000,e:'💧'},
+    {n:'Coca Cola 1lt',p:8000,e:'🥤'},{n:'Coca Cola 2lt',p:12000,e:'🥤'},
+    {n:'Coca Cola (Botella)',p:4000,e:'🥤'},{n:'Coca cola lata 355ml',p:6000,e:'🥤'},
+    {n:'Coca cola 1.5lt',p:10000,e:'🥤'},{n:'Jarra Nestea 1lt',p:20000,e:'🧋'},
+    {n:'Jarra Nestea 2lt',p:40000,e:'🧋'},{n:'Nestea vaso',p:5000,e:'🧋'},
+    {n:'Jugo natural vaso',p:4000,e:'🧃'},{n:'Jugo Yukery botella 250ml',p:5000,e:'🧃'},
+    {n:'Malta botella',p:3000,e:'🍺'},{n:'Malta lata grande',p:6000,e:'🍺'},
+    {n:'Polar blanca',p:4000,e:'🍺'},{n:'Polar negra',p:4000,e:'🍺'},
+    {n:'Merengada frutas',p:10000,e:'🥛'},{n:'Batido fruta natural',p:8000,e:'🥤'},
+    {n:'Caroreña lata',p:8000,e:'🥤'},{n:'Soda Schweppes',p:6000,e:'🥤'},
+  ],
+  'Cócteles':[
+    {n:'Blue Hawaii',p:12000,e:'🍹'},{n:'Caipirosvka',p:12000,e:'🍹'},
+    {n:'Cuba libre',p:12000,e:'🍹'},{n:'Daikiry',p:12000,e:'🍹'},
+    {n:'Fresa colada',p:12000,e:'🍹'},{n:'Mango Colado',p:12000,e:'🍹'},
+    {n:'Sangría con frutas',p:12000,e:'🍷'},{n:'Destornillador',p:12000,e:'🍹'},
+    {n:'Jarra sangría 1lt',p:50000,e:'🍷'},{n:'Michelada',p:6000,e:'🍺'},
+    {n:'Mojitos',p:12000,e:'🍹'},{n:'Piña colada',p:12000,e:'🍹'},
+    {n:'Tinto verano',p:12000,e:'🍷'},{n:'Vino tinto',p:12000,e:'🍷'},
+    {n:'Servicio de licor (ron linaje)',p:100000,e:'🍾'},
+  ],
+  'Cafés':[
+    {n:'Café exprés',p:5000,e:'☕'},{n:'Latté',p:7000,e:'☕'},{n:'Moca',p:7000,e:'☕'},
+  ],
+  'Ceviches':[
+    {n:'Ceviche Pulpo',p:55000,e:'🐙'},{n:'Ceviche Salmon',p:55000,e:'🐟'},
+    {n:'Ceviche mixto',p:45000,e:'🍤'},{n:'Ceviche mixto DON CAMARÓN',p:59000,e:'🦐'},
+    {n:'Ceviche solo filet',p:34000,e:'🐟'},{n:'Salpicón (calamar y camarón)',p:35000,e:'🦑'},
+  ],
+  'Cócteles Camarones':[
+    {n:'Coctel de Camarones Grande',p:59000,e:'🦐'},{n:'Coctel de Camarones Medianos',p:45000,e:'🦐'},
+    {n:'Coctel de Camarones Pequeño',p:30000,e:'🦐'},{n:'Coctel del Rey Grande',p:62000,e:'🦀'},
+    {n:'Coctel del Rey Mediano',p:50000,e:'🦀'},{n:'Coctel del Rey Pequeño',p:35000,e:'🦀'},
+  ],
+  'Empanizados':[
+    {n:'Cordon bleu',p:43000,e:'🍗'},{n:'Dados de salmón',p:55000,e:'🐟'},
+    {n:'Calamar crispy',p:30000,e:'🦑'},{n:'Camarones crispy',p:30000,e:'🦐'},
+    {n:'Camarones crispy medianos',p:45000,e:'🦐'},{n:'Camarones crispy pequeños',p:30000,e:'🦐'},
+    {n:'Langostinos crispy',p:65000,e:'🦐'},{n:'Mixto crispy',p:35000,e:'🍤'},
+    {n:'Tenders de pollo crispy',p:35000,e:'🍗'},{n:'Trilogía marina',p:47000,e:'🍤'},
+  ],
+  'Especialidades':[
+    {n:'Carpaccio de lomito',p:60000,e:'🥩'},{n:'Carpaccio salmón',p:65000,e:'🐟'},
+    {n:'Langosta',p:150000,e:'🦞'},{n:'Langostinos al ajillo',p:75000,e:'🦐'},
+    {n:'Mixto de mariscos al ajillo',p:63000,e:'🍤'},{n:'Paella de mariscos Valencia',p:60000,e:'🥘'},
+    {n:'Pulpo en ajillo',p:65000,e:'🐙'},{n:'Pulpo en crema',p:65000,e:'🐙'},
+    {n:'Asopado de mariscos',p:60000,e:'🦐'},{n:'Camarones al ajillo',p:63000,e:'🦐'},
+    {n:'Camarones en crema de leche',p:65000,e:'🦐'},{n:'Camarones estilo Luisiana',p:120000,e:'🦐'},
+    {n:'Cazuela de mariscos',p:62000,e:'🦐'},{n:'Cazuela de mariscos en crema',p:62000,e:'🦐'},
+    {n:'Mixto de mariscos a la crema',p:63000,e:'🍤'},{n:'Parrilla mar y tierra',p:44000,e:'🥩'},
+    {n:'Parrilla mar y tierra DON CAMARÓN',p:110000,e:'🦐'},{n:'Parrilla solo tierra',p:35000,e:'🥩'},
+    {n:'Risotto de salmón y camarón',p:64000,e:'🍚'},{n:'Salteado de mariscos',p:63000,e:'🍤'},
+    {n:'Sopa de mariscos',p:58000,e:'🍲'},{n:'Zarzuela de mariscos',p:62000,e:'🦐'},
+  ],
+  'Bandejas':[
+    {n:'Bandeja mixta (picar)',p:120000,e:'🍽️'},{n:'Bandeja MEGA Camarón',p:196000,e:'🦐'},
+    {n:'Bandeja don Camarón',p:96000,e:'🦐'},{n:'Trío de ceviches',p:80000,e:'🍤'},
+  ],
+  'Pizzas Crema':[
+    {n:'Pizza crema jamón queso y pollo',p:50000,e:'🍕'},{n:'Pizza crema mar y tierra',p:63000,e:'🍕'},
+    {n:'Pizza crema 4 quesos',p:54000,e:'🍕'},{n:'Pizza crema camarón y tocineta',p:53000,e:'🍕'},
+    {n:'Pizza crema champiñón y tocineta',p:50000,e:'🍕'},{n:'Pizza crema champiñones',p:50000,e:'🍕'},
+    {n:'Pizza crema langostinos jamón',p:66000,e:'🍕'},{n:'Pizza crema tocineta y maíz',p:50000,e:'🍕'},
+  ],
+  'Pizzas Tradicionales':[
+    {n:'Pizza 4 quesos tradicional',p:48000,e:'🍕'},{n:'Pizza jamón y queso tradicional',p:40000,e:'🍕'},
+    {n:'Pizza don Camarón tradicional',p:66000,e:'🍕'},{n:'Pizza mar y tierra tradicional',p:56000,e:'🍕'},
+    {n:'Pizza marinera tradicional',p:70000,e:'🍕'},{n:'Pizza proschiutto',p:60000,e:'🍕'},
+    {n:'Pizza camarón y tocineta tradicional',p:46000,e:'🍕'},
+  ],
+  'Pizzas Volcán':[
+    {n:'Pizza Volcán César',p:100000,e:'🌋'},{n:'Pizza Volcán Parrillera',p:100000,e:'🌋'},
+    {n:'Pizza Volcán tender de pollo',p:100000,e:'🌋'},{n:'Pizza volcán trilogía',p:105000,e:'🌋'},
+  ],
+  'Pastas':[
+    {n:'Pasta en crema de camarones',p:57000,e:'🍝'},{n:'Pasta fidehua',p:57000,e:'🍝'},
+    {n:'Pasta marinera',p:57000,e:'🍝'},{n:'Pasta pollo y camarones',p:57000,e:'🍝'},
+  ],
+  'Sushi Tempura':[
+    {n:'Barco sushi',p:200000,e:'🍣'},{n:'Delicia roll',p:50000,e:'🍣'},
+    {n:'Dinamita roll',p:50000,e:'🍣'},{n:'Don Camarón classic',p:48000,e:'🍣'},
+    {n:'Don Camarón mix',p:50000,e:'🍣'},{n:'Don Camarón mix especial',p:60000,e:'🍣'},
+    {n:'Don camarón especial',p:50000,e:'🍣'},{n:'Tropical roll',p:50000,e:'🍣'},
+    {n:'Manzana roll tempura',p:50000,e:'🍣'},{n:'Tentación roll',p:50000,e:'🍣'},
+  ],
+  'Sushi Frío':[
+    {n:'Sushi frío variado',p:48000,e:'🍣'},
+  ],
+  'Patacones':[
+    {n:'Patacón de camarones al ajillo',p:45000,e:'🟡'},{n:'Patacón de camarones crispy',p:38000,e:'🟡'},
+    {n:'Patacón de carne',p:36000,e:'🟡'},{n:'Patacón de coctel de camarones',p:38000,e:'🟡'},
+    {n:'Patacón de pollo a la plancha',p:36000,e:'🟡'},{n:'Patacón de pollo crispy',p:39000,e:'🟡'},
+  ],
+  'Ensaladas':[
+    {n:'Ensalada 7 mares',p:50000,e:'🥗'},{n:'Ensalada César',p:45000,e:'🥗'},
+    {n:'Ensalada César (Porción)',p:29000,e:'🥗'},{n:'Ensalada Neptuno (sushi)',p:60000,e:'🥗'},
+    {n:'Ensalada de picadillo (porción)',p:12000,e:'🥗'},{n:'Ensalada de camarones',p:50000,e:'🦐'},
+  ],
+  'Desayunos':[
+    {n:'Desayuno Americano',p:20000,e:'🍳'},{n:'Desayuno andino',p:20000,e:'🍳'},
+    {n:'Desayuno criollo',p:18000,e:'🍳'},{n:'Desayuno criollo con aguacate',p:20000,e:'🍳'},
+    {n:'Desayuno llanero',p:18000,e:'🍳'},{n:'Desayuno paisa grill',p:20000,e:'🍳'},
+    {n:'Desayuno primavera',p:20000,e:'🍳'},{n:'Desayuno tradicional',p:18000,e:'🍳'},
+  ],
+  'Empanadas':[
+    {n:'Empanadas de 6 mil',p:6000,e:'🥟'},{n:'Empanadas de 7 mil',p:7000,e:'🥟'},
+    {n:'Empanadas de 8 mil (Gordon Bleu)',p:8000,e:'🥟'},{n:'Empanadas de 9 mil',p:9000,e:'🥟'},
+    {n:'Empanadas de 10 mil',p:10000,e:'🥟'},{n:'Pasteles',p:4000,e:'🥟'},
+  ],
+  'Submarinos':[
+    {n:'Submarino carne y pollo',p:35000,e:'🥖'},{n:'Submarino mixto',p:43000,e:'🥖'},
+  ],
+  'Sandwich':[
+    {n:'Clubhouse',p:30000,e:'🥪'},{n:'Sandwich carne',p:15000,e:'🥪'},
+    {n:'Sandwich normal',p:8000,e:'🥪'},{n:'Sandwich pollo',p:15000,e:'🥪'},
+    {n:'Sandwich triple carne/pollo',p:23000,e:'🥪'},
+  ],
+  'Delivery':[
+    {n:'Delivery estándar',p:5000,e:'🛵'},{n:'Delivery largo',p:10000,e:'🛵'},{n:'Recargo',p:2000,e:'➕'},
+  ],
+  'Adicionales':[
+    {n:'Cangrejo',p:8000,e:'🦀'},{n:'Cebolla',p:2000,e:'🧅'},{n:'Champiñones',p:5000,e:'🍄'},
+    {n:'Chuleta ahumada',p:7000,e:'🥩'},{n:'Jamón',p:6000,e:'🥩'},{n:'Jamón serrano',p:15000,e:'🥩'},
+    {n:'Langostinos',p:18000,e:'🦐'},{n:'Pimentón',p:3000,e:'🌶️'},{n:'Queso 100g',p:5000,e:'🧀'},
+    {n:'Queso burrata',p:35000,e:'🧀'},{n:'Servicio restaurante',p:20000,e:'🍽️'},
+    {n:'Aceitunas negras',p:3000,e:'🫒'},{n:'Camarones',p:8000,e:'🦐'},
+    {n:'Carne',p:6000,e:'🥩'},{n:'Maíz',p:3000,e:'🌽'},{n:'Piña',p:4000,e:'🍍'},
+    {n:'Pollo',p:9000,e:'🍗'},{n:'Pulpo',p:17000,e:'🐙'},{n:'Tocineta',p:5000,e:'🥓'},
+    {n:'Borde de queso en pizza',p:12000,e:'🧀'},{n:'Caja para pizza',p:4000,e:'📦'},
+    {n:'Envase sushi',p:3000,e:'📦'},{n:'Envases llevar',p:1000,e:'📦'},
+  ],
+};
+
+// ==================== ESTADO GLOBAL ====================
+let currentRole = 'cajero';
+let selRoleBtn = null;
+let order = [];
+let activeCat = 'Todos';
+let tables = [];
+let inventory = [];
+let kitchenOrders = [];
+let salesData = {ventas:0, ordenes:0, efectivo:0, tarjeta:0, transf:0, topItems:{}};
+
+// ==================== FIREBASE LISTENERS ====================
+function initFirebaseListeners() {
+  // Mesas
+  onValue(ref(db, 'mesas'), snap => {
+    const data = snap.val();
+    if (data) {
+      tables = Object.entries(data).map(([k,v]) => ({id:k,...v}));
+    } else {
+      // Inicializar mesas
+      initTables();
+    }
+    renderTables();
+  });
+
+  // Inventario
+  onValue(ref(db, 'inventario'), snap => {
+    const data = snap.val();
+    inventory = data ? Object.entries(data).map(([k,v]) => ({id:k,...v})) : [];
+    renderInv();
+  });
+
+  // Pedidos cocina
+  onValue(ref(db, 'pedidos_cocina'), snap => {
+    const data = snap.val();
+    kitchenOrders = data ? Object.entries(data).map(([k,v]) => ({id:k,...v})) : [];
+    renderKitchen();
+    updateKitchenBadge();
+  });
+
+  // Ventas del día
+  const today = new Date().toISOString().split('T')[0];
+  onValue(ref(db, `ventas/${today}`), snap => {
+    const data = snap.val();
+    if (data) {
+      salesData = {...salesData, ...data};
+      renderReports();
+    }
+  });
+
+  // Firebase conectado
+  document.getElementById('syncdot').classList.remove('off');
+  document.getElementById('fb-status').innerHTML = '✅ <strong>Conectado</strong> — Firebase Realtime Database activo';
+  showStatus('🔥 Firebase conectado correctamente', false);
+}
+
+async function initTables() {
+  for (let i = 1; i <= 12; i++) {
+    await set(ref(db, `mesas/mesa${i}`), {num:i, status:'libre', guests:0});
+  }
+}
+
+async function uploadMenu() {
+  showToast('⬆️ Subiendo menú a Firebase...');
+  try {
+    await set(ref(db, 'menu'), menuData);
+    showToast('✅ Menú subido a Firebase correctamente');
+  } catch(e) {
+    showToast('❌ Error al subir el menú');
+  }
+}
+window.uploadMenu = uploadMenu;
+
+// ==================== LOGIN ====================
+function selRole(r, btn) {
+  currentRole = r;
+  if (selRoleBtn) selRoleBtn.classList.remove('sel');
+  btn.classList.add('sel');
+  selRoleBtn = btn;
+}
+window.selRole = selRole;
+
+function doLogin() {
+  if (!selRoleBtn) { showToast('Selecciona un rol'); return; }
+  document.getElementById('login').classList.remove('on');
+  document.getElementById('app').classList.add('on');
+  const labels = {admin:'Administrador',supervisor:'Supervisor',cajero:'Cajero',mesero:'Mesero',cocina:'Cocina'};
+  document.getElementById('rlabel').textContent = labels[currentRole];
+  buildNav();
+  renderCatalog();
+  initFirebaseListeners();
+  const first = roleNav[currentRole][0];
+  showPanel(navCfg[first].panel, first);
+}
+window.doLogin = doLogin;
+
+function doLogout() {
+  document.getElementById('app').classList.remove('on');
+  document.getElementById('login').classList.add('on');
+  order = [];
+  if (selRoleBtn) { selRoleBtn.classList.remove('sel'); selRoleBtn = null; }
+}
+window.doLogout = doLogout;
+
+// ==================== NAVEGACIÓN ====================
+const roleNav = {
+  admin:['catalog','order','tables','inventory','reports','admin'],
+  supervisor:['catalog','order','tables','reports'],
+  cajero:['catalog','order','tables','reports'],
+  mesero:['catalog','order','tables'],
+  cocina:['kitchen'],
+};
+const navCfg = {
+  catalog:{icon:'📦',label:'Catálogo',panel:'p-catalog'},
+  order:{icon:'📋',label:'Orden',panel:'p-order'},
+  tables:{icon:'🪑',label:'Mesas',panel:'p-tables'},
+  inventory:{icon:'📫',label:'Inventario',panel:'p-inventory'},
+  reports:{icon:'📊',label:'Informes',panel:'p-reports'},
+  kitchen:{icon:'👨‍🍳',label:'Cocina',panel:'p-kitchen'},
+  admin:{icon:'⚙️',label:'Admin',panel:'p-admin'},
+};
+
+function buildNav() {
+  const nav = document.getElementById('bnav');
+  nav.innerHTML = roleNav[currentRole].map(k => {
+    const c = navCfg[k];
+    return `<button class="ni" onclick="showPanel('${c.panel}','${k}')" id="ni-${k}">
+      <span class="icon">${c.icon}</span>
+      <span>${c.label}</span>
+      ${k==='kitchen'?'<span class="nbadge" id="k-badge" style="display:none">0</span>':''}
+    </button>`;
+  }).join('');
+}
+
+function showPanel(pid, nk) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  const p = document.getElementById(pid); if (p) p.classList.add('on');
+  const n = document.getElementById('ni-'+nk); if (n) n.classList.add('on');
+}
+window.showPanel = showPanel;
+
+function updateKitchenBadge() {
+  const badge = document.getElementById('k-badge');
+  if (!badge) return;
+  const active = kitchenOrders.filter(o => !o.done).length;
+  badge.textContent = active;
+  badge.style.display = active > 0 ? 'block' : 'none';
+}
+
+// ==================== CATÁLOGO ====================
+function renderCatalog() {
+  renderCats();
+  renderProducts();
+}
+
+function renderCats() {
+  const cats = ['Todos', ...Object.keys(menuData)];
+  document.getElementById('catsbar').innerHTML = cats.map(c =>
+    `<button class="cc${c===activeCat?' on':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join('');
+}
+
+function setCat(c) {
+  activeCat = c;
+  document.getElementById('searchinput').value = '';
+  renderCats();
+  renderProducts();
+}
+window.setCat = setCat;
+
+function filterP(v) {
+  renderProducts(v);
+}
+window.filterP = filterP;
+
+function renderProducts(filter = '') {
+  let items = [];
+  if (activeCat === 'Todos') {
+    Object.values(menuData).forEach(arr => arr.forEach(p => items.push(p)));
+  } else {
+    items = menuData[activeCat] || [];
+  }
+  if (filter) items = items.filter(p => p.n.toLowerCase().includes(filter.toLowerCase()));
+  document.getElementById('pgrid').innerHTML = items.map(p => `
+    <div class="pc" onclick="addItem('${encodeURIComponent(p.n)}',${p.p},'${p.e}')">
+      <div class="pimg">${p.e}</div>
+      <div class="pinfo">
+        <div class="pname">${p.n}</div>
+        <div class="prow">
+          <div class="pprice">$${p.p.toLocaleString()}</div>
+          <button class="padd" onclick="event.stopPropagation();addItem('${encodeURIComponent(p.n)}',${p.p},'${p.e}')">+</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ==================== ORDEN ====================
+function addItem(en, price, em) {
+  const name = decodeURIComponent(en);
+  const ex = order.find(x => x.n === name);
+  if (ex) ex.q++;
+  else order.push({n:name, p:price, e:em, q:1});
+  renderOrder();
+  showPanel('p-order', 'order');
+}
+window.addItem = addItem;
+
+function renderOrder() {
+  const list = document.getElementById('olist');
+  const empty = document.getElementById('oempty');
+  const ot = document.getElementById('ototal');
+  const cb = document.getElementById('cobrar-btn');
+  const ps = document.getElementById('pay-section');
+  if (!order.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    ot.style.display = 'none';
+    cb.style.display = 'none';
+    ps.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = order.map(it => `
+    <div class="oi">
+      <div class="oi-em">${it.e}</div>
+      <div class="oi-info">
+        <div class="oi-name">${it.n}</div>
+        <div class="oi-sub">$${(it.p*it.q).toLocaleString()}</div>
+      </div>
+      <div class="qc">
+        <button class="qb" onclick="chgQ('${encodeURIComponent(it.n)}',-1)">−</button>
+        <span class="qn">${it.q}</span>
+        <button class="qb" onclick="chgQ('${encodeURIComponent(it.n)}',1)">+</button>
+      </div>
+    </div>`).join('');
+  const sub = order.reduce((a,i) => a + i.p*i.q, 0);
+  const iva = Math.round(sub * 0.19);
+  const tot = sub + iva;
+  document.getElementById('osub').textContent = '$' + sub.toLocaleString();
+  document.getElementById('oiva').textContent = '$' + iva.toLocaleString();
+  document.getElementById('otot').textContent = '$' + tot.toLocaleString();
+  ot.style.display = 'block';
+  cb.style.display = 'block';
+}
+
+function chgQ(en, d) {
+  const name = decodeURIComponent(en);
+  const idx = order.findIndex(x => x.n === name);
+  if (idx < 0) return;
+  order[idx].q += d;
+  if (order[idx].q <= 0) order.splice(idx, 1);
+  renderOrder();
+}
+window.chgQ = chgQ;
+
+function showPay() {
+  const ps = document.getElementById('pay-section');
+  ps.style.display = ps.style.display === 'block' ? 'none' : 'block';
+}
+window.showPay = showPay;
+
+async function cobrar(method) {
+  const mesa = document.getElementById('mesa-sel').value;
+  const sub = order.reduce((a,i) => a + i.p*i.q, 0);
+  const tot = Math.round(sub * 1.19);
+
+  // Guardar en Firebase
+  const today = new Date().toISOString().split('T')[0];
+  const orderData = {
+    mesa, method, items: order.map(i=>({n:i.n,p:i.p,q:i.q})),
+    subtotal: sub, total: tot,
+    timestamp: Date.now(),
+    rol: currentRole
+  };
+
+  try {
+    await push(ref(db, `ventas/${today}/ordenes`), orderData);
+
+    // Enviar a cocina
+    await push(ref(db, 'pedidos_cocina'), {
+      mesa, items: order.map(i=>`${i.q}x ${i.n}`),
+      timestamp: Date.now(), done: false, urgent: false,
+      time: new Date().toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'})
+    });
+
+    // Actualizar resumen del día
+    const snap = await get(ref(db, `ventas/${today}/resumen`));
+    const prev = snap.val() || {total:0,ordenes:0,efectivo:0,tarjeta:0,transf:0};
+    await set(ref(db, `ventas/${today}/resumen`), {
+      total: prev.total + tot,
+      ordenes: prev.ordenes + 1,
+      efectivo: prev.efectivo + (method==='Efectivo'?tot:0),
+      tarjeta: prev.tarjeta + (method==='Tarjeta'?tot:0),
+      transf: prev.transf + (method==='Transferencia'?tot:0),
+    });
+
+    // Actualizar mesa
+    const mesaNum = mesa.replace('Mesa ','');
+    if (!isNaN(mesaNum)) {
+      await update(ref(db, `mesas/mesa${mesaNum}`), {status:'libre', guests:0});
+    }
+
+    showToast(`✅ Cobrado $${tot.toLocaleString()} con ${method}`);
+    order = [];
+    renderOrder();
+    showPanel('p-catalog', 'catalog');
+  } catch(e) {
+    showToast('❌ Error al guardar la venta');
+  }
+}
+window.cobrar = cobrar;
+
+// ==================== MESAS ====================
+function renderTables() {
+  if (!tables.length) {
+    document.getElementById('tgrid').innerHTML = '<div style="color:var(--tx3);font-size:13px;padding:1rem">Cargando mesas...</div>';
+    return;
+  }
+  const sorted = [...tables].sort((a,b) => a.num - b.num);
+  document.getElementById('tgrid').innerHTML = sorted.map(t => `
+    <div class="tc ${t.status}" onclick="tableClick('${t.id}','${t.status}',${t.num})">
+      <div class="tnum">${t.num}</div>
+      <div class="tstat">${t.status}</div>
+      ${t.guests ? `<div class="tguests">👥 ${t.guests}</div>` : ''}
+    </div>`).join('');
+}
+
+async function tableClick(id, status, num) {
+  if (status === 'libre') {
+    if (confirm(`¿Abrir orden en Mesa ${num}?`)) {
+      await update(ref(db, `mesas/${id}`), {status:'ocupada', guests:2});
+      document.getElementById('mesa-sel').value = `Mesa ${num}`;
+      showPanel('p-order', 'order');
+    }
+  } else if (status === 'ocupada') {
+    if (confirm(`Mesa ${num} ocupada. ¿Liberar mesa?`)) {
+      await update(ref(db, `mesas/${id}`), {status:'libre', guests:0});
+    }
+  }
+}
+window.tableClick = tableClick;
+
+// ==================== INVENTARIO ====================
+function renderInv() {
+  if (!inventory.length) {
+    document.getElementById('ilist').innerHTML = '<div style="text-align:center;padding:2rem;color:var(--tx3)">No hay productos en inventario.<br>Toca "+ Agregar" para añadir.</div>';
+    return;
+  }
+  document.getElementById('ilist').innerHTML = inventory.map(it => {
+    const pct = Math.round(it.stock / it.max * 100);
+    const cls = pct > 50 ? 'ok' : pct > 20 ? 'low' : 'crit';
+    const tl = pct > 50 ? 'OK' : pct > 20 ? 'Bajo' : 'Crítico';
+    return `<div class="iitem">
+      <div class="iico">📦</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="iname">${it.name}</div>
+          <span class="itag t${cls}">${tl}</span>
+        </div>
+        <div class="istock">${it.stock} / ${it.max} ${it.unit}</div>
+        <div class="ibar"><div class="ibf ${cls}" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openInvModal() { document.getElementById('inv-modal').classList.add('on'); }
+function closeInvModal() { document.getElementById('inv-modal').classList.remove('on'); }
+window.openInvModal = openInvModal;
+window.closeInvModal = closeInvModal;
+
+async function saveInvItem() {
+  const name = document.getElementById('inv-name').value.trim();
+  const stock = parseInt(document.getElementById('inv-stock').value);
+  const max = parseInt(document.getElementById('inv-max').value);
+  const unit = document.getElementById('inv-unit').value.trim();
+  if (!name || isNaN(stock) || isNaN(max) || !unit) { showToast('Completa todos los campos'); return; }
+  try {
+    await push(ref(db, 'inventario'), {name, stock, max, unit});
+    closeInvModal();
+    showToast('✅ Producto agregado al inventario');
+    document.getElementById('inv-name').value = '';
+    document.getElementById('inv-stock').value = '';
+    document.getElementById('inv-max').value = '';
+    document.getElementById('inv-unit').value = '';
+  } catch(e) { showToast('❌ Error al guardar'); }
+}
+window.saveInvItem = saveInvItem;
+
+// ==================== INFORMES ====================
+function renderReports() {
+  const today = new Date().toISOString().split('T')[0];
+  get(ref(db, `ventas/${today}/resumen`)).then(snap => {
+    const d = snap.val() || {total:0,ordenes:0,efectivo:0,tarjeta:0,transf:0};
+    document.getElementById('r-ventas').textContent = '$' + (d.total||0).toLocaleString();
+    document.getElementById('r-ordenes').textContent = d.ordenes || 0;
+    const ticket = d.ordenes > 0 ? Math.round(d.total/d.ordenes) : 0;
+    document.getElementById('r-ticket').textContent = '$' + ticket.toLocaleString();
+    const activas = tables.filter(t=>t.status==='ocupada').length;
+    document.getElementById('r-mesas').textContent = `${activas}/12`;
+    document.getElementById('r-efectivo').textContent = '$' + (d.efectivo||0).toLocaleString();
+    document.getElementById('r-tarjeta').textContent = '$' + (d.tarjeta||0).toLocaleString();
+    document.getElementById('r-transf').textContent = '$' + (d.transf||0).toLocaleString();
+    document.getElementById('r-total').textContent = '$' + (d.total||0).toLocaleString();
+  });
+}
+
+// ==================== COCINA ====================
+function renderKitchen() {
+  const list = document.getElementById('klist');
+  if (!kitchenOrders.length) {
+    list.innerHTML = '<div class="empty-state"><span class="big-icon">✅</span><div style="font-size:15px;font-weight:600">Todo al día</div><div style="font-size:12px;margin-top:6px;color:var(--tx3)">No hay pedidos pendientes</div></div>';
+    return;
+  }
+  const sorted = [...kitchenOrders].sort((a,b) => a.timestamp - b.timestamp);
+  list.innerHTML = sorted.map(o => `
+    <div class="ko${o.urgent?' urg':''}${o.done?' done':''}">
+      <div class="kh">
+        <div class="ktable">🪑 ${o.mesa}</div>
+        <div class="ktime">⏱ ${o.time || ''}</div>
+        ${o.urgent ? '<span class="urgbadge">URGENTE</span>' : ''}
+      </div>
+      ${(o.items||[]).map(it=>`<div class="kitem">• ${it}</div>`).join('')}
+      <div class="kbtns">
+        ${!o.done ? `<button class="kbtn kgreen" onclick="markKitchen('${o.id}',true)">✓ Listo</button>` : ''}
+        <button class="kbtn kblue" onclick="markKitchen('${o.id}',false)">✗ Entregar</button>
+      </div>
+    </div>`).join('');
+}
+
+async function markKitchen(id, ready) {
+  if (ready) {
+    await update(ref(db, `pedidos_cocina/${id}`), {done:true});
+  } else {
+    await remove(ref(db, `pedidos_cocina/${id}`));
+  }
+}
+window.markKitchen = markKitchen;
+
+// ==================== UTILS ====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function showStatus(msg, isError = false) {
+  const sb = document.getElementById('statusbar');
+  sb.textContent = msg;
+  sb.style.display = 'flex';
+  sb.className = 'status-bar' + (isError ? ' err' : '');
+  setTimeout(() => sb.style.display = 'none', 4000);
+}
+
+</script>
+</body>
+</html>
