@@ -326,37 +326,44 @@ body{background:var(--bg);color:var(--tx)}
 .partial-bg.on{display:flex}
 
 .tables-wrap{padding:10px;padding-bottom:calc(var(--bnav)+10px)}
-.floor-tabs{display:flex;border-bottom:2px solid var(--brd);
-  margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.floor-tabs{display:flex;background:#fff;border-bottom:2px solid var(--brd);
+  overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
 .floor-tabs::-webkit-scrollbar{display:none}
-.ftab{padding:8px 16px;font-size:12px;font-weight:700;color:var(--tx3);
-  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
-  white-space:nowrap;flex-shrink:0;transition:all .15s}
-.ftab.on{color:var(--bl);border-bottom-color:var(--bl)}
+.ftab{padding:11px 18px;font-size:12px;font-weight:800;color:var(--tx3);
+  cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;
+  white-space:nowrap;flex-shrink:0;transition:all .15s;text-transform:uppercase;letter-spacing:.3px}
+.ftab.on{color:var(--bl);border-bottom-color:var(--or)}
 .tables-stat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
 .tstat-card{background:white;border-radius:8px;border:1px solid var(--brd);
   padding:8px;text-align:center}
 .tstat-val{font-size:20px;font-weight:800;color:var(--bl)}
 .tstat-lbl{font-size:10px;color:var(--tx3);margin-top:1px;font-weight:600}
 .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tc{border-radius:var(--r);padding:10px 8px;text-align:center;cursor:pointer;
-  border:2px solid transparent;transition:all .15s}
-.tc:active{transform:scale(.94)}
-.tc.libre{background:#E8F5E9;border-color:#A5D6A7}
+.tc{border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;
+  border:2.5px solid var(--bl);transition:all .18s;min-height:90px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.tc:active{transform:scale(.93)}
+.tc.libre{background:#fff;border-color:var(--bl)}
 .tc.ocupada{background:#FFF3E0;border-color:#FFCC80}
 .tc.reservada{background:#EDE7F6;border-color:#CE93D8}
-.tc-num{font-size:22px;font-weight:800;margin-bottom:2px}
-.tc-stat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.tc.libre .tc-stat{color:#2E7D32}
-.tc.ocupada .tc-stat{color:#E65100}
-.tc.reservada .tc-stat{color:#6A1B9A}
+.tc.sel{background:var(--bll3);border-color:var(--bl);box-shadow:0 0 0 3px rgba(21,101,192,.18)}
+.tc-personas{font-size:10px;color:var(--tx2);font-weight:600;margin-bottom:4px;align-self:flex-end;width:100%;text-align:right}
+.tc-num{font-size:28px;font-weight:800;color:var(--bl);margin-bottom:2px}
+.tc-stat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:none}
+.tc.ocupada .tc-stat{display:block;color:#E65100}
+.tc.reservada .tc-stat{display:block;color:#6A1B9A}
 .tc-cap{font-size:10px;color:var(--tx3);margin-top:2px}
-.tc-total{font-size:10px;font-weight:700;color:var(--or);margin-top:1px}
+.tc-total{font-size:10px;font-weight:700;color:var(--or);margin-top:2px}
 .tables-legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .tleg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .tleg.l{background:#E8F5E9;color:#2E7D32}
 .tleg.o{background:#FFF3E0;color:#E65100}
 .tleg.r{background:#EDE7F6;color:#6A1B9A}
+
+/* Barra inferior de mesas (Seleccione una tabla...) */
+.tables-footer{position:sticky;bottom:0;background:var(--bl);color:#fff;
+  padding:14px;text-align:center;font-size:13px;font-weight:700;
+  border-radius:0;margin:0 -10px -10px;letter-spacing:.3px}
 
 /* ═══ MÓDULOS GENERALES ═══ */
 .mod-wrap{padding:10px;padding-bottom:calc(var(--bnav)+10px)}
@@ -615,93 +622,6 @@ body{background:var(--bg);color:var(--tx)}
 .user-alert-bar{background:#FFF9C4;border-top:2px solid #FFC107;padding:8px 12px;
   font-size:11px;color:#5D4037;display:flex;align-items:center;gap:6px}
 
-/* ═══ PANTALLA DETALLE MESA ═══ */
-.mesa-detail-screen{position:fixed;inset:0;background:var(--bg);z-index:250;
-  display:none;flex-direction:column;overflow:hidden}
-.mesa-detail-screen.on{display:flex}
-.mds-head{background:var(--bl);color:white;padding:10px 14px;display:flex;
-  align-items:center;gap:10px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.3)}
-.mds-back{background:none;border:none;color:white;font-size:22px;cursor:pointer;
-  padding:4px;line-height:1;flex-shrink:0}
-.mds-title{font-size:14px;font-weight:800;flex:1}
-.mds-other{background:rgba(255,255,255,.2);border:none;color:white;padding:6px 10px;
-  border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0}
-.mds-body{flex:1;overflow-y:auto;padding:10px}
-.mds-info-card{background:white;border-radius:10px;border:1px solid var(--brd);
-  padding:10px 12px;margin-bottom:8px;font-size:12px}
-.mds-info-row{display:flex;justify-content:space-between;padding:3px 0;
-  border-bottom:1px solid var(--brd)}
-.mds-info-row:last-child{border:none}
-.mds-info-lbl{color:var(--tx3);font-weight:600}
-.mds-info-val{color:var(--bl);font-weight:700}
-.mds-action-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
-.mds-act-btn{padding:11px;border:none;border-radius:9px;font-size:11px;font-weight:800;
-  cursor:pointer;text-align:center}
-.mds-item-row{display:flex;align-items:center;gap:8px;padding:7px 0;
-  border-bottom:1px solid var(--brd);font-size:12px}
-.mds-item-row:last-child{border:none}
-.mds-item-name{flex:1;font-weight:600;color:var(--bl)}
-.mds-item-price{font-size:11px;color:var(--tx2)}
-.mds-item-qty{font-size:12px;font-weight:800;color:var(--bl);min-width:40px;text-align:right}
-.mds-total-block{background:white;border-radius:10px;border:1px solid var(--brd);
-  padding:10px 12px;margin-bottom:8px}
-.mds-total-row{display:flex;justify-content:space-between;font-size:12px;
-  padding:4px 0;color:var(--tx2)}
-.mds-total-row.grand{font-weight:800;font-size:14px;color:var(--tx);
-  border-top:1px solid var(--brd);padding-top:8px;margin-top:4px}
-.mds-log{font-size:10px;color:var(--bl);padding:3px 0}
-.mds-footer{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px;
-  background:white;border-top:1px solid var(--brd);flex-shrink:0}
-.mds-foot-btn{padding:12px;border:none;border-radius:10px;font-size:11px;
-  font-weight:800;cursor:pointer;text-align:center}
-
-/* ═══ PEDIDOS MEJORADO ═══ */
-.pedido-row-v2{background:white;border-radius:var(--r);border:1px solid var(--brd);
-  padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .12s}
-.pedido-row-v2.cancelado{border-color:#FFCDD2;background:#FFF8F8}
-.pedido-row-v2.activo{border-color:var(--bl);background:var(--bll2)}
-.pr2-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.pr2-tabla{font-size:13px;font-weight:800;color:var(--bl);flex:1}
-.pr2-monto{font-size:13px;font-weight:800;color:var(--tx)}
-.pr2-status{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;
-  flex-shrink:0}
-.pr2-bottom{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx3)}
-.pr2-items{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* Detalle pedido pantalla completa */
-.pedido-detail-screen{position:fixed;inset:0;background:var(--bg);z-index:260;
-  display:none;flex-direction:column}
-.pedido-detail-screen.on{display:flex}
-.pds-head{background:var(--bl);color:white;padding:10px 14px;display:flex;
-  align-items:center;gap:10px;flex-shrink:0}
-.pds-back{background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px}
-.pds-title{font-size:13px;font-weight:800;flex:1;line-height:1.3}
-.pds-body{flex:1;overflow-y:auto;padding:10px}
-.pds-section{background:white;border-radius:10px;border:1px solid var(--brd);
-  padding:10px 12px;margin-bottom:8px}
-.pds-section-title{font-size:10px;font-weight:800;color:white;background:var(--bl);
-  padding:6px 12px;border-radius:6px;margin:-10px -12px 10px;letter-spacing:.3px;
-  text-transform:uppercase}
-.pds-row{display:flex;justify-content:space-between;font-size:12px;
-  padding:5px 0;border-bottom:1px solid var(--brd);align-items:flex-start;gap:8px}
-.pds-row:last-child{border:none}
-.pds-lbl{color:var(--tx3);font-weight:600;flex-shrink:0}
-.pds-val{font-weight:700;color:var(--bl);text-align:right}
-.pds-item-row{display:flex;align-items:center;gap:8px;padding:6px 0;
-  border-bottom:1px solid var(--brd);font-size:12px}
-.pds-item-row:last-child{border:none}
-.pds-item-name{flex:1;font-weight:600;color:var(--bl)}
-.pds-item-unit{color:var(--tx2);font-size:11px}
-.pds-item-qty{color:var(--tx2);font-size:11px;min-width:30px;text-align:center}
-.pds-item-total{font-weight:800;color:var(--tx);min-width:70px;text-align:right}
-.pds-log-entry{font-size:10px;color:var(--bl);padding:3px 0;
-  border-bottom:1px solid var(--brd)}
-.pds-log-entry:last-child{border:none}
-.pds-footer{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px;
-  background:white;border-top:1px solid var(--brd);flex-shrink:0}
-.pds-foot-btn{padding:12px;border:none;border-radius:10px;font-size:11px;
-  font-weight:800;cursor:pointer;text-align:center}
-
 /* ═══ FIN DEL DÍA ═══ */
 /* ═══ TOAST / MODALS ═══ */
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
@@ -802,51 +722,43 @@ body{background:var(--bg);color:var(--tx)}
   <!-- TOP BAR -->
   <div class="topbar">
     <button class="tb-menu" onclick="APP.openDrawer()">☰</button>
-    <div class="tb-logo">🦐</div>
+    <div class="tb-logo" id="tb-logo">🦐</div>
     <div class="tb-brand">
-      DON <span style="color:var(--or2)">CAMARÓN</span>
+      <span id="tb-title">DON <span style="color:var(--or2)">CAMARÓN</span></span>
       <small id="tb-roletext">—</small>
     </div>
     <div class="tb-spacer"></div>
     <div class="tb-icons">
       <div class="sync-dot off" id="syncdot" title="Firebase"></div>
-      <div class="tb-icon" onclick="APP.showPanel('p-userinfo','userinfo')" title="Perfil">👤</div>
+      <div class="tb-icon" style="font-size:16px" title="Ayuda">❓</div>
       <div class="tb-icon" onclick="APP.doLogout()" title="Salir">⏻</div>
     </div>
   </div>
 
-  <!-- DRAWER BG -->
+    <!-- DRAWER BG -->
   <div class="drawer-bg" id="drawer-bg" onclick="APP.closeDrawer()"></div>
 
   <!-- DRAWER -->
   <div class="drawer" id="drawer">
-    <!-- Cabecera usuario -->
-    <div class="dhead" style="padding:14px 14px 12px">
-      <div class="dav" id="dav" style="width:52px;height:52px;border-radius:50%;border:2px solid #E53935;background:var(--bl);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0">E</div>
-      <div style="flex:1;min-width:0">
-        <div class="dname" id="dname" style="font-size:14px;font-weight:700;color:white;line-height:1.2">Usuario</div>
-        <div class="drole" id="drole" style="font-size:11px;color:var(--bll3);font-weight:700;margin-top:1px">ROL</div>
+    <div class="dhead">
+      <div class="dav" id="dav">🦐</div>
+      <div>
+        <div class="dname" id="dname">Usuario</div>
+        <div class="drole" id="drole">ROL</div>
+        <div class="dpro">(PROFESSIONAL)</div>
       </div>
-      <div onclick="APP.doLogout()" style="color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:4px;flex-shrink:0" title="Cerrar sesión">→</div>
     </div>
     <div class="dbody">
-      <!-- Botones selector caja/admin -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px;border-bottom:1px solid var(--brd)">
-        <button id="drawer-tab-caja" onclick="APP.switchDrawerTab('caja')"
-          style="padding:10px 6px;border-radius:10px;border:2px solid var(--bl);background:var(--bll2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-          <span style="font-size:20px">🖥️</span>
-          <span style="font-size:9px;font-weight:800;color:var(--bl);letter-spacing:.3px">MENÚS DE CAJA</span>
-        </button>
-        <button id="drawer-tab-admin" onclick="APP.switchDrawerTab('admin')"
-          style="padding:10px 6px;border-radius:10px;border:2px solid var(--brd);background:white;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
-          <span style="font-size:20px">⚙️</span>
-          <span style="font-size:9px;font-weight:800;color:var(--tx3);letter-spacing:.3px">MENÚS DE<br>ADMINISTRACIÓN</span>
-        </button>
+      <div class="dmenu-sec">
+        <div style="display:flex;gap:8px;padding:8px;margin:0 2px">
+          <div class="dsec-head caja" style="flex:1;justify-content:center">
+            <span class="dic">🖥️</span>MENÚS DE CAJA</div>
+          <div class="dsec-head" style="flex:1;justify-content:center" id="drawer-admin-btn">
+            <span class="dic">⚙️</span>MENÚS ADMIN</div>
+        </div>
       </div>
-      <!-- Items caja -->
-      <div id="drawer-caja-items" style="padding:4px 0"></div>
-      <!-- Items admin (oculto por defecto) -->
-      <div id="drawer-admin-items" style="display:none;padding:4px 0"></div>
+      <div class="dmenu-sec" id="drawer-caja-items"></div>
+      <div class="dmenu-sec" id="drawer-admin-items" style="display:none"></div>
     </div>
     <div class="dfooter">
       <button class="dfootbtn" onclick="APP.doLogout()">⏻ &nbsp;Cerrar sesión</button>
@@ -965,62 +877,43 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ ÓRDENES DE MESA ══ -->
       <div id="p-ordenes-mesa" class="panel">
-        <!-- Barra pisos + controles -->
-        <div style="background:white;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 6px 0 0;flex-shrink:0">
-          <div class="floor-tabs" id="om-floor-tabs" style="flex:1;border:none;margin:0;padding:0 6px"></div>
-          <!-- Vista lista/grid toggle -->
-          <button onclick="APP.toggleOMView()" id="om-view-btn"
-            style="width:32px;height:32px;border-radius:6px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:14px;flex-shrink:0">⊞</button>
-          <div style="display:flex;align-items:center;gap:0;margin-left:4px;flex-shrink:0">
-            <button onclick="APP.omPrev()" style="width:28px;height:28px;border:1.5px solid var(--brd);border-radius:4px 0 0 4px;background:white;cursor:pointer;font-size:13px">←</button>
-            <button onclick="APP.omNext()" style="width:28px;height:28px;border:1.5px solid var(--brd);border-left:none;border-radius:0 4px 4px 0;background:white;cursor:pointer;font-size:13px">→</button>
+        <div class="mod-wrap">
+          <div class="mod-head">
+            <div class="mod-title">Órdenes de mesa</div>
+            <span id="ordenes-count" style="background:var(--or);color:white;
+              border-radius:10px;font-size:11px;padding:3px 10px;font-weight:700">0</span>
           </div>
-        </div>
-        <!-- Grid mesas -->
-        <div class="cnt" style="flex:1;overflow-y:auto">
-          <div style="padding:8px 8px 0" id="om-grid"></div>
-        </div>
-        <!-- Barra inferior azul: selección / QR -->
-        <div style="background:var(--bl);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-          <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer">📷</div>
-          <div style="font-size:13px;font-weight:600" id="om-hint">Seleccione una tabla para realizar acciones ...</div>
-          <div style="width:40px"></div>
+          <div id="ordenes-mesa-list"></div>
         </div>
       </div>
 
       <!-- ══ MESAS ══ -->
       <div id="p-tables" class="panel">
-        <div class="tables-wrap">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div class="mod-title">Gestión de la mesa</div>
-            <div class="tables-legend">
-              <span class="tleg l">● Vacío</span>
-              <span class="tleg o">● Ordenado</span>
-              <span class="tleg r">● Reservada</span>
-            </div>
-          </div>
-          <div class="tables-stat" id="tables-stat"></div>
+        <div class="tables-wrap" style="padding-bottom:calc(var(--bnav)+60px)">
           <div class="floor-tabs" id="floor-tabs"></div>
           <div class="tgrid" id="tgrid"></div>
+          <!-- Barra inferior fija -->
+          <div class="tables-footer" id="tables-footer">Seleccione una tabla para realizar acciones ...</div>
+        </div>
+        <!-- Botón QR flotante -->
+        <div style="position:fixed;bottom:calc(var(--bnav)+70px);left:12px;z-index:50">
+          <button onclick="APP.showPanel('p-qr','qr')"
+            style="width:52px;height:52px;border-radius:50%;background:var(--bl);
+            border:none;color:#fff;font-size:22px;cursor:pointer;
+            box-shadow:0 4px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">
+            📄
+          </button>
         </div>
       </div>
 
       <!-- ══ PEDIDOS ══ -->
       <div id="p-pedidos" class="panel">
         <div class="mod-wrap">
-          <div class="kit-tabs" id="pedidos-tabs" style="padding-right:32px;position:relative">
+          <div class="kit-tabs" id="pedidos-tabs">
             <div class="ktab on" onclick="APP.switchPedidosTab('todas',this)">TODAS</div>
             <div class="ktab" onclick="APP.switchPedidosTab('mesa',this)">ÓRDENES DE MESA</div>
             <div class="ktab" onclick="APP.switchPedidosTab('mensajeria',this)">ÓRDENES DE MENSAJERÍA</div>
             <div class="ktab" onclick="APP.switchPedidosTab('restaurante',this)">PEDIDOS DE RESTAURANTE</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('llevar',this)">ÓRDENES PARA LLEVAR</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('credito',this)">PEDIDOS A CRÉDITO</div>
-            <div style="position:absolute;right:6px;top:6px;display:flex;flex-direction:column;gap:2px;cursor:pointer"
-              onclick="APP.openPedidosFiltro()">
-              <div style="width:18px;height:2px;background:var(--bl);border-radius:2px"></div>
-              <div style="width:14px;height:2px;background:var(--bl);border-radius:2px"></div>
-              <div style="width:10px;height:2px;background:var(--bl);border-radius:2px"></div>
-            </div>
           </div>
           <div id="pedidos-list"></div>
           <div id="pedidos-total-bar" class="pedidos-total-bar" style="display:none"></div>
@@ -1098,19 +991,7 @@ body{background:var(--bg);color:var(--tx)}
             </div>
           </div>
           <div class="report-sec">
-            <h3>VENTAS POR USUARIO</h3>
-            <div style="background:var(--bl);color:white;display:grid;grid-template-columns:1fr 80px 90px;padding:8px 12px;font-size:11px;font-weight:700;border-radius:6px;margin-bottom:6px">
-              <div>Nombre de usuario</div>
-              <div style="text-align:center">Porcentaje (%)</div>
-              <div style="text-align:right">Cantidad de ventas</div>
-            </div>
-            <div id="r-ventas-usuario"></div>
-            <div style="display:grid;grid-template-columns:1fr 80px 90px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--bl);border-top:2px solid var(--brd);margin-top:4px">
-              <div>TOTAL</div>
-              <div style="text-align:center" id="r-vu-pct">100 %</div>
-              <div style="text-align:right" id="r-vu-total">0.00 $</div>
-            </div>
-          </div>
+            <h3>CANTIDADES DE VENTAS POR TIEMPO</h3>
             <div id="r-ventas-chart" style="padding:4px 0">
               <canvas id="ventasChart" height="140"></canvas>
             </div>
@@ -1201,56 +1082,30 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ GESTIÓN DE PRODUCTOS ══ -->
       <div id="p-productos" class="panel">
-        <div class="mod-wrap" style="padding-bottom:calc(var(--bnav)+60px)">
+        <div class="mod-wrap">
           <div class="mod-head">
             <div class="mod-title">Gestión de productos</div>
-            <div style="display:flex;gap:6px">
-              <button class="add-btn" style="background:var(--sf2);color:var(--bl);border:1.5px solid var(--bl)" onclick="APP.openCatSheet()">⚙️ Cat.</button>
-              <button class="add-btn" onclick="APP.openProductoModal()">+ Añadir</button>
-            </div>
+            <button class="add-btn" onclick="APP.openProductoModal()">+ Añadir</button>
           </div>
-          <!-- Tabs categorías con ícono config -->
-          <div style="display:flex;align-items:center;gap:0;margin:0 -10px 8px;border-bottom:2px solid var(--brd);background:white">
-            <div class="cat-tabs" id="prod-cats" style="margin:0;padding:0 6px;flex:1;overflow-x:auto"></div>
-          </div>
-          <!-- Barra búsqueda productos -->
-          <div style="display:flex;gap:6px;margin-bottom:8px">
-            <input id="prod-search" placeholder="🔍 Buscar producto..." type="search"
-              style="flex:1;padding:7px 10px;border:1.5px solid var(--brd);border-radius:20px;font-size:12px;outline:none;-webkit-user-select:text;user-select:text"
-              oninput="APP.filterProdGrid(this.value)">
-          </div>
+          <div class="cat-tabs" id="prod-cats" style="margin:0 -10px 10px;padding:0 6px"></div>
           <div class="prod-grid" id="prod-grid"></div>
-          <div class="seleccion-hint">Toque un producto para editar · Total: <span id="prod-count">0</span></div>
+          <div class="seleccion-hint">Seleccione un producto para ver los detalles</div>
         </div>
-        <!-- FAB agregar -->
-        <!-- FAB movido a global -->
       </div>
 
       <!-- ══ GESTIÓN DE USUARIOS ══ -->
       <div id="p-usuarios" class="panel">
-        <div class="mod-wrap" style="padding-bottom:calc(var(--bnav)+10px)">
+        <div class="mod-wrap">
           <div class="mod-title" style="margin-bottom:10px">Gestión de usuarios</div>
           <div class="user-tab-strip" id="user-tabs"></div>
-          <!-- Cabecera tabla -->
-          <div class="user-table-head" style="grid-template-columns:1fr 90px 52px 36px">
-            <div>Nombre de usuario</div>
-            <div>Rol del usuario</div>
-            <div style="text-align:center">Activo</div>
-            <div style="display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="APP.selectAllUsers()" title="Seleccionar todos">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="1" y="4" width="10" height="2" rx="1" fill="white"/>
-                <rect x="1" y="8" width="10" height="2" rx="1" fill="white"/>
-                <rect x="1" y="12" width="10" height="2" rx="1" fill="white"/>
-                <path d="M12 5l2 2-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-            </div>
+          <div class="user-table-head">
+            <div>Nombre de usuario</div><div>Rol del usuario</div>
+            <div style="text-align:center">Activo pasivo</div><div></div>
           </div>
           <div id="users-list"></div>
-          <!-- Pie fijo -->
-          <div style="position:sticky;bottom:0;background:white;border-top:1px solid var(--brd);padding:8px 0;margin-top:8px">
-            <button class="add-btn" style="width:100%;justify-content:center;background:var(--bl)"
-              onclick="APP.openUserModal()">⊕ Editar datos de usuario seleccionados</button>
-          </div>
+          <div class="seleccion-hint">Seleccione usuario para ver los detalles</div>
+          <button class="add-btn" style="width:100%;justify-content:center;margin-top:10px"
+            onclick="APP.openUserModal()">⊕ Haga clic para agregar usuarios</button>
         </div>
       </div>
 
@@ -1408,94 +1263,17 @@ body{background:var(--bg);color:var(--tx)}
         </div>
       </div>
 
-
-      <!-- ══ CONFIGURACIÓN ADMINISTRADOR ══ -->
-      <div id="p-admin-config" class="panel">
-        <div class="mod-wrap" style="padding-bottom:calc(var(--bnav)+10px)">
-          <div class="mod-title" style="margin-bottom:10px">Configuración de administrador</div>
-          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Permisos de usuario de cajero</div>
-          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
-            <div onclick="APP.adminCfgDescuento()" style="padding:10px 0;border-bottom:1px solid var(--brd);cursor:pointer">
-              <div style="font-size:13px;font-weight:700;color:var(--bl)">Tasa de descuento máxima que podría realizar el usuario del cajero (%)</div>
-              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-descuento-val">5</div>
-            </div>
-            <div onclick="APP.adminCfgPagos()" style="padding:10px 0;border-bottom:1px solid var(--brd);cursor:pointer">
-              <div style="font-size:13px;font-weight:700;color:var(--bl)">Formas de pago</div>
-              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-pagos-val">Dinero en efectivo, Tarjeta de crédito, Boleto de la comida</div>
-            </div>
-            <div onclick="APP.adminCfgTipoOrden()" style="padding:10px 0;border-bottom:1px solid var(--brd);cursor:pointer">
-              <div style="font-size:13px;font-weight:700;color:var(--bl)">Tipo de orden de mesa en línea</div>
-              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-tipo-orden-val">Mostrar solo menú al cliente</div>
-            </div>
-            <div onclick="APP.adminCfgQR()" style="padding:10px 0;cursor:pointer">
-              <div style="font-size:13px;font-weight:700;color:var(--bl)">Orden de mesa en línea Tamaño de salida QR</div>
-              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-qr-val">A5</div>
-            </div>
-          </div>
-          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Configuración de inventario</div>
-          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
-              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">Cantidad de inventario negativas</div>
-                <div style="font-size:12px;color:var(--tx2);margin-top:2px">No permitir cantidad de inventario negativas</div></div>
-              <div class="tog" id="tog-inv-neg" onclick="this.classList.toggle('on')"></div>
-            </div>
-          </div>
-          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Configuración general</div>
-          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
-              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">Configuración de inicio automático</div>
-                <div style="font-size:12px;color:var(--tx2);margin-top:2px">RePOS no se inicia automáticamente cuando el dispositivo se reinicia.</div></div>
-              <div class="tog" onclick="this.classList.toggle('on')"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
-              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">¿Configuración de pantalla completa?</div>
-                <div style="font-size:12px;color:var(--tx2);margin-top:2px">¡La aplicación se ejecutará en pantalla completa!</div></div>
-              <div class="tog" onclick="this.classList.toggle('on')"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
-              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">¿Orientación gestionada por la aplicación?</div>
-                <div style="font-size:12px;color:var(--tx2);margin-top:2px">La aplicación NO gestiona automáticamente la orientación.</div></div>
-              <div class="tog" onclick="this.classList.toggle('on')"></div>
-            </div>
-            <div onclick="APP.adminCfgOrientacion()" style="padding:10px 0;cursor:pointer">
-              <div style="font-size:13px;font-weight:700;color:var(--bl)">Modo de orientación</div>
-              <div style="font-size:12px;color:var(--tx2);margin-top:2px" id="acfg-orient-val">Modo teléfono / Vertical</div>
-            </div>
-          </div>
-          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Firebase / Datos</div>
-          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
-            <div id="fb-status-admin" style="font-size:12px;color:var(--tx2);margin-bottom:8px">Verificando...</div>
-            <button class="config-btn" onclick="APP.uploadMenu()">⬆️ Subir menú a Firebase</button>
-            <button class="config-btn" style="margin-top:6px" onclick="APP.initAllTables()">🪑 Reinicializar todas las mesas</button>
-          </div>
-        </div>
-      </div>
-
       <!-- ══ GESTIÓN DE LA MESA (admin) ══ -->
       <div id="p-gestion-mesa" class="panel">
+        <div class="tables-wrap">
           <div class="mod-head">
             <div class="mod-title">Gestión de la mesa</div>
-            <div style="display:flex;gap:6px">
-              <!-- toggle vista lista/grid -->
-              <button id="gm-view-btn" onclick="APP.toggleGMView()"
-                style="background:var(--bll2);border:1.5px solid var(--bl);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">⊞</button>
-              <!-- nav pisos -->
-              <button onclick="APP.gmPrevFloor()" style="width:30px;height:30px;border-radius:7px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:14px">←</button>
-              <button onclick="APP.gmNextFloor()" style="width:30px;height:30px;border-radius:7px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:14px">→</button>
-            </div>
+            <button class="add-btn" onclick="APP.openFloorSheet()">⚙️</button>
           </div>
-          <!-- Tabs pisos + botón config -->
-          <div style="display:flex;align-items:center;border-bottom:2px solid var(--brd);margin-bottom:8px">
-            <div class="floor-tabs" id="gm-floor-tabs" style="flex:1;margin:0;border:none"></div>
-            <button onclick="APP.openFloorSheet()" style="flex-shrink:0;padding:6px 8px;background:none;border:none;cursor:pointer;font-size:18px">⚙️</button>
-          </div>
-          <div id="gm-body"></div>
-          <div style="font-size:11px;color:var(--tx3);text-align:center;padding:6px">
-            ⊕ Seleccione la tabla relacionada para ver los detalles
-          </div>
+          <div class="floor-tabs" id="gm-floor-tabs"></div>
+          <div class="tgrid" id="gm-tgrid" style="margin-top:8px"></div>
+          <div class="seleccion-hint">Seleccione la tabla relacionada para ver los detalles</div>
         </div>
-
-
       </div>
 
       <!-- ══ INFORMACIÓN DEL USUARIO ══ -->
@@ -1530,172 +1308,6 @@ body{background:var(--bg);color:var(--tx)}
 
     </div><!-- end cnt -->
     <nav class="bnav" id="bnav"></nav>
-  </div>
-</div>
-
-<!-- ══ PANTALLA DETALLE DE MESA ══ -->
-<div class="mesa-detail-screen" id="mesa-detail-screen">
-  <div class="mds-head">
-    <button class="mds-back" onclick="APP.closeMesaDetail()">←</button>
-    <div class="mds-title" id="mds-title">Mesa 01</div>
-    <button class="mds-other" onclick="APP.openMesaDetailOtras()">Otro<br>Opciones</button>
-  </div>
-  <div class="mds-body" id="mds-body"></div>
-  <div class="mds-footer">
-    <button class="mds-foot-btn" style="background:var(--rd2);color:var(--rd)" onclick="APP.mesaDetailCancelar()">CANCELAR ORDEN</button>
-    <button class="mds-foot-btn" style="background:#E8F5E9;color:var(--gr)" onclick="APP.mesaDetailAgregar()">AGREGAR</button>
-    <button class="mds-foot-btn" style="background:var(--bll2);color:var(--bl)" onclick="APP.mesaDetailVolver()">VOLVER</button>
-    <button class="mds-foot-btn" style="background:var(--bl);color:white" onclick="APP.mesaDetailOrdenCompleta()">ORDEN COMPLETA</button>
-  </div>
-</div>
-
-<!-- ══ PANTALLA DETALLE PEDIDO ══ -->
-<div class="pedido-detail-screen" id="pedido-detail-screen">
-  <div class="pds-head">
-    <button class="pds-back" onclick="APP.closePedidoDetail()">←</button>
-    <div class="pds-title" id="pds-title">Pedido</div>
-    <div style="font-size:18px;cursor:pointer" onclick="APP.showToast('Compartir pedido próximamente')">↗</div>
-  </div>
-  <div class="pds-body" id="pds-body"></div>
-  <div class="pds-footer">
-    <button class="pds-foot-btn" style="background:var(--rd2);color:var(--rd)" onclick="APP.pedidoDetailCancelar()">CANCELAR ORDEN</button>
-    <button class="pds-foot-btn" style="background:var(--bll2);color:var(--bl)" onclick="APP.pedidoDetailEditar()">EDITAR ORDEN</button>
-    <button class="pds-foot-btn" style="background:#E8F5E9;color:var(--gr)" onclick="APP.showToast('Impresión próximamente')">IMPRESIÓN</button>
-    <button class="pds-foot-btn" style="background:var(--sf2);color:var(--tx2)" onclick="APP.closePedidoDetail()">VOLVER</button>
-  </div>
-</div>
-
-<!-- ══ SHEET OTRAS OPCIONES MESA ══ -->
-<div class="otras-sheet" id="mesa-otras-sheet">
-  <div class="otras-body">
-    <div class="otras-title">Otras opciones — Mesa <span id="mds-otras-num"></span></div>
-    <button class="otras-btn" onclick="APP.mesaOtraDescuento()">DESCUENTO:</button>
-    <button class="otras-btn" onclick="APP.mesaOtraCambio()">MESA DE CAMBIO</button>
-    <button class="otras-btn" onclick="APP.mesaOtraFusion()">MESA DE FUSIÓN</button>
-    <button class="otras-btn" style="background:#9E9E9E" onclick="document.getElementById('mesa-otras-sheet').classList.remove('on')">CANCELAR</button>
-  </div>
-</div>
-
-<!-- ══ MODAL NUEVA / EDITAR MESA ══ -->
-<div class="modal-bg" id="nueva-mesa-modal">
-  <div class="modal">
-    <h3 id="nueva-mesa-title">Nueva mesa</h3>
-    <input type="hidden" id="nm-id">
-    <div class="modal-label">Nombre de la tabla</div>
-    <input id="nm-nombre" placeholder="Ej: 01, M1, VIP1..." style="-webkit-user-select:text;user-select:text">
-    <div class="modal-label">Categoría (Piso)</div>
-    <select id="nm-cat">
-      <option value="PISO 1">PISO 1 — Sala principal</option>
-      <option value="TERRAZA">TERRAZA — Exterior</option>
-      <option value="NIVEL CALLE">NIVEL CALLE — Exterior</option>
-    </select>
-    <div class="modal-label">Capacidad (personas)</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:.7rem">
-      <button onclick="APP.nmChgCap(-1)" style="width:36px;height:36px;border-radius:8px;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:20px;cursor:pointer">−</button>
-      <input id="nm-cap" type="number" value="4" min="1" max="20" style="width:60px;text-align:center;padding:8px;border:1.5px solid var(--brd);border-radius:8px;font-size:14px;font-weight:700;-webkit-user-select:text;user-select:text">
-      <button onclick="APP.nmChgCap(1)" style="width:36px;height:36px;border-radius:8px;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:20px;cursor:pointer">+</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.7rem">
-      <input type="checkbox" id="nm-activo" checked style="width:20px;height:20px;accent-color:var(--bl)">
-      <label for="nm-activo" style="font-size:13px;font-weight:600;color:var(--bl)">Activo</label>
-    </div>
-    <div class="modal-btns">
-      <button class="mbtn red" id="nm-del-btn" onclick="APP.deleteMesa()" style="display:none">Eliminar</button>
-      <button class="mbtn sec" onclick="APP.closeModal('nueva-mesa-modal')">Cancelar</button>
-      <button class="mbtn pri" onclick="APP.saveNuevaMesa()">AGREGAR</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MODAL USUARIO ══ -->
-<div class="modal-bg" id="user-modal">
-  <div class="modal">
-    <h3 id="user-modal-title">Agregar usuario</h3>
-    <input type="hidden" id="um-idx">
-    <div class="modal-label">Nombre de usuario</div>
-    <input id="um-nombre" placeholder="Nombre del usuario" style="-webkit-user-select:text;user-select:text">
-    <div class="modal-label">Rol del usuario</div>
-    <select id="um-rol">
-      <option value="cajero">CAJERO</option>
-      <option value="admin">ADMINISTRACIÓN</option>
-      <option value="cocina">COCINA</option>
-      <option value="mesero">MESERO</option>
-      <option value="repartidor">REPARTIDOR</option>
-    </select>
-    <div class="modal-label">Número de teléfono</div>
-    <div style="display:flex;gap:6px;margin-bottom:.7rem">
-      <div style="padding:9px 10px;border:1.5px solid var(--brd);border-radius:9px;font-size:12px;color:var(--tx2);background:var(--sf2)">🇻🇪 +58</div>
-      <input id="um-tel" type="tel" placeholder="424-7592144" style="flex:1;-webkit-user-select:text;user-select:text">
-    </div>
-    <div class="modal-label">Contraseña</div>
-    <input id="um-pass" type="password" placeholder="Dejar vacío = sin contraseña" style="-webkit-user-select:text;user-select:text">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:.5rem;padding:6px 0">
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-        <input type="checkbox" id="um-activo" checked style="accent-color:var(--bl)"> Activo
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-        <input type="checkbox" id="um-sinpass" checked style="accent-color:var(--bl)"> Sin contraseña
-      </label>
-    </div>
-    <div class="modal-btns">
-      <button class="mbtn red" id="um-del-btn" onclick="APP.deleteUser()" style="display:none">Eliminar</button>
-      <button class="mbtn sec" onclick="APP.closeModal('user-modal')">Cancelar</button>
-      <button class="mbtn pri" onclick="APP.saveUser()">AGREGAR</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ SHEET CATEGORÍAS PRODUCTO ══ -->
-<div class="sheet-bg" id="cat-sheet">
-  <div class="sheet">
-    <h4>Gestionar categorías</h4>
-    <button class="sheet-btn" onclick="APP.catAdd()">+ AÑADIR NUEVA CATEGORÍA</button>
-    <button class="sheet-btn red" onclick="APP.catDelete()">✕ ELIMINAR CATEGORÍA SELECCIONADA</button>
-    <button class="sheet-btn" onclick="APP.catEdit()">✏️ EDITAR CATEGORÍA</button>
-    <button class="sheet-btn cancel" onclick="APP.closeSheet('cat-sheet')">Cancelar</button>
-  </div>
-</div>
-
-<!-- ══ MODAL EDITAR PRODUCTO ══ -->
-<div class="modal-bg" id="prod-edit-modal">
-  <div class="modal">
-    <h3 id="pem-title">Información del Producto</h3>
-    <input type="hidden" id="pem-orig-name">
-    <input type="hidden" id="pem-orig-cat">
-    <div style="position:relative;width:100%;height:80px;border:2px dashed var(--brd);border-radius:9px;margin-bottom:.6rem;cursor:pointer;overflow:hidden" onclick="document.getElementById('pem-file').click()">
-      <img id="pem-photo-prev" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
-      <div id="pem-photo-ph" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--tx3);gap:6px">📷 Foto del plato</div>
-    </div>
-    <input type="file" id="pem-file" accept="image/*" style="display:none" onchange="APP.pemPreviewPhoto(this)">
-    <div class="modal-label">Nombre del producto</div>
-    <input id="pem-name" placeholder="Nombre del plato" style="-webkit-user-select:text;user-select:text">
-    <div class="modal-label">Código de barras (opcional)</div>
-    <input id="pem-barcode" placeholder="Escanear o escribir..." style="-webkit-user-select:text;user-select:text">
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:.5rem">
-      <div><div class="modal-label">Precio</div><input id="pem-price" type="number" placeholder="0" style="-webkit-user-select:text;user-select:text"></div>
-      <div><div class="modal-label">Precio compra</div><input id="pem-cost" type="number" placeholder="0" style="-webkit-user-select:text;user-select:text"></div>
-      <div><div class="modal-label">Desc.</div><input id="pem-disc" type="number" placeholder="0" style="-webkit-user-select:text;user-select:text"></div>
-    </div>
-    <div class="modal-label">Descripción</div>
-    <textarea id="pem-desc" placeholder="Descripción breve..." rows="2" style="-webkit-user-select:text;user-select:text;resize:none;width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px;font-size:13px;font-family:inherit;outline:none;margin-bottom:.5rem"></textarea>
-    <div class="modal-label">Tiempo preparación (min)</div>
-    <input id="pem-tiempo" type="number" placeholder="10" min="0" style="-webkit-user-select:text;user-select:text">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:.5rem;padding:4px 0">
-      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="pem-activo" checked style="accent-color:var(--bl)"> Activo</label>
-      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="pem-online" checked style="accent-color:var(--bl)"> En línea</label>
-    </div>
-    <div class="modal-label">Categoría</div>
-    <select id="pem-cat" style="margin-bottom:.5rem"></select>
-    <div class="modal-label">Unidad</div>
-    <select id="pem-unit" style="margin-bottom:.5rem">
-      <option>Trozo</option><option>Unidad</option><option>Porción</option>
-      <option>Plato</option><option>Vaso</option><option>Botella</option><option>Kg</option>
-    </select>
-    <div class="modal-btns">
-      <button class="mbtn red" id="pem-del-btn" onclick="APP.deleteProd()" style="display:none">Eliminar</button>
-      <button class="mbtn sec" onclick="APP.closeModal('prod-edit-modal')">Cancelar</button>
-      <button class="mbtn pri" onclick="APP.saveProdEdit()">AGREGAR</button>
-    </div>
   </div>
 </div>
 
@@ -1977,14 +1589,6 @@ body{background:var(--bg);color:var(--tx)}
   </div>
 </div>
 
-<!-- ══ FAB GLOBAL ARRASTRABLE ══ -->
-<button id="global-fab" onclick="APP.fabAction()"
-  style="position:fixed;bottom:calc(var(--bnav)+14px);right:14px;width:52px;height:52px;
-  border-radius:50%;background:var(--bl);color:white;border:none;font-size:26px;
-  box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:40;
-  display:none;align-items:center;justify-content:center;touch-action:none;
-  user-select:none;-webkit-user-select:none">+</button>
-
 <!-- ══ ORDEN COMPLETADA ══ -->
 <div class="done-screen" id="done-screen">
   <div class="done-check">✓</div>
@@ -2151,7 +1755,7 @@ APP.perms = {
     verUsuarios:true,verProductos:true,verMercado:true,verNegocio:true,
     caja:['catalog','order','tables','ordenes-mesa','pedidos'],
     admin:['inventory','reports','kitchen','gastos','clientes','reservas','findel',
-           'productos','usuarios','negocio','config','mercado','gestion-mesa','admin-config'],
+           'productos','usuarios','negocio','config','mercado','gestion-mesa'],
     nav:['catalog','order','tables','pedidos','reports']},
   supervisor:{label:'Supervisor',verPrecios:true,cobrar:false,verInformes:true,
     verGastos:false,verClientes:true,verConfig:false,verInventario:true,
@@ -2196,7 +1800,6 @@ APP.navCfg = {
   'negocio':{icon:'🏢',label:'Información de negocios',panel:'p-negocio'},
   'config':{icon:'⚙️',label:'Configuración del cajero',panel:'p-config'},
   'mercado':{icon:'🌐',label:'Mercado en línea',panel:'p-mercado'},
-  'admin-config':{icon:'🔧',label:'Configuración de administrador',panel:'p-admin-config'},
   'gestion-mesa':{icon:'🗺️',label:'Gestión de la mesa',panel:'p-gestion-mesa'},
 };
 
@@ -2384,7 +1987,6 @@ APP.doLogin = function(){
   document.getElementById('tb-roletext').textContent=p.label.toUpperCase();
   document.getElementById('dname').textContent=u;
   document.getElementById('drole').textContent=p.label.toUpperCase();
-  const av=document.getElementById('dav'); if(av) av.textContent=(u[0]||'U').toUpperCase();
   document.getElementById('ui-name').textContent=u;
   document.getElementById('ui-role').textContent=p.label.toUpperCase();
   document.getElementById('ui-linked-name').textContent='Erick Martinez';
@@ -2408,74 +2010,26 @@ APP.doLogout = function(){
 };
 
 // ── DRAWER ───────────────────────────────────
-APP._drawerTab = 'caja';
-APP.switchDrawerTab = function(tab){
-  APP._drawerTab = tab;
-  const cajabtn = document.getElementById('drawer-tab-caja');
-  const adminbtn = document.getElementById('drawer-tab-admin');
-  const cajaitems = document.getElementById('drawer-caja-items');
-  const adminitems = document.getElementById('drawer-admin-items');
-  if(tab === 'caja'){
-    cajabtn.style.borderColor='var(--bl)'; cajabtn.style.background='var(--bll2)';
-    cajabtn.querySelector('span:last-child').style.color='var(--bl)';
-    adminbtn.style.borderColor='var(--brd)'; adminbtn.style.background='white';
-    adminbtn.querySelector('span:last-child').style.color='var(--tx3)';
-    cajaitems.style.display='block'; adminitems.style.display='none';
-  } else {
-    adminbtn.style.borderColor='var(--bl)'; adminbtn.style.background='var(--bll2)';
-    adminbtn.querySelector('span:last-child').style.color='var(--bl)';
-    cajabtn.style.borderColor='var(--brd)'; cajabtn.style.background='white';
-    cajabtn.querySelector('span:last-child').style.color='var(--tx3)';
-    adminitems.style.display='block'; cajaitems.style.display='none';
-  }
-};
 APP.buildDrawer = function(){
-  const p = APP.perms[APP.role];
-  // Íconos SVG-style en base64/emoji para cada sección — usar emojis descriptivos
-  const menuIcons = {
-    'catalog':'⏱️','order':'📋','tables':'🪑','ordenes-mesa':'🍽️','pedidos':'📑',
-    'mercado':'🏪','inventory':'📦','reports':'📊','kitchen':'👨‍🍳','gastos':'💵',
-    'clientes':'👤','reservas':'📅','findel':'🏁','config':'⚙️',
-    'productos':'🎁','usuarios':'👥','negocio':'🏢','gestion-mesa':'🪑',
-  };
-  // Construir ítem de drawer estilo RePOS: ícono grande a la izq, label, badge a la der
-  const mkItem = k => {
-    const c = APP.navCfg[k];
-    if(!c) return '';
-    const ico = menuIcons[k] || c.icon;
-    const hasBadge = k==='pedidos'||k==='kitchen'||k==='ordenes-mesa'||k==='mercado';
-    return `<div class="di" id="dm-${k}" onclick="APP.showPanel('${c.panel}','${k}');APP.closeDrawer()"
-      style="padding:12px 16px;gap:14px;border-bottom:1px solid var(--brd)">
-      <span style="font-size:22px;width:28px;text-align:center;flex-shrink:0">${ico}</span>
-      <span class="dlabel" style="font-size:13px;font-weight:500;color:var(--tx);flex:1">${c.label}</span>
-      ${hasBadge ? `<span class="dbadge" id="dm-badge-${k}" style="display:none;background:var(--bl);color:white;border-radius:10px;font-size:11px;padding:1px 8px;font-weight:700;min-width:20px;text-align:center">0</span>` : ''}
+  const p=APP.perms[APP.role];
+  const mkItem=k=>{
+    const c=APP.navCfg[k];
+    return `<div class="di" id="dm-${k}" onclick="APP.showPanel('${c.panel}','${k}');APP.closeDrawer()">
+      <span class="dic">${c.icon}</span>
+      <span class="dlabel">${c.label}</span>
+      ${k==='pedidos'||k==='kitchen'?`<span class="dbadge" id="dm-badge-${k}" style="display:none">0</span>`:''}
     </div>`;
   };
-
-  // ── MENÚS DE CAJA — orden exacto como RePOS ──
-  const cajaOrder = [
-    'catalog','ordenes-mesa','pedidos','mercado',
-    'inventory','reports','gastos','clientes','reservas','findel','config'
-  ].filter(k => p.caja.includes(k) || p.admin.includes(k) || p.nav.includes(k));
-
-  // Filtrar solo los que el rol puede ver
-  const cajaAllowed = [
-    'catalog','ordenes-mesa','pedidos','mercado',
-    'inventory','reports','gastos','clientes','reservas','findel','config'
-  ].filter(k => p.caja.includes(k)||p.admin.includes(k));
-
-  const adminAllowed = [
-    'productos','usuarios','negocio','gestion-mesa','admin-config'
-  ].filter(k => p.admin.includes(k));
-
-  document.getElementById('drawer-caja-items').innerHTML = cajaAllowed.map(mkItem).join('');
-  document.getElementById('drawer-admin-items').innerHTML = adminAllowed.length
-    ? adminAllowed.map(mkItem).join('')
-    : '<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:12px">Sin acceso a administración</div>';
-
-  // Actualizar avatar con inicial del usuario
-  const av = document.getElementById('dav');
-  if(av) av.textContent = (APP.user||'U')[0].toUpperCase();
+  document.getElementById('drawer-caja-items').innerHTML=p.caja.map(mkItem).join('');
+  if(p.admin.length){
+    document.getElementById('drawer-admin-items').innerHTML=p.admin.map(mkItem).join('');
+    document.getElementById('drawer-admin-btn').onclick=function(){
+      const el=document.getElementById('drawer-admin-items');
+      el.style.display=el.style.display==='none'?'block':'none';
+    };
+  } else {
+    document.getElementById('drawer-admin-btn').style.opacity='0.4';
+  }
 };
 
 // ── NAV ──────────────────────────────────────
@@ -2497,73 +2051,35 @@ APP.showPanel = function(pid,nk){
   const p=document.getElementById(pid); if(p) p.classList.add('on');
   const n=document.getElementById('ni-'+nk); if(n) n.classList.add('on');
   const d=document.getElementById('dm-'+nk); if(d) d.classList.add('on');
+  // Update topbar title to match RePOS icons/labels
+  const titles={
+    catalog:'⏱ Pedido rápido', order:'📋 Resumen de la orden',
+    tables:'🪑 Órdenes de mesa', 'ordenes-mesa':'🍽️ Órdenes activas',
+    pedidos:'📑 Pedidos', kitchen:'👨‍🍳 Cocina',
+    reports:'📊 Informe', inventory:'📦 Inventario',
+    gastos:'💸 Gastos', clientes:'👥 Clientes',
+    reservas:'📅 Reservas', findel:'🏁 Fin del día',
+    productos:'🎁 Productos', usuarios:'👤 Usuarios',
+    admin:'⚙️ Config. cajero', negocio:'🏢 Negocio',
+    mercado:'🌐 Mercado', qr:'📄 QR de mesa',
+  };
+  const tEl=document.getElementById('tb-title');
+  if(tEl){
+    if(nk==='catalog'&&APP._catalogMesa){
+      tEl.innerHTML=`✏️ Órdenes de mesa &gt; ${APP._catalogMesa}`;
+    } else {
+      tEl.innerHTML=titles[nk]||'DON <span style="color:var(--or2)">CAMARÓN</span>';
+      if(nk!=='catalog') APP._catalogMesa=''; // reset when leaving catalog
+    }
+  }
+  // Reset mesa selection when leaving tables
+  if(nk!=='tables'){ APP._mesaSelId=''; clearTimeout(APP._mesaTapTimer); }
   if(nk==='reports') APP.renderReports();
   if(nk==='findel') APP.renderFinDel();
   if(nk==='inventory') APP.renderInv();
-  if(nk==='pedidos') APP.renderPedidos();
-  if(nk==='ordenes-mesa') APP.renderOrdenesMesa();
-  if(nk==='gastos') APP.renderGastos();
   if(nk==='usuarios') APP.renderUsers();
   if(nk==='clientes') APP.renderClientes();
-  // Mostrar/ocultar FAB global según la sección activa
-  APP._currentPanel=nk;
-  APP.updateFAB();
 };
-// Paneles que tienen FAB y su acción
-APP._fabMap={
-  'productos': {action:'APP.openProductoModal()', icon:'+'},
-  'gestion-mesa': {action:'APP.openNuevaMesaModal()', icon:'+'},
-  'clientes': {action:'APP.openClienteModal()', icon:'+'},
-  'gastos': {action:'APP.openGastoModal()', icon:'+'},
-  'reservas': {action:'APP.openReservaModal()', icon:'+'},
-};
-APP.updateFAB = function(){
-  const fab=document.getElementById('global-fab');
-  if(!fab) return;
-  const cfg=APP._fabMap[APP._currentPanel];
-  if(cfg){
-    fab.style.display='flex';
-    fab.innerHTML=cfg.icon;
-    fab._action=cfg.action;
-  } else {
-    fab.style.display='none';
-  }
-};
-APP.fabAction = function(){
-  const fab=document.getElementById('global-fab');
-  if(fab&&fab._action&&!fab._dragged) eval(fab._action);
-};
-// Drag logic para FAB
-(function(){
-  let fab,startX,startY,fabX,fabY,dragging=false,moved=false;
-  document.addEventListener('DOMContentLoaded',()=>{
-    fab=document.getElementById('global-fab');
-    if(!fab) return;
-    fab.addEventListener('touchstart',e=>{
-      const t=e.touches[0];
-      startX=t.clientX; startY=t.clientY;
-      const r=fab.getBoundingClientRect();
-      fabX=r.left; fabY=r.top;
-      dragging=true; moved=false; fab._dragged=false;
-      e.preventDefault();
-    },{passive:false});
-    document.addEventListener('touchmove',e=>{
-      if(!dragging) return;
-      const t=e.touches[0];
-      const dx=t.clientX-startX; const dy=t.clientY-startY;
-      if(Math.abs(dx)>5||Math.abs(dy)>5){ moved=true; fab._dragged=true; }
-      if(moved){
-        let nx=fabX+dx; let ny=fabY+dy;
-        nx=Math.max(0,Math.min(window.innerWidth-fab.offsetWidth,nx));
-        ny=Math.max(0,Math.min(window.innerHeight-fab.offsetHeight,ny));
-        fab.style.right='auto'; fab.style.bottom='auto';
-        fab.style.left=nx+'px'; fab.style.top=ny+'px';
-        e.preventDefault();
-      }
-    },{passive:false});
-    document.addEventListener('touchend',()=>{ dragging=false; });
-  });
-})();
 APP.updateBadge = function(key,n){
   [document.getElementById('ni-badge-'+key),
    document.getElementById('dm-badge-'+key)].forEach(el=>{
@@ -2599,7 +2115,6 @@ APP.renderProducts = function(filter=''){
   ).join('')||`<div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--tx3)">Sin resultados</div>`;
 };
 document.getElementById('search-inp').addEventListener('input',e=>APP.renderProducts(e.target.value));
-APP.renderCatalog = function(){ APP.renderCats(); APP.renderProducts(); };
 
 // Teclado numérico
 APP.numpadPress = function(k){
@@ -2825,10 +2340,6 @@ APP.completePay = async function(){
     await set(ref(APP.db,'ventas/'+today+'/resumen'),upd);
     const mk='mesa'+mesa.replace('Mesa ','').trim();
     if(APP.tables[mk])await update(ref(APP.db,'mesas/'+mk),{status:'libre',guests:0,total:0});
-    // Limpiar pedidos de cocina asociados a esta mesa
-    const mesaId=mesa.replace('Mesa ','').trim();
-    APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','').trim()===mesaId&&!o.done)
-      .forEach(o=>{try{const{remove,ref:r2}=APP.fb;remove(r2(APP.db,`pedidos_cocina/${o.id}`));}catch(e){}});
     APP.payState.totalOrders++;
     APP.closePayScreen();
     APP.showDoneScreen(tot,method,elapsed);
@@ -2846,9 +2357,6 @@ APP.showDoneScreen = function(tot,method,elapsed){
   const on=document.getElementById('o-notas');if(on)on.value='';
   const oc=document.getElementById('o-cliente');if(oc)oc.value='';
   const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent='Toca para seleccionar...';
-  // Limpiar selección de mesa para que quede libre
-  const ms=document.getElementById('mesa-sel');if(ms)ms.value='';
-  APP._returnToMesa=null;
   APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
 };
 APP.doneFreezeOrder = function(){document.getElementById('done-screen').classList.remove('on');APP.showPanel('p-catalog','catalog');APP.showToast('Orden congelada');};
@@ -2978,101 +2486,27 @@ APP.sendToCocina = async function(){
 };
 
 // ── ÓRDENES DE MESA ──────────────────────────
-// ── ÓRDENES DE MESA — con pisos y grid visual ──
-APP._omView = 'grid';
-APP.toggleOMView = function(){
-  APP._omView = APP._omView==='grid'?'list':'grid';
-  const btn=document.getElementById('om-view-btn');
-  if(btn) btn.textContent = APP._omView==='grid'?'⊞':'☰';
-  APP.renderOrdenesMesa();
-};
-APP.omPrev = function(){
-  const keys=Object.keys(APP.floors);
-  const i=keys.indexOf(APP.activeFloor);
-  APP.activeFloor=keys[(i-1+keys.length)%keys.length];
-  APP.renderOrdenesMesa();
-};
-APP.omNext = function(){
-  const keys=Object.keys(APP.floors);
-  const i=keys.indexOf(APP.activeFloor);
-  APP.activeFloor=keys[(i+1)%keys.length];
-  APP.renderOrdenesMesa();
-};
 APP.renderOrdenesMesa = function(){
-  // Actualizar tabs de piso
-  const tabsEl=document.getElementById('om-floor-tabs');
-  if(tabsEl) tabsEl.innerHTML=Object.keys(APP.floors).map(f=>
-    `<div class="ftab${f===APP.activeFloor?' on':''}" onclick="APP.activeFloor='${f}';APP.renderOrdenesMesa()">${f}</div>`
-  ).join('');
-  // Actualizar badge
-  const cntEl=document.getElementById('ordenes-count');
+  const list=document.getElementById('ordenes-mesa-list');
+  const cnt=document.getElementById('ordenes-count');
+  if(!list) return;
   const activas=APP.kitchenOrders.filter(o=>!o.done);
-  if(cntEl) cntEl.textContent=activas.length;
-  const grid=document.getElementById('om-grid'); if(!grid) return;
-  const fl=APP.floors[APP.activeFloor]||[];
-  if(APP._omView==='list'){
-    // Vista lista
-    grid.innerHTML=`
-      <div style="display:grid;grid-template-columns:1fr 90px 80px 90px;background:var(--bl);color:white;padding:8px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700">
-        <div>Tabla</div><div style="text-align:center">Personas</div><div style="text-align:center">Estado</div><div style="text-align:right">Total</div>
-      </div>`+
-      fl.map(t=>{
-        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
-        const orden=activas.find(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(t.id));
-        const isActive=!!orden;
-        const total=orden?(orden.items||[]).reduce((a,it)=>{
-          const m=it.match(/^(\d+)x\s+(.+)$/);
-          if(!m) return a;
-          let p=0;for(const cat of Object.values(APP.menuData)){const f2=cat.find(p2=>p2.n===m[2]);if(f2){p=f2.p;break;}}
-          return a+p*parseInt(m[1]);
-        },0):0;
-        return `<div style="display:grid;grid-template-columns:1fr 90px 80px 90px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--brd);cursor:pointer;background:${isActive?'#E3F2FD':'white'}" onclick="APP.openMesaSheet('${t.id}','${isActive?'ocupada':'libre'}',${t.cap})">
-          <div style="font-weight:700;color:${isActive?'var(--bl)':'var(--tx)'}">${t.num}</div>
-          <div style="text-align:center;font-size:12px;color:var(--tx2)">${td.guests||t.cap} pers.</div>
-          <div style="text-align:center;font-size:10px;font-weight:700;color:${isActive?'#E65100':'#2E7D32'}">${isActive?'Activa':'Vacío'}</div>
-          <div style="text-align:right;font-size:11px;font-weight:700;color:var(--bl)">${isActive&&total?APP.fmtShort(total)+' $':'-'}</div>
-        </div>`;
-      }).join('');
-  } else {
-    // Vista GRID — tarjetas con estado visual
-    grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:8px">`+
-      fl.map(t=>{
-        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
-        const orden=activas.find(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(t.id));
-        const isActive=!!orden;
-        // Calcular total y quién la tiene
-        let total=0; let cajero='';
-        if(orden){
-          cajero=orden.mesero||orden.cajero||'';
-          (orden.items||[]).forEach(it=>{
-            const m=it.match(/^(\d+)x\s+(.+)$/);
-            if(!m) return;
-            let p=0;for(const cat of Object.values(APP.menuData)){const f2=cat.find(p2=>p2.n===m[2]);if(f2){p=f2.p;break;}}
-            total+=p*parseInt(m[1]);
-          });
-        }
-        // Elapsed time
-        let elapsed='';
-        if(orden&&orden.timestamp){
-          const mins=Math.floor((Date.now()-orden.timestamp)/60000);
-          elapsed=mins>0?`${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`:'00:00';
-        }
-        return `<div onclick="APP.openMesaSheet('${t.id}','${isActive?'ocupada':'libre'}',${t.cap})"
-          style="border-radius:12px;border:2px solid ${isActive?'var(--bl)':'var(--brd)'};background:${isActive?'#E8F1FF':'white'};padding:10px 8px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;transition:all .2s;box-shadow:${isActive?'0 2px 8px rgba(21,101,192,.2)':'0 1px 3px rgba(0,0,0,.06)'}">
-          <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-start">
-            ${cajero?`<span style="font-size:8px;font-weight:700;color:var(--bl);background:var(--bll3);padding:1px 5px;border-radius:6px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cajero.toUpperCase()}</span>`:'<span></span>'}
-            <span style="font-size:9px;color:${isActive?'var(--bl)':'var(--tx3)'}">${isActive?(td.guests||t.cap)+'/'+t.cap+' pers':t.cap+' Persona'}</span>
-          </div>
-          <div style="font-size:28px;font-weight:800;color:${isActive?'var(--bl)':'var(--tx)'};margin:4px 0">${t.num}</div>
-          <div style="width:100%;text-align:center">
-            ${isActive?`
-              <div style="font-size:9px;color:var(--bl);font-weight:700">${elapsed}</div>
-              <div style="font-size:10px;font-weight:800;color:var(--bl)">${total?APP.fmtShort(Math.round(total*1.05))+' $':''}</div>
-            `:`<div style="font-size:9px;color:var(--tx3)">Vacío</div>`}
-          </div>
-        </div>`;
-      }).join('')+`</div>`;
+  cnt.textContent=activas.length;
+  if(!activas.length){
+    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">✅ Sin órdenes activas</div>';
+    return;
   }
+  list.innerHTML=activas.map(o=>
+    `<div class="ko">
+      <div class="ko-head">
+        <div class="ko-tabla">🪑 ${o.mesa}</div>
+        <div class="ko-time">⏱ ${o.time||''}</div>
+        ${o.mesero?`<span class="mesero-badge">👤 ${o.mesero}</span>`:''}
+      </div>
+      ${(o.items||[]).map(it=>`<div class="ko-item">• ${it}</div>`).join('')}
+      ${o.notas?`<div class="ko-note">📝 ${o.notas}</div>`:''}
+    </div>`
+  ).join('');
 };
 
 // ── MESAS ────────────────────────────────────
@@ -3086,40 +2520,165 @@ APP.renderFloorTabs = function(prefix=''){
 APP.setFloor = function(f){ APP.activeFloor=f; APP.renderTables(); APP.renderGMTables(); };
 APP.renderTables = function(){
   APP.renderFloorTabs();
-  const libre=Object.values(APP.tables).filter(t=>t.status==='libre').length;
-  const ocu=Object.values(APP.tables).filter(t=>t.status==='ocupada').length;
-  const tot=Object.values(APP.tables).length;
-  const stat=document.getElementById('tables-stat');
-  if(stat) stat.innerHTML=`
-    <div class="tstat-card"><div class="tstat-val">${libre}</div><div class="tstat-lbl">Vacías</div></div>
-    <div class="tstat-card"><div class="tstat-val" style="color:var(--or)">${ocu}</div><div class="tstat-lbl">Ordenadas</div></div>
-    <div class="tstat-card"><div class="tstat-val">${tot}</div><div class="tstat-lbl">Total</div></div>`;
   const fl=APP.floors[APP.activeFloor]||[];
   const grid=document.getElementById('tgrid');
   if(!grid) return;
+  const selId = APP._mesaSelId||'';
   grid.innerHTML=fl.map(t=>{
     const td=APP.tables[`mesa${t.id}`]||{status:'libre',guests:0,total:0};
-    const sl=td.status==='libre'?'Vacío':td.status==='ocupada'?'Ordenado':'Reservada';
-    return `<div class="tc ${td.status}" onclick="APP.openMesaSheet('${t.id}','${td.status}',${t.cap})">
+    const isSel = t.id===selId;
+    const statClass = isSel?'sel':td.status;
+    return `<div class="tc ${statClass}" id="tc-${t.id}" onclick="APP.tapMesa('${t.id}',${t.cap})">
+      <div class="tc-personas">${t.cap} Persona</div>
       <div class="tc-num">${t.num}</div>
-      <div class="tc-stat">${sl}</div>
-      <div class="tc-cap">${td.guests?'👥 '+td.guests:t.cap+' Persona'}</div>
+      ${td.status==='ocupada'?`<div class="tc-stat">Ordenado</div>`:''}
+      ${td.status==='reservada'?`<div class="tc-stat">Reservada</div>`:''}
       ${td.total?`<div class="tc-total">${APP.fmtShort(td.total)}</div>`:''}
+    </div>`;
+  }).join('');
+};
+
+APP._mesaSelId = '';
+APP._mesaTapTimer = null;
+
+APP.tapMesa = function(id, cap){
+  // Si ya estaba seleccionada → ir al catálogo directo
+  if(APP._mesaSelId===id){
+    APP.openMesaDirectly(id,cap);
+    return;
+  }
+  // Primera pulsación → seleccionar (azul) y mostrar footer
+  APP._mesaSelId = id;
+  // Quitar sel de todas
+  document.querySelectorAll('.tc').forEach(el=>{
+    el.classList.remove('sel');
+    // restaurar color original
+    const tid = el.id.replace('tc-','');
+    const td = APP.tables[`mesa${tid}`]||{status:'libre'};
+    el.className = `tc ${td.status}`;
+  });
+  // Poner azul la seleccionada
+  const card = document.getElementById('tc-'+id);
+  if(card) card.classList.add('sel');
+  // Actualizar footer
+  const footer = document.getElementById('tables-footer');
+  if(footer){
+    const td = APP.tables[`mesa${id}`]||{status:'libre'};
+    if(td.status==='libre'){
+      footer.innerHTML = `<span style="opacity:.8;font-size:11px">Mesa ${id} seleccionada — </span><strong>Toca de nuevo para abrir orden</strong>`;
+    } else if(td.status==='ocupada'){
+      footer.innerHTML = `<span style="opacity:.8;font-size:11px">Mesa ${id} ocupada — </span><strong>Toca de nuevo para ver/editar</strong>`;
+    } else {
+      footer.innerHTML = `<span style="opacity:.8;font-size:11px">Mesa ${id} reservada — </span><strong>Toca de nuevo para iniciar</strong>`;
+    }
+  }
+  // Auto-abrir tras 600ms si no hay segunda pulsación
+  clearTimeout(APP._mesaTapTimer);
+  APP._mesaTapTimer = setTimeout(()=>{
+    APP.openMesaDirectly(id,cap);
+  },700);
+};
+
+APP.openMesaDirectly = async function(id, cap){
+  clearTimeout(APP._mesaTapTimer);
+  APP._mesaSelId = '';
+  const td = APP.tables[`mesa${id}`]||{status:'libre'};
+  // Marcar mesa como ocupada si estaba libre
+  if(td.status==='libre'&&APP.db){
+    const{update,ref}=APP.fb;
+    await update(ref(APP.db,`mesas/mesa${id}`),{status:'ocupada',guests:cap||2});
+  }
+  // Setear mesa en el selector de orden
+  document.getElementById('mesa-sel').value=`Mesa ${id}`;
+  // Actualizar topbar con "Órdenes de mesa > 01"
+  APP._catalogMesa = id;
+  APP.showCatalogForMesa(id);
+};
+
+APP.showCatalogForMesa = function(mesaId){
+  // Ir al catálogo
+  APP.showPanel('p-catalog','catalog');
+  // Actualizar título en topbar
+  const tb = document.getElementById('tb-title');
+  if(tb) tb.textContent = `Órdenes de mesa > ${mesaId}`;
+  else {
+    // Buscar el span de marca en la topbar y agregar subtítulo
+    const brand = document.querySelector('.tb-brand');
+    if(brand) brand.dataset.mesa = mesaId;
+  }
+  // Mostrar mesa activa en la barra de búsqueda
+  const hint = document.getElementById('catalog-mesa-hint');
+  if(!hint){
+    const sb = document.querySelector('.search-bar');
+    if(sb){
+      const div=document.createElement('div');
+      div.id='catalog-mesa-hint';
+      div.style.cssText='background:var(--bl);color:#fff;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;flex-shrink:0';
+      div.innerHTML=`🪑 Mesa ${mesaId}`;
+      sb.appendChild(div);
+    }
+  } else {
+    hint.innerHTML=`🪑 Mesa ${mesaId}`;
+    hint.style.display='flex';
+  }
+  APP.showToast(`Mesa ${mesaId} — selecciona productos`);
+};
+
+APP.openMesaSheet = function(id,status,cap){
+  // Ahora no se usa — reemplazado por tapMesa
+  APP.tapMesa(id,cap);
+};
+APP.mesaA1 = async function(){
+  APP.closeSheet('mesa-sheet');
+  const {id,cap}=APP.mesaData||{};
+  await APP.openMesaDirectly(id,cap);
+};
+APP.mesaA2 = function(){ APP.closeSheet('mesa-sheet'); APP.showPanel('p-ordenes-mesa','ordenes-mesa'); };
+APP.mesaA3 = async function(){
+  APP.closeSheet('mesa-sheet');
+  const {id}=APP.mesaData||{};
+  if(APP.db){const {update,ref}=APP.fb;await update(ref(APP.db,`mesas/mesa${id}`),{status:'libre',guests:0,total:0});}
+  APP.showToast(`Mesa ${id} liberada`);
+};
+
+  const el=document.getElementById('gm-floor-tabs');
+  if(!el) return;
+  el.innerHTML=Object.keys(APP.floors).map(f=>
+    `<div class="ftab${f===APP.activeFloor?' on':''}" onclick="APP.setFloor('${f}')">${f}</div>`
+  ).join('');
+  const grid=document.getElementById('gm-tgrid');
+  if(!grid) return;
+  const fl=APP.floors[APP.activeFloor]||[];
+  grid.innerHTML=fl.map(t=>{
+    const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
+    return `<div class="tc ${td.status}" onclick="APP.showToast('Mesa ${t.num} — toque prolongado para editar')">
+      <div class="tc-num">${t.num}</div>
+      <div class="tc-stat">${td.status==='libre'?'Vacío':td.status==='ocupada'?'Ordenado':'Reservada'}</div>
+      <div class="tc-cap">${t.cap} Persona</div>
+      <div style="margin-top:4px"><input type="checkbox" ${td.status!=='libre'?'checked':''}
+        style="width:14px;height:14px" readonly></div>
     </div>`;
   }).join('');
 };
 APP.openMesaSheet = function(id,status,cap){
   APP.mesaData={id,status,cap};
+  document.getElementById('mesa-sheet-title').textContent=`Mesa ${id}`;
+  const a1=document.getElementById('msa1');
+  const a2=document.getElementById('msa2');
+  const a3=document.getElementById('msa3');
   if(status==='libre'){
-    // Mesa vacía → preparar nueva orden directo
-    if(APP.db){const {update,ref}=APP.fb;update(ref(APP.db,`mesas/mesa${id}`),{status:'ocupada',guests:1});}
-    document.getElementById('mesa-sel').value=`Mesa ${id}`;
-    APP.showPanel('p-order','order');
-    APP.showToast(`Mesa ${id} abierta`);
+    a1.style.display='block'; a1.textContent='📋 Abrir nueva orden';
+    a2.style.display='none'; a3.style.display='none';
+  } else if(status==='ocupada'){
+    a1.style.display='none';
+    a2.style.display='block'; a2.textContent='👁 Ver órdenes activas';
+    a3.style.display='block'; a3.textContent='✅ Liberar mesa';
   } else {
-    // Mesa ocupada o reservada → pantalla detalle completa
-    APP.openMesaDetail(id,status,cap);
+    a1.style.display='block'; a1.textContent='📋 Iniciar orden (con reserva)';
+    a2.style.display='none';
+    a3.style.display='block'; a3.textContent='❌ Cancelar reserva';
   }
+  document.getElementById('mesa-sheet').classList.add('on');
 };
 APP.mesaA1 = async function(){
   APP.closeSheet('mesa-sheet');
@@ -3136,166 +2695,6 @@ APP.mesaA3 = async function(){
   APP.showToast(`Mesa ${id} liberada`);
 };
 
-// ── PANTALLA DETALLE MESA ────────────────────
-APP.openMesaDetail = function(id,status,cap){
-  APP.mesaData={id,status,cap};
-  APP.currentMesaId=id;
-  const td=APP.tables[`mesa${id}`]||{};
-  const screen=document.getElementById('mesa-detail-screen');
-  const title=document.getElementById('mds-title');
-  const otras=document.getElementById('mds-otras-num');
-  title.textContent=`${id} Actualizar`;
-  if(otras) otras.textContent=id;
-  APP.renderMesaDetail(id,td);
-  screen.classList.add('on');
-};
-APP.renderMesaDetail = function(id,td){
-  const body=document.getElementById('mds-body'); if(!body) return;
-  const ordenes=APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(id)&&!o.done);
-  const now=new Date();
-  const timeStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${APP.timeNow()}`;
-  // Calcular subtotal de items
-  let allItems=[]; let sub=0;
-  ordenes.forEach(o=>{
-    (o.items||[]).forEach(it=>{
-      // items son strings "2x Producto"
-      const m=it.match(/^(\d+)x\s+(.+)$/);
-      if(m) allItems.push({n:m[2],q:parseInt(m[1]),p:0});
-      else allItems.push({n:it,q:1,p:0});
-    });
-  });
-  // Buscar precios en menuData
-  allItems.forEach(it=>{
-    for(const cat of Object.values(APP.menuData)){
-      const found=cat.find(p=>p.n===it.n);
-      if(found){it.p=found.p;break;}
-    }
-    sub+=it.p*it.q;
-  });
-  const iva=Math.round(sub*0.05);
-  const tot=sub+iva;
-  const guests=td.guests||1;
-  body.innerHTML=`
-    <div class="pds-section">
-      <div class="pds-row"><span class="pds-lbl">Nombre de la tabla:</span><span class="pds-val">${id}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Ordenado por:</span><span class="pds-val">${APP.user.toUpperCase()}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Pedido en:</span><span class="pds-val">${timeStr}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Tipo de orden:</span><span class="pds-val">Mesa</span></div>
-      <div class="pds-row"><span class="pds-lbl">Número de personas</span>
-        <span style="display:flex;align-items:center;gap:6px">
-          <button onclick="APP.mesaChgGuests(-1)" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center">−</button>
-          <span id="mds-guests" style="font-weight:800;color:var(--bl);min-width:20px;text-align:center">${guests}</span>
-          <button onclick="APP.mesaChgGuests(1)" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center">+</button>
-        </span>
-      </div>
-    </div>
-    ${allItems.length?`
-    <div class="pds-section">
-      <div class="pds-section-title">ARTÍCULOS</div>
-      ${allItems.map(it=>`
-        <div class="pds-item-row">
-          <div class="pds-item-name">${it.n}</div>
-          <div class="pds-item-unit">${it.p?APP.fmtNum(it.p)+' $':''}</div>
-          <div class="pds-item-qty">x ${it.q}</div>
-          <div class="pds-item-total">${it.p?APP.fmtNum(it.p*it.q)+' $':''}</div>
-        </div>`).join('')}
-    </div>
-    <div class="mds-total-block">
-      <div class="mds-total-row"><span>Total parcial:</span><span style="font-weight:700">${APP.fmtNum(sub)} $</span></div>
-      <div class="mds-total-row"><span>Servicio(%5.0)</span><span style="font-weight:700">${APP.fmtNum(iva)} $</span></div>
-      <div class="mds-total-row grand"><span>Total:</span><span style="color:var(--bl)">${APP.fmtNum(tot)} $</span></div>
-    </div>`:`
-    <div style="text-align:center;padding:2rem;color:var(--tx3)">
-      <div style="font-size:36px;margin-bottom:.5rem">🛒</div>
-      <div style="font-size:13px;font-weight:700">Sin artículos en esta mesa</div>
-      <div style="font-size:11px;margin-top:4px">Toca AGREGAR para añadir productos</div>
-    </div>`}
-    <div style="padding:6px 0">
-      <div class="mds-log" style="font-size:10px;color:var(--bl)">
-        ${timeStr} * Orden creada ( ${APP.user.toUpperCase()} )
-      </div>
-    </div>`;
-  // Guardar total en tabla
-  APP.mesaData._tot=tot; APP.mesaData._sub=sub; APP.mesaData._iva=iva;
-};
-APP.mesaChgGuests = function(d){
-  const cur=parseInt(document.getElementById('mds-guests')?.textContent||1);
-  const nw=Math.max(1,cur+d);
-  const el=document.getElementById('mds-guests'); if(el) el.textContent=nw;
-  APP.mesaData._guests=nw;
-  if(APP.db&&APP.currentMesaId){
-    const {update,ref}=APP.fb;
-    update(ref(APP.db,`mesas/mesa${APP.currentMesaId}`),{guests:nw});
-  }
-};
-APP.closeMesaDetail = function(){
-  document.getElementById('mesa-detail-screen').classList.remove('on');
-};
-APP.mesaDetailAgregar = function(){
-  // Abrir catálogo directamente y al agregar volver a esta mesa
-  APP.closeMesaDetail();
-  document.getElementById('mesa-sel').value=`Mesa ${APP.currentMesaId}`;
-  APP._returnToMesa=APP.currentMesaId;
-  APP.showPanel('p-catalog','catalog');
-};
-APP.mesaDetailVolver = function(){
-  APP.closeMesaDetail();
-  APP.showPanel('p-tables','tables');
-};
-APP.mesaDetailOrdenCompleta = function(){
-  const tot=APP.mesaData._tot||0;
-  APP.closeMesaDetail();
-  document.getElementById('mesa-sel').value=`Mesa ${APP.currentMesaId}`;
-  // Cargar items de cocina en la orden actual
-  const ordenes=APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(APP.currentMesaId)&&!o.done);
-  APP.order=[];
-  ordenes.forEach(o=>{
-    (o.items||[]).forEach(it=>{
-      const m=it.match(/^(\d+)x\s+(.+)$/);
-      if(m){
-        const name=m[2]; const qty=parseInt(m[1]);
-        let price=0;
-        for(const cat of Object.values(APP.menuData)){
-          const f=cat.find(p=>p.n===name); if(f){price=f.p;break;}
-        }
-        const ex=APP.order.find(x=>x.n===name);
-        if(ex) ex.q+=qty;
-        else APP.order.push({n:name,p:price,e:'🍽️',q:qty});
-      }
-    });
-  });
-  APP.renderOrder(); APP.updateOrderCount();
-  APP.openPayScreen();
-};
-APP.mesaDetailCancelar = function(){
-  if(!confirm('¿Cancelar la orden de esta mesa?')) return;
-  const id=APP.currentMesaId;
-  APP.closeMesaDetail();
-  if(APP.db){
-    const {update,remove,ref}=APP.fb;
-    APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(id)&&!o.done)
-      .forEach(o=>remove(ref(APP.db,`pedidos_cocina/${o.id}`)));
-    update(ref(APP.db,`mesas/mesa${id}`),{status:'libre',guests:0,total:0});
-  }
-  APP.showToast(`Orden Mesa ${id} cancelada`);
-  APP.showPanel('p-tables','tables');
-};
-APP.openMesaDetailOtras = function(){
-  document.getElementById('mesa-otras-sheet').classList.add('on');
-};
-APP.mesaOtraDescuento = function(){
-  document.getElementById('mesa-otras-sheet').classList.remove('on');
-  APP.showToast('Descuento: aplica en pantalla de cobro');
-};
-APP.mesaOtraCambio = function(){
-  document.getElementById('mesa-otras-sheet').classList.remove('on');
-  APP.showToast('Mesa de cambio próximamente');
-};
-APP.mesaOtraFusion = function(){
-  document.getElementById('mesa-otras-sheet').classList.remove('on');
-  APP.showToast('Mesa de fusión próximamente');
-};
-
 // ── PEDIDOS ──────────────────────────────────
 APP.switchPedidosTab = function(tab,el){
   APP.pedidosTab=tab;
@@ -3306,207 +2705,32 @@ APP.renderPedidos = function(){
   const list=document.getElementById('pedidos-list');
   if(!list) return;
   const totBar=document.getElementById('pedidos-total-bar');
-  // Leer ventas reales de Firebase si están disponibles
-  if(APP.db){
-    const {get,ref}=APP.fb;
-    get(ref(APP.db,`ventas/${APP.today()}/ordenes`)).then(snap=>{
-      const ventasData=snap.val()||{};
-      APP._ventasHoy=Object.entries(ventasData).map(([k,v])=>({id:k,...v}));
-      APP._buildPedidosList();
-    }).catch(()=>APP._buildPedidosList());
-  } else APP._buildPedidosList();
-};
-APP._buildPedidosList=function(){
-  const list=document.getElementById('pedidos-list');
-  const totBar=document.getElementById('pedidos-total-bar');
-  if(!list) return;
-  const ventas=APP._ventasHoy||[];
-  const cocina=APP.kitchenOrders||[];
-  // Combinar: ventas pagadas + pedidos activos de cocina no pagados
-  let all=[];
-  // Ventas pagadas
-  ventas.forEach(v=>{
-    all.push({
-      id:v.id, mesa:v.mesa||'—', time:v.time||'', timestamp:v.timestamp||0,
-      total:v.total||0, method:v.method||'', items:v.items||[],
-      tipo:v.mesa==='Para llevar'?'llevar':v.mesa==='Delivery'?'mensajeria':'mesa',
-      status:'completado', cajero:v.cajero||'', paid:true,
-      cancelado:v.cancelado||false
-    });
-  });
-  // Pedidos activos de cocina no en ventas
-  cocina.filter(o=>!o.done).forEach(o=>{
-    all.push({
-      id:o.id, mesa:o.mesa||'—', time:o.time||'', timestamp:o.timestamp||0,
-      total:0, items:o.items||[], tipo:'mesa', status:'activo', paid:false,
-      mesero:o.mesero||''
-    });
-  });
-  // Ordenar por tiempo desc
-  all.sort((a,b)=>b.timestamp-a.timestamp);
-  // Filtrar por tab
-  const tab=APP.pedidosTab;
-  if(tab==='mesa') all=all.filter(o=>o.tipo==='mesa');
-  else if(tab==='mensajeria') all=all.filter(o=>o.tipo==='mensajeria');
-  else if(tab==='restaurante') all=all.filter(o=>o.tipo==='restaurante');
-  else if(tab==='llevar') all=all.filter(o=>o.tipo==='llevar');
-  else if(tab==='credito') all=all.filter(o=>o.method&&o.method.toLowerCase().includes('créd'));
-  if(!all.length){
-    list.innerHTML=`<div style="text-align:center;padding:3rem 1rem;color:var(--tx3)">
-      <div style="font-size:48px;margin-bottom:.5rem">📑</div>
-      <div style="font-size:13px;font-weight:700">Sin pedidos</div>
-      <div style="font-size:11px;margin-top:4px">Aquí aparecerán tus órdenes</div>
-    </div>`;
+  const orders=[...APP.kitchenOrders].sort((a,b)=>b.timestamp-a.timestamp);
+  if(!orders.length){
+    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">📑 Sin pedidos</div>';
     totBar.style.display='none'; return;
   }
-  const totalMonto=all.reduce((a,o)=>a+(o.total||0),0);
-  const cancelados=all.filter(o=>o.cancelado).length;
-  const abiertos=all.filter(o=>!o.paid&&!o.cancelado);
-  const cerrados=all.filter(o=>o.paid||o.cancelado);
-  const mkRow = o => {
-    const monto=o.total?APP.fmtNum(o.total)+' $':'En cocina';
-    const itemStr=(o.items||[]).slice(0,2).map(i=>typeof i==='string'?i:(i.n||'')).join(', ')+(o.items?.length>2?'...':'');
-    const statusColor=o.cancelado?'#C62828':o.paid?'#2E7D32':'#E65100';
-    const statusBg=o.cancelado?'#FFEBEE':o.paid?'#E8F5E9':'#FFF3E0';
-    const statusTxt=o.cancelado?'Cancelado':o.paid?'✓ Completado':'🍳 En cocina';
-    return `<div class="pedido-row-v2${o.cancelado?' cancelado':o.status==='activo'?' activo':''}"
-      onclick="APP.openPedidoDetail('${o.id}')">
-      <div class="pr2-top">
-        <div class="pr2-tabla">Tabla No: ${(o.mesa||'').replace('Mesa ','')}</div>
-        <span class="pr2-status" style="background:${statusBg};color:${statusColor}">${statusTxt}</span>
-        <div class="pr2-monto">${monto}</div>
+  // Simular datos de pedidos con montos
+  list.innerHTML=orders.map((o,i)=>{
+    const isActive=!o.done;
+    return `<div class="pedido-row${isActive?' active':''}">
+      <div class="pr-icons">
+        <span class="pr-icon">👥</span>
+        <span class="pr-icon">🖥️</span>
+        ${o.done?'<span class="pr-icon">✅</span>':''}
       </div>
-      <div class="pr2-bottom">
-        <span>${o.time||'--:--'}</span>
-        ${o.cajero?`<span>· ${o.cajero}</span>`:''}
-        ${o.mesero?`<span>· 👤 ${o.mesero}</span>`:''}
-        <span class="pr2-items">· ${itemStr}</span>
+      <div class="pr-info">
+        <div class="pr-tabla">Tabla No: ${o.mesa.replace('Mesa ','')}</div>
+        <div class="pr-time">${o.time||'--:--'}</div>
+        ${o.mesero?`<div style="font-size:10px;color:var(--bl)">👤 ${o.mesero}</div>`:''}
       </div>
+      <div class="pr-amount${isActive?' active':''}" style="font-size:11px;max-width:90px;word-break:break-all">
+        ${(o.items||[]).slice(0,1).join(', ')}...</div>
     </div>`;
-  };
-  let html='';
-  if(abiertos.length){
-    html+=`<div style="background:var(--bl);color:white;padding:6px 12px;font-size:11px;font-weight:700;border-radius:8px;margin:6px 0 4px">
-      🟢 PEDIDOS ABIERTOS (${abiertos.length})</div>`;
-    html+=abiertos.map(mkRow).join('');
-  }
-  if(cerrados.length){
-    html+=`<div style="background:#F5F5F5;color:var(--tx2);padding:6px 12px;font-size:11px;font-weight:700;border-radius:8px;margin:10px 0 4px">
-      ✓ CERRADOS / CANCELADOS (${cerrados.length})</div>`;
-    html+=cerrados.map(mkRow).join('');
-  }
-  list.innerHTML=html;
+  }).join('');
   totBar.style.display='block';
-  const txt=`Precio total de ${all.length} pedidos: ${APP.fmtNum(totalMonto)} $`
-    +(cancelados?`\nPrecio total de ${cancelados} pedidos cancelados`:'');
-  totBar.innerHTML=txt.replace('\n','<br>');
-  APP.updateBadge('pedidos',cocina.filter(o=>!o.done).length);
-};
-APP.openPedidoDetail = function(id){
-  // Buscar en ventas o cocina
-  const venta=(APP._ventasHoy||[]).find(v=>v.id===id);
-  const cocina=APP.kitchenOrders.find(o=>o.id===id);
-  const o=venta||cocina;
-  if(!o){APP.showToast('Pedido no encontrado');return;}
-  APP._currentPedidoId=id;
-  APP._currentPedido=o;
-  const screen=document.getElementById('pedido-detail-screen');
-  const title=document.getElementById('pds-title');
-  const body=document.getElementById('pds-body');
-  const numId=id.substring(0,13)||id;
-  const isPaid=!!(venta&&venta.paid);
-  const isCancelled=!!(venta&&venta.cancelado);
-  title.innerHTML=`Pedido ${numId}<br><span style="font-size:10px;font-weight:400;opacity:.8">( ${isCancelled?'Pedido cancelado':isPaid?'Pedido completado':'En cocina'} )</span>`;
-  const items=venta?venta.items||[]:cocina?(cocina.items||[]).map(it=>{
-    const m=it.match(/^(\d+)x\s+(.+)$/);
-    return m?{n:m[2],q:parseInt(m[1]),p:0}:{n:it,q:1,p:0};
-  }):[];
-  // Enriquecer con precios si faltan
-  items.forEach(it=>{
-    if(!it.p) for(const cat of Object.values(APP.menuData)){
-      const f=cat.find(p=>p.n===it.n);if(f){it.p=f.p;break;}
-    }
-  });
-  const sub=venta?venta.subtotal||venta.total:items.reduce((a,i)=>a+(i.p||0)*(i.q||1),0);
-  const iva=venta?venta.iva||0:Math.round(sub*0.05);
-  const tot=venta?venta.total||0:sub+iva;
-  const timeStr=venta?venta.time||'':cocina?cocina.time||'':'';
-  const now=new Date();
-  const dateStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  body.innerHTML=`
-    <div class="pds-section">
-      <div class="pds-section-title">INFORMACIÓN DEL PEDIDO</div>
-      <div class="pds-row"><span class="pds-lbl">Número de orden:</span><span class="pds-val" style="font-size:10px">${numId}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Pedido en:</span><span class="pds-val">${dateStr} ${timeStr}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Ordenado por:</span><span class="pds-val">${(venta?.cajero||cocina?.mesero||APP.user).toUpperCase()}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Estado de la cocina:</span><span class="pds-val">Si está preparando en la cocina</span></div>
-      <div class="pds-row"><span class="pds-lbl">Estado de la orden:</span><span class="pds-val">${isCancelled?'Cancelado':isPaid?'Pedido completado':'En cocina'}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Tipo de orden:</span><span class="pds-val">${venta?.mesa==='Delivery'?'Delivery':venta?.mesa==='Para llevar'?'Para llevar':'Mesa'}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Nombre de la tabla:</span><span class="pds-val">${(o.mesa||'').replace('Mesa ','')}</span></div>
-      <div class="pds-row"><span class="pds-lbl">Número de personas</span><span class="pds-val">1</span></div>
-    </div>
-    ${items.length?`
-    <div class="pds-section">
-      <div class="pds-section-title">ARTÍCULOS</div>
-      ${items.map(it=>`
-        <div class="pds-item-row">
-          <div class="pds-item-name" style="color:var(--bl)">${it.n}</div>
-          <div class="pds-item-unit">${it.p?APP.fmtNum(it.p)+' $':''}</div>
-          <div class="pds-item-qty">x ${it.q||1}</div>
-          <div class="pds-item-total">${it.p?APP.fmtNum((it.p||0)*(it.q||1))+' $':''}</div>
-        </div>`).join('')}
-    </div>`:''}
-    <div class="pds-section">
-      <div class="pds-section-title">TOTALES</div>
-      ${venta?.method?`<div class="pds-row"><span class="pds-lbl" style="color:var(--bl)">${venta.method==='Efectivo'?'Dinero en efectivo':venta.method} ${APP.fmtNum(venta.efectivo||venta.total||0)} $</span></div>`:''}
-      <div class="pds-row"><span class="pds-lbl">Total parcial:</span><span class="pds-val" style="font-weight:800">${APP.fmtNum(sub)} $</span></div>
-      <div class="pds-row"><span class="pds-lbl">Servicio(%5.0)</span><span class="pds-val">${APP.fmtNum(iva)} $</span></div>
-      <div class="pds-row" style="font-weight:800;font-size:13px"><span class="pds-lbl">Total:</span><span class="pds-val" style="font-size:14px">${APP.fmtNum(tot)} $</span></div>
-    </div>
-    <div class="pds-section">
-      <div class="pds-section-title">HISTORIAL</div>
-      <div class="pds-log-entry">${dateStr} ${timeStr} * Orden creada ( ${(venta?.cajero||cocina?.mesero||APP.user).toUpperCase()} )</div>
-      ${isPaid?`<div class="pds-log-entry">${dateStr} ${timeStr} * Pedido pagado ( ${(venta?.cajero||APP.user).toUpperCase()} )</div>`:''}
-    </div>`;
-  screen.classList.add('on');
-};
-APP.closePedidoDetail = function(){
-  document.getElementById('pedido-detail-screen').classList.remove('on');
-};
-APP.pedidoDetailCancelar = function(){
-  if(!confirm('¿Cancelar este pedido?')) return;
-  const id=APP._currentPedidoId;
-  if(APP.db&&id){
-    const {update,ref}=APP.fb;
-    // Marcar como cancelado en ventas
-    update(ref(APP.db,`ventas/${APP.today()}/ordenes/${id}`),{cancelado:true}).catch(()=>{});
-    // Si está en cocina, remover
-    const co=APP.kitchenOrders.find(o=>o.id===id);
-    if(co){const{remove,ref:r}=APP.fb;remove(r(APP.db,`pedidos_cocina/${id}`)).catch(()=>{});}
-  }
-  APP.closePedidoDetail();
-  APP.showToast('Pedido cancelado');
-  setTimeout(()=>APP.renderPedidos(),800);
-};
-APP.pedidoDetailEditar = function(){
-  const o=APP._currentPedido; if(!o) return;
-  APP.closePedidoDetail();
-  // Cargar items en orden actual para editar
-  const items=o.items||[];
-  APP.order=[];
-  items.forEach(it=>{
-    let name,qty;
-    if(typeof it==='string'){const m=it.match(/^(\d+)x\s+(.+)$/);if(m){name=m[2];qty=parseInt(m[1]);}else{name=it;qty=1;}}
-    else{name=it.n;qty=it.q||1;}
-    if(!name) return;
-    let price=it.p||0;
-    if(!price) for(const cat of Object.values(APP.menuData)){const f=cat.find(p=>p.n===name);if(f){price=f.p;break;}}
-    APP.order.push({n:name,p:price,e:'🍽️',q:qty});
-  });
-  document.getElementById('mesa-sel').value=o.mesa||'Mesa 01';
-  APP.renderOrder(); APP.updateOrderCount();
-  APP.showPanel('p-order','order');
-  APP.showToast('Editando orden — modifica y cobra de nuevo');
+  totBar.textContent=`Precio total de ${orders.length} pedidos`;
+  APP.updateBadge('pedidos',orders.filter(o=>!o.done).length);
 };
 
 // ── INVENTARIO ───────────────────────────────
@@ -3615,8 +2839,6 @@ APP.renderReports = function(){
     if(!d){
       document.getElementById('r-top').innerHTML='<div style="font-size:12px;color:var(--tx3);padding:8px 0">Sin ventas hoy</div>';
       document.getElementById('r-top-ingresos').innerHTML='<div style="font-size:12px;color:var(--tx3);padding:8px 0">Sin ventas hoy</div>';
-      const vu=document.getElementById('r-ventas-usuario');if(vu)vu.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--tx3)">Sin ventas hoy</div>';
-      const vut=document.getElementById('r-vu-total');if(vut)vut.textContent='0.00 $';
       return;
     }
     const counts={},revenue={};
@@ -3637,26 +2859,6 @@ APP.renderReports = function(){
         <div class="bar-label"><span>${n}</span><strong>${APP.fmtShort(v)}</strong></div>
         <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mR*100)}%"></div></div>
       </div>`).join('');
-    // Ventas por usuario
-    const byUser={};
-    Object.values(d).forEach(ord=>{
-      const u=ord.cajero||ord.mesero||'Sin asignar';
-      if(!byUser[u]) byUser[u]={total:0,count:0};
-      byUser[u].total+=(ord.total||0);
-      byUser[u].count++;
-    });
-    const totalVentas=Object.values(byUser).reduce((a,v)=>a+v.total,0)||1;
-    const vuEl=document.getElementById('r-ventas-usuario');
-    const vtEl=document.getElementById('r-vu-total');
-    const vpEl=document.getElementById('r-vu-pct');
-    if(vuEl) vuEl.innerHTML=Object.entries(byUser).sort((a,b)=>b[1].total-a[1].total).map(([u,v])=>`
-      <div style="display:grid;grid-template-columns:1fr 80px 90px;padding:10px 12px;border-bottom:1px solid var(--brd);font-size:12px;align-items:center">
-        <div style="font-weight:600;color:var(--tx)">${u}</div>
-        <div style="text-align:center;color:var(--tx2)">${Math.round(v.total/totalVentas*100)} %</div>
-        <div style="text-align:right;font-weight:700;color:var(--bl)">${APP.fmtNum(v.total)} $</div>
-      </div>`).join('');
-    if(vtEl) vtEl.textContent=APP.fmtNum(totalVentas)+' $';
-    if(vpEl) vpEl.textContent='100 %';
   });
 };
 APP.renderVentasChart = function(resumen){
@@ -3961,503 +3163,89 @@ APP.setProdCat = c=>{ APP.activeProdCat=c; APP.renderProdCats(); APP.renderProdG
 APP.renderProdGrid = function(){
   const grid=document.getElementById('prod-grid'); if(!grid) return;
   const items=APP.menuData[APP.activeProdCat]||[];
-  const cnt=document.getElementById('prod-count'); if(cnt) cnt.textContent=items.length;
-  if(!items.length){
-    grid.innerHTML=`<div style="grid-column:span 3;text-align:center;padding:2rem;color:var(--tx3)">
-      <div style="font-size:36px;margin-bottom:.5rem">📦</div>Sin productos en esta categoría</div>`;
-    return;
-  }
-  grid.innerHTML=items.map((p,i)=>`
-    <div class="prod-card" onclick="APP.openProdEdit('${APP.activeProdCat}',${i})">
-      <div class="prod-img">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover">`:p.e||'🍽️'}</div>
-      <div class="prod-check" id="pcheck-${APP.activeProdCat}-${i}"></div>
+  grid.innerHTML=items.map(p=>
+    `<div class="prod-card" onclick="APP.showToast('${p.n.replace(/'/g,"'")} — toque para editar')">
+      <div class="prod-img">${p.e}</div>
+      <div class="prod-check"></div>
       <div class="prod-body">
         <div class="prod-name">${p.n}</div>
-        <div class="prod-price">${APP.fmtNum(p.p)} $</div>
-        <div class="prod-cost" style="font-size:9px;color:var(--tx3)">Costo: ${APP.fmtNum(p.cost||Math.round(p.p*0.4))} $</div>
+        <div class="prod-price">${APP.fmt(p.p)}</div>
+        <div class="prod-cost" style="color:var(--tx3);font-size:9px">Costo: ${APP.fmt(p.p*0.4)}</div>
       </div>
-    </div>`).join('');
-};
-APP.filterProdGrid = function(q){
-  const grid=document.getElementById('prod-grid'); if(!grid) return;
-  let items=APP.menuData[APP.activeProdCat]||[];
-  if(q) items=Object.entries(APP.menuData).flatMap(([cat,arr])=>arr.map(p=>({...p,_cat:cat})))
-    .filter(p=>p.n.toLowerCase().includes(q.toLowerCase()));
-  if(!items.length){grid.innerHTML='<div style="grid-column:span 3;text-align:center;padding:1.5rem;color:var(--tx3)">Sin resultados</div>';return;}
-  grid.innerHTML=items.map((p,i)=>`
-    <div class="prod-card" onclick="APP.openProdEdit('${p._cat||APP.activeProdCat}',${i})">
-      <div class="prod-img">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover">`:p.e||'🍽️'}</div>
-      <div class="prod-body">
-        <div class="prod-name">${p.n}</div>
-        <div class="prod-price">${APP.fmtNum(p.p)} $</div>
-      </div>
-    </div>`).join('');
-};
-APP.openCatSheet = function(){ APP.closeSheet('cat-sheet'); APP.openModal('cat-sheet'); };
-// openModal works for sheet-bg too since it just adds 'on'
-APP.catAdd = function(){
-  APP.closeSheet('cat-sheet');
-  const name=prompt('Nombre de la nueva categoría:');
-  if(!name||!name.trim()) return;
-  const n=name.trim();
-  if(APP.menuData[n]){APP.showToast('Categoría ya existe');return;}
-  APP.menuData[n]=[];
-  APP.renderProdCats(); APP.setProdCat(n);
-  APP.showToast(`✅ Categoría "${n}" creada`);
-};
-APP.catDelete = function(){
-  APP.closeSheet('cat-sheet');
-  if(!APP.activeProdCat){APP.showToast('Selecciona una categoría');return;}
-  if(!confirm(`¿Eliminar categoría "${APP.activeProdCat}" y sus ${(APP.menuData[APP.activeProdCat]||[]).length} productos?`)) return;
-  delete APP.menuData[APP.activeProdCat];
-  const cats=Object.keys(APP.menuData);
-  APP.activeProdCat=cats[0]||'';
-  APP.renderProdCats(); APP.renderProdGrid();
-  APP.showToast('✅ Categoría eliminada');
-};
-APP.catEdit = function(){
-  APP.closeSheet('cat-sheet');
-  const newName=prompt(`Renombrar "${APP.activeProdCat}" a:`);
-  if(!newName||!newName.trim()) return;
-  const n=newName.trim();
-  APP.menuData[n]=APP.menuData[APP.activeProdCat]||[];
-  delete APP.menuData[APP.activeProdCat];
-  APP.activeProdCat=n;
-  APP.renderProdCats(); APP.renderProdGrid();
-  APP.showToast(`✅ Renombrada a "${n}"`);
-};
-APP.openProdEdit = function(cat,idx){
-  const p=(APP.menuData[cat]||[])[idx]; if(!p) return;
-  APP._editProdCat=cat; APP._editProdIdx=idx;
-  document.getElementById('pem-title').textContent='Información del Producto';
-  document.getElementById('pem-orig-name').value=p.n;
-  document.getElementById('pem-orig-cat').value=cat;
-  document.getElementById('pem-name').value=p.n;
-  document.getElementById('pem-barcode').value=p.barcode||'';
-  document.getElementById('pem-price').value=p.p||'';
-  document.getElementById('pem-cost').value=p.cost||'';
-  document.getElementById('pem-disc').value=p.disc||'';
-  document.getElementById('pem-desc').value=p.desc||'';
-  document.getElementById('pem-tiempo').value=p.tiempo||'';
-  document.getElementById('pem-activo').checked=p.activo!==false;
-  document.getElementById('pem-online').checked=p.online!==false;
-  // Fill cat select
-  const cs=document.getElementById('pem-cat');
-  cs.innerHTML=Object.keys(APP.menuData).map(c=>`<option${c===cat?' selected':''}>${c}</option>`).join('');
-  if(p.unit){const us=document.getElementById('pem-unit');[...us.options].forEach(o=>{if(o.value===p.unit)o.selected=true;});}
-  // Photo
-  const prev=document.getElementById('pem-photo-prev'); const ph=document.getElementById('pem-photo-ph');
-  if(p.img){prev.src=p.img;prev.style.display='block';ph.style.display='none';}
-  else{prev.style.display='none';ph.style.display='flex';}
-  APP._pemPhoto=p.img||'';
-  document.getElementById('pem-del-btn').style.display='block';
-  APP.openModal('prod-edit-modal');
+    </div>`
+  ).join('');
 };
 APP.openProductoModal = function(){
-  APP._editProdCat=null; APP._editProdIdx=null; APP._pemPhoto='';
-  document.getElementById('pem-title').textContent='Nuevo Producto';
-  ['pem-name','pem-barcode','pem-price','pem-cost','pem-disc','pem-desc','pem-tiempo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('pem-activo').checked=true;
-  document.getElementById('pem-online').checked=true;
-  document.getElementById('pem-del-btn').style.display='none';
-  document.getElementById('pem-photo-prev').style.display='none';
-  document.getElementById('pem-photo-ph').style.display='flex';
-  const cs=document.getElementById('pem-cat');
-  cs.innerHTML=Object.keys(APP.menuData).map(c=>`<option${c===APP.activeProdCat?' selected':''}>${c}</option>`).join('');
-  APP.openModal('prod-edit-modal');
+  document.getElementById('prod-modal-overlay').style.display='flex';
+  document.getElementById('pm-name').value='';
+  document.getElementById('pm-price').value='';
+  document.getElementById('pm-cost').value='';
+  document.getElementById('pm-desc').value='';
+  document.getElementById('pm-photo-prev').style.display='none';
+  document.getElementById('pm-photo-placeholder').style.display='flex';
+  APP._pmPhoto='';
 };
-APP.pemPreviewPhoto = function(input){
+
+// ── GESTIÓN USUARIOS ─────────────────────────
+APP.pmPreviewPhoto = function(input){
   const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=e=>{
-    APP._pemPhoto=e.target.result;
-    const prev=document.getElementById('pem-photo-prev');
-    prev.src=e.target.result; prev.style.display='block';
-    document.getElementById('pem-photo-ph').style.display='none';
+    APP._pmPhoto=e.target.result;
+    document.getElementById('pm-photo-prev').src=e.target.result;
+    document.getElementById('pm-photo-prev').style.display='block';
+    document.getElementById('pm-photo-placeholder').style.display='none';
   };
   reader.readAsDataURL(file);
 };
-APP.saveProdEdit = async function(){
-  const name=document.getElementById('pem-name').value.trim();
-  if(!name){APP.showToast('Ingresa el nombre');return;}
-  const cat=document.getElementById('pem-cat').value;
-  const unit=document.getElementById('pem-unit').value;
-  const prod={
-    n:name, p:parseFloat(document.getElementById('pem-price').value)||0,
-    cost:parseFloat(document.getElementById('pem-cost').value)||0,
-    disc:parseFloat(document.getElementById('pem-disc').value)||0,
-    desc:document.getElementById('pem-desc').value.trim(),
-    tiempo:parseInt(document.getElementById('pem-tiempo').value)||0,
-    activo:document.getElementById('pem-activo').checked,
-    online:document.getElementById('pem-online').checked,
-    barcode:document.getElementById('pem-barcode').value.trim(),
-    unit, cat, e:'🍽️', img:APP._pemPhoto||''
-  };
-  if(!APP.menuData[cat]) APP.menuData[cat]=[];
-  if(APP._editProdIdx!==null&&APP._editProdCat){
-    // Editar existente — mover cat si cambió
-    if(APP._editProdCat!==cat){
-      APP.menuData[APP._editProdCat].splice(APP._editProdIdx,1);
-      APP.menuData[cat].push(prod);
-    } else {
-      APP.menuData[cat][APP._editProdIdx]=prod;
-    }
-    APP.showToast(`✅ "${name}" actualizado`);
-  } else {
-    APP.menuData[cat].push(prod);
-    APP.showToast(`✅ "${name}" agregado`);
+APP.saveProdModal = async function(){
+  const name=document.getElementById('pm-name').value.trim();
+  const price=parseFloat(document.getElementById('pm-price').value)||0;
+  const cost=parseFloat(document.getElementById('pm-cost').value)||0;
+  const cat=document.getElementById('pm-cat').value;
+  const desc=document.getElementById('pm-desc').value.trim();
+  if(!name){APP.showToast('Ingresa el nombre del producto');return;}
+  const prod={n:name,p:price,cost,cat,desc,e:'🍽️',img:APP._pmPhoto||''};
+  // Add to menu data for catalog
+  if(!APP.menuData[cat])APP.menuData[cat]=[];
+  APP.menuData[cat].push(prod);
+  // Save to Firebase
+  if(APP.db){
+    const{push,ref}=APP.fb;
+    await push(ref(APP.db,'custom_products'),prod).catch(()=>{});
   }
-  if(APP.db){const{push,set,ref}=APP.fb;push(ref(APP.db,'custom_products'),prod).catch(()=>{});}
-  APP.closeModal('prod-edit-modal');
-  APP.activeProdCat=cat;
-  APP.renderProdCats(); APP.renderProdGrid(); APP.renderCatalog();
-};
-APP.deleteProd = function(){
-  if(!confirm('¿Eliminar este producto?')) return;
-  const cat=APP._editProdCat; const idx=APP._editProdIdx;
-  if(cat&&idx!==null) APP.menuData[cat].splice(idx,1);
-  APP.closeModal('prod-edit-modal');
+  document.getElementById('prod-modal-overlay').style.display='none';
   APP.renderProdGrid(); APP.renderCatalog();
-  APP.showToast('Producto eliminado');
+  APP.showToast(`✅ "${name}" agregado al menú`);
 };
-
-// ── GESTIÓN USUARIOS mejorada ──────────────────
 APP.renderUsers = function(){
   const tabs=document.getElementById('user-tabs'); if(!tabs) return;
   const tabKeys=Object.keys(APP.systemUsers);
   tabs.innerHTML=tabKeys.map(k=>
-    `<div class="user-tab${k===APP.activeUserTab?' on':''}" onclick="APP.setUserTab('${k}')">${k} <span style="font-size:10px;opacity:.7">${APP.systemUsers[k].length}</span></div>`
+    `<div class="user-tab${k===APP.activeUserTab?' on':''}" onclick="APP.setUserTab('${k}')">${k}</div>`
   ).join('');
   const list=document.getElementById('users-list'); if(!list) return;
   const users=APP.systemUsers[APP.activeUserTab]||[];
   const roleColors={CAJERO:'#E65100',ADMINISTRACIÓN:'#0D47A1',COCINA:'#880E4F',MESERO:'#2E7D32',REPARTIDOR:'#6A1B9A'};
   const col=roleColors[APP.activeUserTab]||'#555';
-  list.innerHTML=`<div style="background:var(--bl);color:white;display:grid;grid-template-columns:1fr 90px 52px 36px;padding:7px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;margin-bottom:0">
-    <div>Nombre de usuario</div><div>Rol del usuario</div><div style="text-align:center">Activo</div><div></div>
-  </div>`+
-  users.map((u,i)=>`
-    <div style="display:grid;grid-template-columns:1fr 90px 52px 36px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--brd);font-size:12px;cursor:pointer;background:${i%2===0?'var(--bll2)':'white'}" onclick="APP.openUserEdit(${i})">
-      <div style="font-weight:${i%2===0?700:500};color:${i%2===0?'var(--bl)':'var(--tx)'}">${u.n}</div>
-      <div><span class="user-role-badge" style="background:${col}18;color:${col};font-size:9px;padding:2px 6px;border-radius:8px">${u.r}</span></div>
+  list.innerHTML=users.map((u,i)=>
+    `<div class="user-row${i%2===0?' highlighted':''}" onclick="APP.showToast('Usuario: '+${JSON.stringify(u.n)})">
+      <div>${u.n}</div>
+      <div><span class="user-role-badge" style="background:${col}20;color:${col}">${u.r}</span></div>
       <div style="text-align:center">
-        <div style="width:20px;height:20px;border-radius:4px;border:2px solid ${u.active?'var(--bl)':'var(--brd)'};background:${u.active?'var(--bl)':'white'};display:inline-flex;align-items:center;justify-content:center;color:white;font-size:12px">${u.active?'✓':''}</div>
+        <div class="user-check${u.active?' on':''}">${u.active?'✓':''}</div>
       </div>
-      <div style="display:flex;justify-content:center">
-        <div style="width:20px;height:20px;border-radius:4px;border:2px solid var(--bl);background:var(--bl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:12px">✓</div>
-      </div>
-    </div>`).join('')+
-  (APP.activeUserTab==='MESERO'?`<div style="background:#FFF9C4;border-top:2px solid #FFC107;padding:8px 12px;font-size:11px;color:#5D4037;display:flex;align-items:center;gap:6px">⚠️ 1 licencia de mesero activa</div>`:'');
+      <div></div>
+    </div>`
+  ).join('');
+  // Alerta licencias mesero
+  if(APP.activeUserTab==='MESERO'){
+    list.insertAdjacentHTML('beforeend',`
+      <div class="user-alert-bar">⚠️ Tienes 1 licencias de camarero. ¡Haga clic para actualizar su paquete!</div>`);
+  }
 };
 APP.setUserTab = function(k){ APP.activeUserTab=k; APP.renderUsers(); };
-APP.selectAllUsers = function(){APP.showToast('Selección múltiple próximamente');};
-APP.openUserModal = function(){
-  APP._editUserIdx=null;
-  document.getElementById('user-modal-title').textContent='Agregar usuario';
-  document.getElementById('um-nombre').value='';
-  document.getElementById('um-tel').value='';
-  document.getElementById('um-pass').value='';
-  document.getElementById('um-activo').checked=true;
-  document.getElementById('um-sinpass').checked=true;
-  document.getElementById('um-del-btn').style.display='none';
-  // Set rol to match active tab
-  const rolMap={CAJERO:'cajero',ADMINISTRACIÓN:'admin',COCINA:'cocina',MESERO:'mesero',REPARTIDOR:'repartidor'};
-  const rs=document.getElementById('um-rol');
-  [...rs.options].forEach(o=>{o.selected=o.value===(rolMap[APP.activeUserTab]||'cajero');});
-  APP.openModal('user-modal');
-};
-APP.openUserEdit = function(idx){
-  APP._editUserIdx=idx;
-  const u=(APP.systemUsers[APP.activeUserTab]||[])[idx]; if(!u) return;
-  document.getElementById('user-modal-title').textContent='Editar usuario';
-  document.getElementById('um-nombre').value=u.n||'';
-  document.getElementById('um-tel').value=u.tel||'';
-  document.getElementById('um-pass').value='';
-  document.getElementById('um-activo').checked=u.active!==false;
-  document.getElementById('um-sinpass').checked=!u.pass;
-  document.getElementById('um-del-btn').style.display='block';
-  const rolMap={CAJERO:'cajero',ADMINISTRACIÓN:'admin',COCINA:'cocina',MESERO:'mesero',REPARTIDOR:'repartidor'};
-  const rs=document.getElementById('um-rol');
-  [...rs.options].forEach(o=>{o.selected=o.value===(rolMap[u.r]||'cajero');});
-  APP.openModal('user-modal');
-};
-APP.saveUser = function(){
-  const name=document.getElementById('um-nombre').value.trim();
-  if(!name){APP.showToast('Ingresa el nombre');return;}
-  const rolMap={cajero:'CAJERO',admin:'ADMINISTRACIÓN',cocina:'COCINA',mesero:'MESERO',repartidor:'REPARTIDOR'};
-  const rol=rolMap[document.getElementById('um-rol').value]||'CAJERO';
-  const active=document.getElementById('um-activo').checked;
-  const tel=document.getElementById('um-tel').value.trim();
-  const pass=document.getElementById('um-pass').value;
-  const sinpass=document.getElementById('um-sinpass').checked;
-  const user={n:name,r:rol,active,tel,pass:sinpass?'':pass};
-  if(!APP.systemUsers[APP.activeUserTab]) APP.systemUsers[APP.activeUserTab]=[];
-  if(APP._editUserIdx!==null){
-    APP.systemUsers[APP.activeUserTab][APP._editUserIdx]=user;
-    APP.showToast(`✅ Usuario "${name}" actualizado`);
-  } else {
-    APP.systemUsers[APP.activeUserTab].push(user);
-    APP.showToast(`✅ Usuario "${name}" agregado`);
-  }
-  APP.closeModal('user-modal'); APP.renderUsers();
-};
-APP.deleteUser = function(){
-  if(!confirm('¿Eliminar este usuario?')) return;
-  const idx=APP._editUserIdx;
-  if(idx!==null) APP.systemUsers[APP.activeUserTab].splice(idx,1);
-  APP.closeModal('user-modal'); APP.renderUsers();
-  APP.showToast('Usuario eliminado');
-};
-
-// ── GESTIÓN MESAS (admin) mejorada ────────────
-APP._gmView='grid'; // 'grid' | 'list'
-APP.toggleGMView = function(){
-  APP._gmView=APP._gmView==='grid'?'list':'grid';
-  const btn=document.getElementById('gm-view-btn');
-  if(btn) btn.textContent=APP._gmView==='grid'?'⊞':'☰';
-  APP.renderGMTables();
-};
-APP.gmPrevFloor = function(){
-  const keys=Object.keys(APP.floors);
-  const i=keys.indexOf(APP.activeFloor);
-  APP.activeFloor=keys[(i-1+keys.length)%keys.length];
-  APP.renderGMTables();
-};
-APP.gmNextFloor = function(){
-  const keys=Object.keys(APP.floors);
-  const i=keys.indexOf(APP.activeFloor);
-  APP.activeFloor=keys[(i+1)%keys.length];
-  APP.renderGMTables();
-};
-APP.renderGMTables = function(){
-  // Tabs
-  const el=document.getElementById('gm-floor-tabs');
-  if(el) el.innerHTML=Object.keys(APP.floors).map(f=>
-    `<div class="ftab${f===APP.activeFloor?' on':''}" onclick="APP.setFloor('${f}');APP.renderGMTables()">${f}</div>`
-  ).join('');
-  const body=document.getElementById('gm-body'); if(!body) return;
-  const fl=APP.floors[APP.activeFloor]||[];
-  if(APP._gmView==='list'){
-    // Vista lista (como capturas RePOS)
-    body.innerHTML=`
-      <div style="display:grid;grid-template-columns:1fr 1fr 80px 100px;background:var(--bl);color:white;padding:8px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;margin-bottom:0">
-        <div>Nombre de la tabla</div>
-        <div>Info de la mesa</div>
-        <div style="text-align:center">Activo</div>
-        <div style="text-align:center">Estado</div>
-      </div>`+
-      fl.map((t,i)=>{
-        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
-        return `<div style="display:grid;grid-template-columns:1fr 1fr 80px 100px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--brd);font-size:12px;cursor:pointer;background:white" onclick="APP.openNuevaMesaModal('${t.id}')">
-          <div style="font-weight:700;color:var(--bl)">${t.num}</div>
-          <div style="color:var(--tx2)">${t.cap} Persona</div>
-          <div style="text-align:center"><div style="width:20px;height:20px;border-radius:4px;border:2px solid var(--bl);background:var(--bl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:12px">✓</div></div>
-          <div style="text-align:center;font-size:10px;font-weight:700;color:${td.status==='libre'?'#2E7D32':'#E65100'}">${td.status==='libre'?'Vacío':'Ordenado'}</div>
-        </div>`;
-      }).join('');
-  } else {
-    // Vista grid
-    body.innerHTML=`<div class="tgrid">`+
-      fl.map(t=>{
-        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
-        return `<div class="tc libre" style="cursor:pointer" onclick="APP.openNuevaMesaModal('${t.id}')">
-          <div style="font-size:9px;font-weight:700;color:var(--tx3);text-align:center;margin-bottom:2px">${td.status==='libre'?'Vacío':'Ordenado'}</div>
-          <div class="tc-num">${t.num}</div>
-          <div class="tc-cap">${t.cap} Persona</div>
-          <div style="margin-top:4px;text-align:center"><div style="width:18px;height:18px;border-radius:4px;border:2px solid var(--bl);background:var(--bl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:11px">✓</div></div>
-        </div>`;
-      }).join('')+`</div>`;
-  }
-};
-APP.openNuevaMesaModal = function(editId){
-  if(editId){
-    // Editar mesa existente
-    const fl=Object.entries(APP.floors);
-    let found=null,foundFloor=null;
-    fl.forEach(([floor,tables])=>{const t=tables.find(t=>t.id===editId);if(t){found=t;foundFloor=floor;}});
-    if(!found) return;
-    document.getElementById('nueva-mesa-title').textContent='Editar mesa '+editId;
-    document.getElementById('nm-id').value=editId;
-    document.getElementById('nm-nombre').value=found.num;
-    document.getElementById('nm-cap').value=found.cap;
-    document.getElementById('nm-activo').checked=true;
-    const cs=document.getElementById('nm-cat');
-    [...cs.options].forEach(o=>{o.selected=o.value===foundFloor;});
-    document.getElementById('nm-del-btn').style.display='block';
-    document.getElementById('nueva-mesa-modal').querySelector('.mbtn.pri').textContent='GUARDAR';
-  } else {
-    document.getElementById('nueva-mesa-title').textContent='Nueva mesa';
-    document.getElementById('nm-id').value='';
-    document.getElementById('nm-nombre').value='';
-    document.getElementById('nm-cap').value='4';
-    document.getElementById('nm-activo').checked=true;
-    document.getElementById('nm-del-btn').style.display='none';
-    document.getElementById('nueva-mesa-modal').querySelector('.mbtn.pri').textContent='AGREGAR';
-  }
-  APP.openModal('nueva-mesa-modal');
-};
-APP.nmChgCap = function(d){
-  const el=document.getElementById('nm-cap');if(!el)return;
-  el.value=Math.max(1,Math.min(20,(parseInt(el.value)||4)+d));
-};
-APP.saveNuevaMesa = function(){
-  const nombre=document.getElementById('nm-nombre').value.trim();
-  if(!nombre){APP.showToast('Ingresa el nombre de la mesa');return;}
-  const floor=document.getElementById('nm-cat').value;
-  const cap=parseInt(document.getElementById('nm-cap').value)||4;
-  const editId=document.getElementById('nm-id').value;
-  if(editId){
-    // Editar
-    Object.values(APP.floors).forEach(tables=>{
-      const t=tables.find(t=>t.id===editId);if(t){t.num=nombre;t.cap=cap;}
-    });
-    APP.showToast(`✅ Mesa ${nombre} actualizada`);
-  } else {
-    const id=nombre.replace(/\s+/g,'');
-    if(!APP.floors[floor]) APP.floors[floor]=[];
-    APP.floors[floor].push({id,num:nombre,cap});
-    // Init en Firebase
-    if(APP.db){const{update,ref}=APP.fb;update(ref(APP.db,`mesas/mesa${id}`),{id,num:nombre,floor,status:'libre',guests:0,total:0});}
-    APP.showToast(`✅ Mesa ${nombre} agregada`);
-  }
-  APP.closeModal('nueva-mesa-modal');
-  APP.renderGMTables(); APP.renderTables();
-};
-APP.deleteMesa = function(){
-  const id=document.getElementById('nm-id').value;
-  if(!id||!confirm(`¿Eliminar la mesa ${id}?`)) return;
-  Object.keys(APP.floors).forEach(f=>{
-    APP.floors[f]=APP.floors[f].filter(t=>t.id!==id);
-  });
-  if(APP.db){const{remove,ref}=APP.fb;remove(ref(APP.db,`mesas/mesa${id}`)).catch(()=>{});}
-  APP.closeModal('nueva-mesa-modal');
-  APP.renderGMTables(); APP.renderTables();
-  APP.showToast('Mesa eliminada');
-};
-APP.openFloorSheet = function(){
-  const name=prompt(`Gestión de piso: "${APP.activeFloor}"\n\nEscribe el nuevo nombre del piso actual (o cancela):`);
-  if(!name||!name.trim()) return;
-  const n=name.trim();
-  APP.floors[n]=APP.floors[APP.activeFloor]||[];
-  if(n!==APP.activeFloor) delete APP.floors[APP.activeFloor];
-  APP.activeFloor=n;
-  APP.renderGMTables(); APP.renderTables();
-  APP.showToast(`✅ Piso renombrado a "${n}"`);
-};
-
-// ── ADMIN CONFIG functions ───────────────────
-APP._adminCfg = {descuento:5, pagos:['efectivo','tarjeta','boleto'], tipoOrden:'menu', qr:'A5', orient:'vertical'};
-APP.adminCfgDescuento = function(){
-  const opts=[1,2,3,4,5,6,7,8,9,10,20,30,50,100];
-  APP._showRadioSheet('¿Tasa de descuento máxima?', opts.map(v=>({val:String(v),lbl:String(v)})),
-    String(APP._adminCfg.descuento), v=>{
-      APP._adminCfg.descuento=parseInt(v);
-      const el=document.getElementById('acfg-descuento-val'); if(el) el.textContent=v;
-    });
-};
-APP.adminCfgPagos = function(){
-  const opts=['Dinero en efectivo','Tarjeta de crédito','Boleto de la comida','Dólares','Transferencias en Bs.','Crédito por pagar','Bancolombia'];
-  APP._showCheckSheet('Seleccione los tipos de pago que desea utilizar', opts, opts.slice(0,3), sel=>{
-    const el=document.getElementById('acfg-pagos-val'); if(el) el.textContent=sel.join(', ');
-  });
-};
-APP.adminCfgTipoOrden = function(){
-  APP._showRadioSheet('Tipo de orden de mesa en línea',
-    [{val:'pedidos',lbl:'El cliente puede realizar pedidos en línea'},{val:'menu',lbl:'Mostrar solo menú al cliente'}],
-    APP._adminCfg.tipoOrden, v=>{
-      APP._adminCfg.tipoOrden=v;
-      const el=document.getElementById('acfg-tipo-orden-val');
-      if(el) el.textContent=v==='pedidos'?'El cliente puede realizar pedidos en línea':'Mostrar solo menú al cliente';
-    });
-};
-APP.adminCfgQR = function(){
-  APP._showRadioSheet('Orden de mesa en línea Tamaño de salida QR',
-    [{val:'A5',lbl:'A5'},{val:'A6',lbl:'A6'},{val:'A7',lbl:'A7'}],
-    APP._adminCfg.qr, v=>{
-      APP._adminCfg.qr=v;
-      const el=document.getElementById('acfg-qr-val'); if(el) el.textContent=v;
-    });
-};
-APP.adminCfgOrientacion = function(){
-  APP._showRadioSheet('Modo de orientación',
-    [{val:'vertical',lbl:'Modo teléfono / Vertical'},{val:'horizontal',lbl:'Modo tableta / Horizontal'}],
-    APP._adminCfg.orient, v=>{
-      APP._adminCfg.orient=v;
-      const el=document.getElementById('acfg-orient-val');
-      if(el) el.textContent=v==='vertical'?'Modo teléfono / Vertical':'Modo tableta / Horizontal';
-    });
-};
-// Generic radio selection — aparece como overlay de pantalla completa desde abajo
-APP._showRadioSheet = function(title, opts, current, onSelect){
-  const existing=document.getElementById('_radio-sheet');
-  if(existing) existing.remove();
-  const bg=document.createElement('div');
-  bg.id='_radio-sheet';
-  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;justify-content:center';
-  bg.innerHTML=`<div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:80vh;overflow-y:auto;padding:1.2rem">
-    <div style="font-size:15px;font-weight:700;color:var(--bl);margin-bottom:1rem">${title}</div>
-    ${opts.map(o=>`
-      <label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--brd);cursor:pointer">
-        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${o.val===current?'var(--bl)':'var(--brd)'};background:${o.val===current?'var(--bl)':'white'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          ${o.val===current?`<div style="width:10px;height:10px;border-radius:50%;background:white"></div>`:''}
-        </div>
-        <span style="font-size:13px;color:var(--tx)">${o.lbl}</span>
-        <input type="radio" name="_rs" value="${o.val}" ${o.val===current?'checked':''} style="display:none" onchange="APP._radioSheetSelect('${o.val}')">
-      </label>`).join('')}
-    <div style="padding-top:12px;text-align:right">
-      <button onclick="document.getElementById('_radio-sheet').remove()" style="background:none;border:none;color:var(--bl);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px">CANCELAR</button>
-    </div>
-  </div>`;
-  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();});
-  document.body.appendChild(bg);
-  APP._radioSheetCb=onSelect;
-};
-APP._radioSheetSelect = function(val){
-  if(APP._radioSheetCb) APP._radioSheetCb(val);
-  const el=document.getElementById('_radio-sheet'); if(el) el.remove();
-};
-// Generic checkbox selection sheet
-APP._showCheckSheet = function(title, opts, current, onSelect){
-  const existing=document.getElementById('_check-sheet');
-  if(existing) existing.remove();
-  const sel=new Set(current);
-  const bg=document.createElement('div');
-  bg.id='_check-sheet';
-  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;justify-content:center';
-  bg.innerHTML=`<div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:1.2rem">
-    <div style="font-size:15px;font-weight:700;color:var(--bl);margin-bottom:1rem">${title}</div>
-    ${opts.map((o,i)=>`
-      <label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--brd);cursor:pointer">
-        <div id="_chk-box-${i}" style="width:22px;height:22px;border-radius:5px;border:2px solid ${sel.has(o)?'var(--bl)':'var(--brd)'};background:${sel.has(o)?'var(--bl)':'white'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          ${sel.has(o)?'<span style="color:white;font-size:14px">✓</span>':''}
-        </div>
-        <span style="font-size:13px;color:var(--tx)">${o}</span>
-        <input type="checkbox" name="_cs" value="${o}" ${sel.has(o)?'checked':''} style="display:none">
-      </label>`).join('')}
-    <div style="display:flex;justify-content:flex-end;gap:12px;padding-top:12px">
-      <button onclick="document.getElementById('_check-sheet').remove()" style="background:none;border:none;color:var(--tx3);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px">CANCELAR</button>
-      <button onclick="APP._checkSheetConfirm()" style="background:none;border:none;color:var(--bl);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px">ACEPTAR</button>
-    </div>
-  </div>`;
-  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();});
-  document.body.appendChild(bg);
-  APP._checkSheetCb=onSelect;
-  // Toggle logic
-  bg.querySelectorAll('label').forEach(lbl=>{
-    lbl.addEventListener('click',()=>{
-      const cb=lbl.querySelector('input[type=checkbox]');
-      cb.checked=!cb.checked;
-      const idx=Array.from(bg.querySelectorAll('input[type=checkbox]')).indexOf(cb);
-      const box=document.getElementById('_chk-box-'+idx);
-      if(box){box.style.background=cb.checked?'var(--bl)':'white';box.style.borderColor=cb.checked?'var(--bl)':'var(--brd)';box.innerHTML=cb.checked?'<span style="color:white;font-size:14px">✓</span>':'';}
-    });
-  });
-};
-APP._checkSheetConfirm = function(){
-  const el=document.getElementById('_check-sheet'); if(!el) return;
-  const checked=[...el.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
-  if(APP._checkSheetCb) APP._checkSheetCb(checked);
-  el.remove();
-};
+APP.openUserModal = ()=>APP.showToast('Agregar usuario próximamente');
 
 // ── FIREBASE TOOLS ───────────────────────────
 APP.uploadMenu = async function(){
@@ -4477,33 +3265,7 @@ APP.initAllTables = async function(){
   await set(ref(APP.db,'mesas'),all);
   APP.showToast('✅ Mesas inicializadas');
 };
-APP.openPedidosFiltro = function(){
-  APP.showToast('Filtros: por tiempo, estado, monto, número de pedido');
-};
-const _origPdAgregar = APP.pdAgregar;
-APP.pdAgregar = function(){
-  _origPdAgregar();
-  if(APP._returnToMesa){
-    const mesaId=APP._returnToMesa;
-    APP._returnToMesa=null;
-    // Enviar a cocina y abrir detalle de mesa
-    setTimeout(async()=>{
-      if(APP.db&&APP.order.length){
-        const{push,ref,update}=APP.fb;
-        const mesa=`Mesa ${mesaId}`;
-        await push(ref(APP.db,'pedidos_cocina'),{
-          mesa,mesero:APP.user,
-          items:APP.order.map(i=>`${i.q}x ${i.n}`),
-          timestamp:Date.now(),done:false,urgent:false,time:APP.timeNow()
-        });
-        await update(ref(APP.db,`mesas/mesa${mesaId}`),{status:'ocupada',guests:APP.mesaData?._guests||1});
-        APP.order=[]; APP.renderOrder(); APP.updateOrderCount();
-        APP.showToast('✅ Agregado a la mesa');
-        APP.openMesaDetail(mesaId,'ocupada',APP.mesaData?.cap||4);
-      }
-    },200);
-  }
-};
+APP.openFloorSheet = ()=>APP.showToast('Gestión de pisos próximamente');
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
