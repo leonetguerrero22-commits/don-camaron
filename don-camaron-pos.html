@@ -965,13 +965,26 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ ÓRDENES DE MESA ══ -->
       <div id="p-ordenes-mesa" class="panel">
-        <div class="mod-wrap">
-          <div class="mod-head">
-            <div class="mod-title">Órdenes de mesa</div>
-            <span id="ordenes-count" style="background:var(--or);color:white;
-              border-radius:10px;font-size:11px;padding:3px 10px;font-weight:700">0</span>
+        <!-- Barra pisos + controles -->
+        <div style="background:white;border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 6px 0 0;flex-shrink:0">
+          <div class="floor-tabs" id="om-floor-tabs" style="flex:1;border:none;margin:0;padding:0 6px"></div>
+          <!-- Vista lista/grid toggle -->
+          <button onclick="APP.toggleOMView()" id="om-view-btn"
+            style="width:32px;height:32px;border-radius:6px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:14px;flex-shrink:0">⊞</button>
+          <div style="display:flex;align-items:center;gap:0;margin-left:4px;flex-shrink:0">
+            <button onclick="APP.omPrev()" style="width:28px;height:28px;border:1.5px solid var(--brd);border-radius:4px 0 0 4px;background:white;cursor:pointer;font-size:13px">←</button>
+            <button onclick="APP.omNext()" style="width:28px;height:28px;border:1.5px solid var(--brd);border-left:none;border-radius:0 4px 4px 0;background:white;cursor:pointer;font-size:13px">→</button>
           </div>
-          <div id="ordenes-mesa-list"></div>
+        </div>
+        <!-- Grid mesas -->
+        <div class="cnt" style="flex:1;overflow-y:auto">
+          <div style="padding:8px 8px 0" id="om-grid"></div>
+        </div>
+        <!-- Barra inferior azul: selección / QR -->
+        <div style="background:var(--bl);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer">📷</div>
+          <div style="font-size:13px;font-weight:600" id="om-hint">Seleccione una tabla para realizar acciones ...</div>
+          <div style="width:40px"></div>
         </div>
       </div>
 
@@ -1085,7 +1098,19 @@ body{background:var(--bg);color:var(--tx)}
             </div>
           </div>
           <div class="report-sec">
-            <h3>CANTIDADES DE VENTAS POR TIEMPO</h3>
+            <h3>VENTAS POR USUARIO</h3>
+            <div style="background:var(--bl);color:white;display:grid;grid-template-columns:1fr 80px 90px;padding:8px 12px;font-size:11px;font-weight:700;border-radius:6px;margin-bottom:6px">
+              <div>Nombre de usuario</div>
+              <div style="text-align:center">Porcentaje (%)</div>
+              <div style="text-align:right">Cantidad de ventas</div>
+            </div>
+            <div id="r-ventas-usuario"></div>
+            <div style="display:grid;grid-template-columns:1fr 80px 90px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--bl);border-top:2px solid var(--brd);margin-top:4px">
+              <div>TOTAL</div>
+              <div style="text-align:center" id="r-vu-pct">100 %</div>
+              <div style="text-align:right" id="r-vu-total">0.00 $</div>
+            </div>
+          </div>
             <div id="r-ventas-chart" style="padding:4px 0">
               <canvas id="ventasChart" height="140"></canvas>
             </div>
@@ -1383,9 +1408,71 @@ body{background:var(--bg);color:var(--tx)}
         </div>
       </div>
 
+
+      <!-- ══ CONFIGURACIÓN ADMINISTRADOR ══ -->
+      <div id="p-admin-config" class="panel">
+        <div class="mod-wrap" style="padding-bottom:calc(var(--bnav)+10px)">
+          <div class="mod-title" style="margin-bottom:10px">Configuración de administrador</div>
+          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Permisos de usuario de cajero</div>
+          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
+            <div onclick="APP.adminCfgDescuento()" style="padding:10px 0;border-bottom:1px solid var(--brd);cursor:pointer">
+              <div style="font-size:13px;font-weight:700;color:var(--bl)">Tasa de descuento máxima que podría realizar el usuario del cajero (%)</div>
+              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-descuento-val">5</div>
+            </div>
+            <div onclick="APP.adminCfgPagos()" style="padding:10px 0;border-bottom:1px solid var(--brd);cursor:pointer">
+              <div style="font-size:13px;font-weight:700;color:var(--bl)">Formas de pago</div>
+              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-pagos-val">Dinero en efectivo, Tarjeta de crédito, Boleto de la comida</div>
+            </div>
+            <div onclick="APP.adminCfgTipoOrden()" style="padding:10px 0;border-bottom:1px solid var(--brd);cursor:pointer">
+              <div style="font-size:13px;font-weight:700;color:var(--bl)">Tipo de orden de mesa en línea</div>
+              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-tipo-orden-val">Mostrar solo menú al cliente</div>
+            </div>
+            <div onclick="APP.adminCfgQR()" style="padding:10px 0;cursor:pointer">
+              <div style="font-size:13px;font-weight:700;color:var(--bl)">Orden de mesa en línea Tamaño de salida QR</div>
+              <div style="font-size:12px;color:var(--tx2);margin-top:4px" id="acfg-qr-val">A5</div>
+            </div>
+          </div>
+          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Configuración de inventario</div>
+          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">Cantidad de inventario negativas</div>
+                <div style="font-size:12px;color:var(--tx2);margin-top:2px">No permitir cantidad de inventario negativas</div></div>
+              <div class="tog" id="tog-inv-neg" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Configuración general</div>
+          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">Configuración de inicio automático</div>
+                <div style="font-size:12px;color:var(--tx2);margin-top:2px">RePOS no se inicia automáticamente cuando el dispositivo se reinicia.</div></div>
+              <div class="tog" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">¿Configuración de pantalla completa?</div>
+                <div style="font-size:12px;color:var(--tx2);margin-top:2px">¡La aplicación se ejecutará en pantalla completa!</div></div>
+              <div class="tog" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd)">
+              <div><div style="font-size:13px;font-weight:700;color:var(--bl)">¿Orientación gestionada por la aplicación?</div>
+                <div style="font-size:12px;color:var(--tx2);margin-top:2px">La aplicación NO gestiona automáticamente la orientación.</div></div>
+              <div class="tog" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div onclick="APP.adminCfgOrientacion()" style="padding:10px 0;cursor:pointer">
+              <div style="font-size:13px;font-weight:700;color:var(--bl)">Modo de orientación</div>
+              <div style="font-size:12px;color:var(--tx2);margin-top:2px" id="acfg-orient-val">Modo teléfono / Vertical</div>
+            </div>
+          </div>
+          <div style="background:var(--bl);color:white;padding:12px 14px;border-radius:10px;margin-bottom:2px;font-size:13px;font-weight:700">Firebase / Datos</div>
+          <div style="background:white;border-radius:0 0 10px 10px;border:1px solid var(--brd);padding:12px 14px;margin-bottom:10px">
+            <div id="fb-status-admin" style="font-size:12px;color:var(--tx2);margin-bottom:8px">Verificando...</div>
+            <button class="config-btn" onclick="APP.uploadMenu()">⬆️ Subir menú a Firebase</button>
+            <button class="config-btn" style="margin-top:6px" onclick="APP.initAllTables()">🪑 Reinicializar todas las mesas</button>
+          </div>
+        </div>
+      </div>
+
       <!-- ══ GESTIÓN DE LA MESA (admin) ══ -->
       <div id="p-gestion-mesa" class="panel">
-        <div class="tables-wrap" style="padding-bottom:calc(var(--bnav)+60px)">
           <div class="mod-head">
             <div class="mod-title">Gestión de la mesa</div>
             <div style="display:flex;gap:6px">
@@ -2056,7 +2143,7 @@ APP.perms = {
     verUsuarios:true,verProductos:true,verMercado:true,verNegocio:true,
     caja:['catalog','order','tables','ordenes-mesa','pedidos'],
     admin:['inventory','reports','kitchen','gastos','clientes','reservas','findel',
-           'productos','usuarios','negocio','config','mercado','gestion-mesa'],
+           'productos','usuarios','negocio','config','mercado','gestion-mesa','admin-config'],
     nav:['catalog','order','tables','pedidos','reports']},
   supervisor:{label:'Supervisor',verPrecios:true,cobrar:false,verInformes:true,
     verGastos:false,verClientes:true,verConfig:false,verInventario:true,
@@ -2101,6 +2188,7 @@ APP.navCfg = {
   'negocio':{icon:'🏢',label:'Información de negocios',panel:'p-negocio'},
   'config':{icon:'⚙️',label:'Configuración del cajero',panel:'p-config'},
   'mercado':{icon:'🌐',label:'Mercado en línea',panel:'p-mercado'},
+  'admin-config':{icon:'🔧',label:'Configuración de administrador',panel:'p-admin-config'},
   'gestion-mesa':{icon:'🗺️',label:'Gestión de la mesa',panel:'p-gestion-mesa'},
 };
 
@@ -2369,7 +2457,7 @@ APP.buildDrawer = function(){
   ].filter(k => p.caja.includes(k)||p.admin.includes(k));
 
   const adminAllowed = [
-    'productos','usuarios','negocio','gestion-mesa'
+    'productos','usuarios','negocio','gestion-mesa','admin-config'
   ].filter(k => p.admin.includes(k));
 
   document.getElementById('drawer-caja-items').innerHTML = cajaAllowed.map(mkItem).join('');
@@ -2814,27 +2902,101 @@ APP.sendToCocina = async function(){
 };
 
 // ── ÓRDENES DE MESA ──────────────────────────
+// ── ÓRDENES DE MESA — con pisos y grid visual ──
+APP._omView = 'grid';
+APP.toggleOMView = function(){
+  APP._omView = APP._omView==='grid'?'list':'grid';
+  const btn=document.getElementById('om-view-btn');
+  if(btn) btn.textContent = APP._omView==='grid'?'⊞':'☰';
+  APP.renderOrdenesMesa();
+};
+APP.omPrev = function(){
+  const keys=Object.keys(APP.floors);
+  const i=keys.indexOf(APP.activeFloor);
+  APP.activeFloor=keys[(i-1+keys.length)%keys.length];
+  APP.renderOrdenesMesa();
+};
+APP.omNext = function(){
+  const keys=Object.keys(APP.floors);
+  const i=keys.indexOf(APP.activeFloor);
+  APP.activeFloor=keys[(i+1)%keys.length];
+  APP.renderOrdenesMesa();
+};
 APP.renderOrdenesMesa = function(){
-  const list=document.getElementById('ordenes-mesa-list');
-  const cnt=document.getElementById('ordenes-count');
-  if(!list) return;
-  const activas=APP.kitchenOrders.filter(o=>!o.done);
-  cnt.textContent=activas.length;
-  if(!activas.length){
-    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">✅ Sin órdenes activas</div>';
-    return;
-  }
-  list.innerHTML=activas.map(o=>
-    `<div class="ko">
-      <div class="ko-head">
-        <div class="ko-tabla">🪑 ${o.mesa}</div>
-        <div class="ko-time">⏱ ${o.time||''}</div>
-        ${o.mesero?`<span class="mesero-badge">👤 ${o.mesero}</span>`:''}
-      </div>
-      ${(o.items||[]).map(it=>`<div class="ko-item">• ${it}</div>`).join('')}
-      ${o.notas?`<div class="ko-note">📝 ${o.notas}</div>`:''}
-    </div>`
+  // Actualizar tabs de piso
+  const tabsEl=document.getElementById('om-floor-tabs');
+  if(tabsEl) tabsEl.innerHTML=Object.keys(APP.floors).map(f=>
+    `<div class="ftab${f===APP.activeFloor?' on':''}" onclick="APP.activeFloor='${f}';APP.renderOrdenesMesa()">${f}</div>`
   ).join('');
+  // Actualizar badge
+  const cntEl=document.getElementById('ordenes-count');
+  const activas=APP.kitchenOrders.filter(o=>!o.done);
+  if(cntEl) cntEl.textContent=activas.length;
+  const grid=document.getElementById('om-grid'); if(!grid) return;
+  const fl=APP.floors[APP.activeFloor]||[];
+  if(APP._omView==='list'){
+    // Vista lista
+    grid.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 90px 80px 90px;background:var(--bl);color:white;padding:8px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700">
+        <div>Tabla</div><div style="text-align:center">Personas</div><div style="text-align:center">Estado</div><div style="text-align:right">Total</div>
+      </div>`+
+      fl.map(t=>{
+        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
+        const orden=activas.find(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(t.id));
+        const isActive=!!orden;
+        const total=orden?(orden.items||[]).reduce((a,it)=>{
+          const m=it.match(/^(\d+)x\s+(.+)$/);
+          if(!m) return a;
+          let p=0;for(const cat of Object.values(APP.menuData)){const f2=cat.find(p2=>p2.n===m[2]);if(f2){p=f2.p;break;}}
+          return a+p*parseInt(m[1]);
+        },0):0;
+        return `<div style="display:grid;grid-template-columns:1fr 90px 80px 90px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--brd);cursor:pointer;background:${isActive?'#E3F2FD':'white'}" onclick="APP.openMesaSheet('${t.id}','${isActive?'ocupada':'libre'}',${t.cap})">
+          <div style="font-weight:700;color:${isActive?'var(--bl)':'var(--tx)'}">${t.num}</div>
+          <div style="text-align:center;font-size:12px;color:var(--tx2)">${td.guests||t.cap} pers.</div>
+          <div style="text-align:center;font-size:10px;font-weight:700;color:${isActive?'#E65100':'#2E7D32'}">${isActive?'Activa':'Vacío'}</div>
+          <div style="text-align:right;font-size:11px;font-weight:700;color:var(--bl)">${isActive&&total?APP.fmtShort(total)+' $':'-'}</div>
+        </div>`;
+      }).join('');
+  } else {
+    // Vista GRID — tarjetas con estado visual
+    grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-bottom:8px">`+
+      fl.map(t=>{
+        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
+        const orden=activas.find(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(t.id));
+        const isActive=!!orden;
+        // Calcular total y quién la tiene
+        let total=0; let cajero='';
+        if(orden){
+          cajero=orden.mesero||orden.cajero||'';
+          (orden.items||[]).forEach(it=>{
+            const m=it.match(/^(\d+)x\s+(.+)$/);
+            if(!m) return;
+            let p=0;for(const cat of Object.values(APP.menuData)){const f2=cat.find(p2=>p2.n===m[2]);if(f2){p=f2.p;break;}}
+            total+=p*parseInt(m[1]);
+          });
+        }
+        // Elapsed time
+        let elapsed='';
+        if(orden&&orden.timestamp){
+          const mins=Math.floor((Date.now()-orden.timestamp)/60000);
+          elapsed=mins>0?`${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`:'00:00';
+        }
+        return `<div onclick="APP.openMesaSheet('${t.id}','${isActive?'ocupada':'libre'}',${t.cap})"
+          style="border-radius:12px;border:2px solid ${isActive?'var(--bl)':'var(--brd)'};background:${isActive?'#E8F1FF':'white'};padding:10px 8px;cursor:pointer;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;transition:all .2s;box-shadow:${isActive?'0 2px 8px rgba(21,101,192,.2)':'0 1px 3px rgba(0,0,0,.06)'}">
+          <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-start">
+            ${cajero?`<span style="font-size:8px;font-weight:700;color:var(--bl);background:var(--bll3);padding:1px 5px;border-radius:6px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cajero.toUpperCase()}</span>`:'<span></span>'}
+            <span style="font-size:9px;color:${isActive?'var(--bl)':'var(--tx3)'}">${isActive?(td.guests||t.cap)+'/'+t.cap+' pers':t.cap+' Persona'}</span>
+          </div>
+          <div style="font-size:28px;font-weight:800;color:${isActive?'var(--bl)':'var(--tx)'};margin:4px 0">${t.num}</div>
+          <div style="width:100%;text-align:center">
+            ${isActive?`
+              <div style="font-size:9px;color:var(--bl);font-weight:700">${elapsed}</div>
+              <div style="font-size:10px;font-weight:800;color:var(--bl)">${total?APP.fmtShort(Math.round(total*1.05))+' $':''}</div>
+            `:`<div style="font-size:9px;color:var(--tx3)">Vacío</div>`}
+          </div>
+        </div>`;
+      }).join('')+`</div>`;
+  }
 };
 
 // ── MESAS ────────────────────────────────────
@@ -3363,6 +3525,8 @@ APP.renderReports = function(){
     if(!d){
       document.getElementById('r-top').innerHTML='<div style="font-size:12px;color:var(--tx3);padding:8px 0">Sin ventas hoy</div>';
       document.getElementById('r-top-ingresos').innerHTML='<div style="font-size:12px;color:var(--tx3);padding:8px 0">Sin ventas hoy</div>';
+      const vu=document.getElementById('r-ventas-usuario');if(vu)vu.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--tx3)">Sin ventas hoy</div>';
+      const vut=document.getElementById('r-vu-total');if(vut)vut.textContent='0.00 $';
       return;
     }
     const counts={},revenue={};
@@ -3383,6 +3547,26 @@ APP.renderReports = function(){
         <div class="bar-label"><span>${n}</span><strong>${APP.fmtShort(v)}</strong></div>
         <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/mR*100)}%"></div></div>
       </div>`).join('');
+    // Ventas por usuario
+    const byUser={};
+    Object.values(d).forEach(ord=>{
+      const u=ord.cajero||ord.mesero||'Sin asignar';
+      if(!byUser[u]) byUser[u]={total:0,count:0};
+      byUser[u].total+=(ord.total||0);
+      byUser[u].count++;
+    });
+    const totalVentas=Object.values(byUser).reduce((a,v)=>a+v.total,0)||1;
+    const vuEl=document.getElementById('r-ventas-usuario');
+    const vtEl=document.getElementById('r-vu-total');
+    const vpEl=document.getElementById('r-vu-pct');
+    if(vuEl) vuEl.innerHTML=Object.entries(byUser).sort((a,b)=>b[1].total-a[1].total).map(([u,v])=>`
+      <div style="display:grid;grid-template-columns:1fr 80px 90px;padding:10px 12px;border-bottom:1px solid var(--brd);font-size:12px;align-items:center">
+        <div style="font-weight:600;color:var(--tx)">${u}</div>
+        <div style="text-align:center;color:var(--tx2)">${Math.round(v.total/totalVentas*100)} %</div>
+        <div style="text-align:right;font-weight:700;color:var(--bl)">${APP.fmtNum(v.total)} $</div>
+      </div>`).join('');
+    if(vtEl) vtEl.textContent=APP.fmtNum(totalVentas)+' $';
+    if(vpEl) vpEl.textContent='100 %';
   });
 };
 APP.renderVentasChart = function(resumen){
@@ -4068,6 +4252,121 @@ APP.openFloorSheet = function(){
   APP.activeFloor=n;
   APP.renderGMTables(); APP.renderTables();
   APP.showToast(`✅ Piso renombrado a "${n}"`);
+};
+
+// ── ADMIN CONFIG functions ───────────────────
+APP._adminCfg = {descuento:5, pagos:['efectivo','tarjeta','boleto'], tipoOrden:'menu', qr:'A5', orient:'vertical'};
+APP.adminCfgDescuento = function(){
+  const opts=[1,2,3,4,5,6,7,8,9,10,20,30,50,100];
+  APP._showRadioSheet('¿Tasa de descuento máxima?', opts.map(v=>({val:String(v),lbl:String(v)})),
+    String(APP._adminCfg.descuento), v=>{
+      APP._adminCfg.descuento=parseInt(v);
+      const el=document.getElementById('acfg-descuento-val'); if(el) el.textContent=v;
+    });
+};
+APP.adminCfgPagos = function(){
+  const opts=['Dinero en efectivo','Tarjeta de crédito','Boleto de la comida','Dólares','Transferencias en Bs.','Crédito por pagar','Bancolombia'];
+  APP._showCheckSheet('Seleccione los tipos de pago que desea utilizar', opts, opts.slice(0,3), sel=>{
+    const el=document.getElementById('acfg-pagos-val'); if(el) el.textContent=sel.join(', ');
+  });
+};
+APP.adminCfgTipoOrden = function(){
+  APP._showRadioSheet('Tipo de orden de mesa en línea',
+    [{val:'pedidos',lbl:'El cliente puede realizar pedidos en línea'},{val:'menu',lbl:'Mostrar solo menú al cliente'}],
+    APP._adminCfg.tipoOrden, v=>{
+      APP._adminCfg.tipoOrden=v;
+      const el=document.getElementById('acfg-tipo-orden-val');
+      if(el) el.textContent=v==='pedidos'?'El cliente puede realizar pedidos en línea':'Mostrar solo menú al cliente';
+    });
+};
+APP.adminCfgQR = function(){
+  APP._showRadioSheet('Orden de mesa en línea Tamaño de salida QR',
+    [{val:'A5',lbl:'A5'},{val:'A6',lbl:'A6'},{val:'A7',lbl:'A7'}],
+    APP._adminCfg.qr, v=>{
+      APP._adminCfg.qr=v;
+      const el=document.getElementById('acfg-qr-val'); if(el) el.textContent=v;
+    });
+};
+APP.adminCfgOrientacion = function(){
+  APP._showRadioSheet('Modo de orientación',
+    [{val:'vertical',lbl:'Modo teléfono / Vertical'},{val:'horizontal',lbl:'Modo tableta / Horizontal'}],
+    APP._adminCfg.orient, v=>{
+      APP._adminCfg.orient=v;
+      const el=document.getElementById('acfg-orient-val');
+      if(el) el.textContent=v==='vertical'?'Modo teléfono / Vertical':'Modo tableta / Horizontal';
+    });
+};
+// Generic radio selection — aparece como overlay de pantalla completa desde abajo
+APP._showRadioSheet = function(title, opts, current, onSelect){
+  const existing=document.getElementById('_radio-sheet');
+  if(existing) existing.remove();
+  const bg=document.createElement('div');
+  bg.id='_radio-sheet';
+  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;justify-content:center';
+  bg.innerHTML=`<div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:500px;max-height:80vh;overflow-y:auto;padding:1.2rem">
+    <div style="font-size:15px;font-weight:700;color:var(--bl);margin-bottom:1rem">${title}</div>
+    ${opts.map(o=>`
+      <label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--brd);cursor:pointer">
+        <div style="width:22px;height:22px;border-radius:50%;border:2px solid ${o.val===current?'var(--bl)':'var(--brd)'};background:${o.val===current?'var(--bl)':'white'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          ${o.val===current?`<div style="width:10px;height:10px;border-radius:50%;background:white"></div>`:''}
+        </div>
+        <span style="font-size:13px;color:var(--tx)">${o.lbl}</span>
+        <input type="radio" name="_rs" value="${o.val}" ${o.val===current?'checked':''} style="display:none" onchange="APP._radioSheetSelect('${o.val}')">
+      </label>`).join('')}
+    <div style="padding-top:12px;text-align:right">
+      <button onclick="document.getElementById('_radio-sheet').remove()" style="background:none;border:none;color:var(--bl);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px">CANCELAR</button>
+    </div>
+  </div>`;
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();});
+  document.body.appendChild(bg);
+  APP._radioSheetCb=onSelect;
+};
+APP._radioSheetSelect = function(val){
+  if(APP._radioSheetCb) APP._radioSheetCb(val);
+  const el=document.getElementById('_radio-sheet'); if(el) el.remove();
+};
+// Generic checkbox selection sheet
+APP._showCheckSheet = function(title, opts, current, onSelect){
+  const existing=document.getElementById('_check-sheet');
+  if(existing) existing.remove();
+  const sel=new Set(current);
+  const bg=document.createElement('div');
+  bg.id='_check-sheet';
+  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;justify-content:center';
+  bg.innerHTML=`<div style="background:white;border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:1.2rem">
+    <div style="font-size:15px;font-weight:700;color:var(--bl);margin-bottom:1rem">${title}</div>
+    ${opts.map((o,i)=>`
+      <label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--brd);cursor:pointer">
+        <div id="_chk-box-${i}" style="width:22px;height:22px;border-radius:5px;border:2px solid ${sel.has(o)?'var(--bl)':'var(--brd)'};background:${sel.has(o)?'var(--bl)':'white'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          ${sel.has(o)?'<span style="color:white;font-size:14px">✓</span>':''}
+        </div>
+        <span style="font-size:13px;color:var(--tx)">${o}</span>
+        <input type="checkbox" name="_cs" value="${o}" ${sel.has(o)?'checked':''} style="display:none">
+      </label>`).join('')}
+    <div style="display:flex;justify-content:flex-end;gap:12px;padding-top:12px">
+      <button onclick="document.getElementById('_check-sheet').remove()" style="background:none;border:none;color:var(--tx3);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px">CANCELAR</button>
+      <button onclick="APP._checkSheetConfirm()" style="background:none;border:none;color:var(--bl);font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px">ACEPTAR</button>
+    </div>
+  </div>`;
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.remove();});
+  document.body.appendChild(bg);
+  APP._checkSheetCb=onSelect;
+  // Toggle logic
+  bg.querySelectorAll('label').forEach(lbl=>{
+    lbl.addEventListener('click',()=>{
+      const cb=lbl.querySelector('input[type=checkbox]');
+      cb.checked=!cb.checked;
+      const idx=Array.from(bg.querySelectorAll('input[type=checkbox]')).indexOf(cb);
+      const box=document.getElementById('_chk-box-'+idx);
+      if(box){box.style.background=cb.checked?'var(--bl)':'white';box.style.borderColor=cb.checked?'var(--bl)':'var(--brd)';box.innerHTML=cb.checked?'<span style="color:white;font-size:14px">✓</span>':'';}
+    });
+  });
+};
+APP._checkSheetConfirm = function(){
+  const el=document.getElementById('_check-sheet'); if(!el) return;
+  const checked=[...el.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
+  if(APP._checkSheetCb) APP._checkSheetCb(checked);
+  el.remove();
 };
 
 // ── FIREBASE TOOLS ───────────────────────────
