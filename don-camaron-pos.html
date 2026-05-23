@@ -615,6 +615,93 @@ body{background:var(--bg);color:var(--tx)}
 .user-alert-bar{background:#FFF9C4;border-top:2px solid #FFC107;padding:8px 12px;
   font-size:11px;color:#5D4037;display:flex;align-items:center;gap:6px}
 
+/* ═══ PANTALLA DETALLE MESA ═══ */
+.mesa-detail-screen{position:fixed;inset:0;background:var(--bg);z-index:250;
+  display:none;flex-direction:column;overflow:hidden}
+.mesa-detail-screen.on{display:flex}
+.mds-head{background:var(--bl);color:white;padding:10px 14px;display:flex;
+  align-items:center;gap:10px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.mds-back{background:none;border:none;color:white;font-size:22px;cursor:pointer;
+  padding:4px;line-height:1;flex-shrink:0}
+.mds-title{font-size:14px;font-weight:800;flex:1}
+.mds-other{background:rgba(255,255,255,.2);border:none;color:white;padding:6px 10px;
+  border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0}
+.mds-body{flex:1;overflow-y:auto;padding:10px}
+.mds-info-card{background:white;border-radius:10px;border:1px solid var(--brd);
+  padding:10px 12px;margin-bottom:8px;font-size:12px}
+.mds-info-row{display:flex;justify-content:space-between;padding:3px 0;
+  border-bottom:1px solid var(--brd)}
+.mds-info-row:last-child{border:none}
+.mds-info-lbl{color:var(--tx3);font-weight:600}
+.mds-info-val{color:var(--bl);font-weight:700}
+.mds-action-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.mds-act-btn{padding:11px;border:none;border-radius:9px;font-size:11px;font-weight:800;
+  cursor:pointer;text-align:center}
+.mds-item-row{display:flex;align-items:center;gap:8px;padding:7px 0;
+  border-bottom:1px solid var(--brd);font-size:12px}
+.mds-item-row:last-child{border:none}
+.mds-item-name{flex:1;font-weight:600;color:var(--bl)}
+.mds-item-price{font-size:11px;color:var(--tx2)}
+.mds-item-qty{font-size:12px;font-weight:800;color:var(--bl);min-width:40px;text-align:right}
+.mds-total-block{background:white;border-radius:10px;border:1px solid var(--brd);
+  padding:10px 12px;margin-bottom:8px}
+.mds-total-row{display:flex;justify-content:space-between;font-size:12px;
+  padding:4px 0;color:var(--tx2)}
+.mds-total-row.grand{font-weight:800;font-size:14px;color:var(--tx);
+  border-top:1px solid var(--brd);padding-top:8px;margin-top:4px}
+.mds-log{font-size:10px;color:var(--bl);padding:3px 0}
+.mds-footer{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px;
+  background:white;border-top:1px solid var(--brd);flex-shrink:0}
+.mds-foot-btn{padding:12px;border:none;border-radius:10px;font-size:11px;
+  font-weight:800;cursor:pointer;text-align:center}
+
+/* ═══ PEDIDOS MEJORADO ═══ */
+.pedido-row-v2{background:white;border-radius:var(--r);border:1px solid var(--brd);
+  padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .12s}
+.pedido-row-v2.cancelado{border-color:#FFCDD2;background:#FFF8F8}
+.pedido-row-v2.activo{border-color:var(--bl);background:var(--bll2)}
+.pr2-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.pr2-tabla{font-size:13px;font-weight:800;color:var(--bl);flex:1}
+.pr2-monto{font-size:13px;font-weight:800;color:var(--tx)}
+.pr2-status{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;
+  flex-shrink:0}
+.pr2-bottom{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--tx3)}
+.pr2-items{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Detalle pedido pantalla completa */
+.pedido-detail-screen{position:fixed;inset:0;background:var(--bg);z-index:260;
+  display:none;flex-direction:column}
+.pedido-detail-screen.on{display:flex}
+.pds-head{background:var(--bl);color:white;padding:10px 14px;display:flex;
+  align-items:center;gap:10px;flex-shrink:0}
+.pds-back{background:none;border:none;color:white;font-size:22px;cursor:pointer;padding:4px}
+.pds-title{font-size:13px;font-weight:800;flex:1;line-height:1.3}
+.pds-body{flex:1;overflow-y:auto;padding:10px}
+.pds-section{background:white;border-radius:10px;border:1px solid var(--brd);
+  padding:10px 12px;margin-bottom:8px}
+.pds-section-title{font-size:10px;font-weight:800;color:white;background:var(--bl);
+  padding:6px 12px;border-radius:6px;margin:-10px -12px 10px;letter-spacing:.3px;
+  text-transform:uppercase}
+.pds-row{display:flex;justify-content:space-between;font-size:12px;
+  padding:5px 0;border-bottom:1px solid var(--brd);align-items:flex-start;gap:8px}
+.pds-row:last-child{border:none}
+.pds-lbl{color:var(--tx3);font-weight:600;flex-shrink:0}
+.pds-val{font-weight:700;color:var(--bl);text-align:right}
+.pds-item-row{display:flex;align-items:center;gap:8px;padding:6px 0;
+  border-bottom:1px solid var(--brd);font-size:12px}
+.pds-item-row:last-child{border:none}
+.pds-item-name{flex:1;font-weight:600;color:var(--bl)}
+.pds-item-unit{color:var(--tx2);font-size:11px}
+.pds-item-qty{color:var(--tx2);font-size:11px;min-width:30px;text-align:center}
+.pds-item-total{font-weight:800;color:var(--tx);min-width:70px;text-align:right}
+.pds-log-entry{font-size:10px;color:var(--bl);padding:3px 0;
+  border-bottom:1px solid var(--brd)}
+.pds-log-entry:last-child{border:none}
+.pds-footer{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px;
+  background:white;border-top:1px solid var(--brd);flex-shrink:0}
+.pds-foot-btn{padding:12px;border:none;border-radius:10px;font-size:11px;
+  font-weight:800;cursor:pointer;text-align:center}
+
 /* ═══ FIN DEL DÍA ═══ */
 /* ═══ TOAST / MODALS ═══ */
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
@@ -900,11 +987,19 @@ body{background:var(--bg);color:var(--tx)}
       <!-- ══ PEDIDOS ══ -->
       <div id="p-pedidos" class="panel">
         <div class="mod-wrap">
-          <div class="kit-tabs" id="pedidos-tabs">
+          <div class="kit-tabs" id="pedidos-tabs" style="padding-right:32px;position:relative">
             <div class="ktab on" onclick="APP.switchPedidosTab('todas',this)">TODAS</div>
             <div class="ktab" onclick="APP.switchPedidosTab('mesa',this)">ÓRDENES DE MESA</div>
             <div class="ktab" onclick="APP.switchPedidosTab('mensajeria',this)">ÓRDENES DE MENSAJERÍA</div>
             <div class="ktab" onclick="APP.switchPedidosTab('restaurante',this)">PEDIDOS DE RESTAURANTE</div>
+            <div class="ktab" onclick="APP.switchPedidosTab('llevar',this)">ÓRDENES PARA LLEVAR</div>
+            <div class="ktab" onclick="APP.switchPedidosTab('credito',this)">PEDIDOS A CRÉDITO</div>
+            <div style="position:absolute;right:6px;top:6px;display:flex;flex-direction:column;gap:2px;cursor:pointer"
+              onclick="APP.openPedidosFiltro()">
+              <div style="width:18px;height:2px;background:var(--bl);border-radius:2px"></div>
+              <div style="width:14px;height:2px;background:var(--bl);border-radius:2px"></div>
+              <div style="width:10px;height:2px;background:var(--bl);border-radius:2px"></div>
+            </div>
           </div>
           <div id="pedidos-list"></div>
           <div id="pedidos-total-bar" class="pedidos-total-bar" style="display:none"></div>
@@ -1299,6 +1394,49 @@ body{background:var(--bg);color:var(--tx)}
 
     </div><!-- end cnt -->
     <nav class="bnav" id="bnav"></nav>
+  </div>
+</div>
+
+<!-- ══ PANTALLA DETALLE DE MESA ══ -->
+<div class="mesa-detail-screen" id="mesa-detail-screen">
+  <div class="mds-head">
+    <button class="mds-back" onclick="APP.closeMesaDetail()">←</button>
+    <div class="mds-title" id="mds-title">Mesa 01</div>
+    <button class="mds-other" onclick="APP.openMesaDetailOtras()">Otro<br>Opciones</button>
+  </div>
+  <div class="mds-body" id="mds-body"></div>
+  <div class="mds-footer">
+    <button class="mds-foot-btn" style="background:var(--rd2);color:var(--rd)" onclick="APP.mesaDetailCancelar()">CANCELAR ORDEN</button>
+    <button class="mds-foot-btn" style="background:#E8F5E9;color:var(--gr)" onclick="APP.mesaDetailAgregar()">AGREGAR</button>
+    <button class="mds-foot-btn" style="background:var(--bll2);color:var(--bl)" onclick="APP.mesaDetailVolver()">VOLVER</button>
+    <button class="mds-foot-btn" style="background:var(--bl);color:white" onclick="APP.mesaDetailOrdenCompleta()">ORDEN COMPLETA</button>
+  </div>
+</div>
+
+<!-- ══ PANTALLA DETALLE PEDIDO ══ -->
+<div class="pedido-detail-screen" id="pedido-detail-screen">
+  <div class="pds-head">
+    <button class="pds-back" onclick="APP.closePedidoDetail()">←</button>
+    <div class="pds-title" id="pds-title">Pedido</div>
+    <div style="font-size:18px;cursor:pointer" onclick="APP.showToast('Compartir pedido próximamente')">↗</div>
+  </div>
+  <div class="pds-body" id="pds-body"></div>
+  <div class="pds-footer">
+    <button class="pds-foot-btn" style="background:var(--rd2);color:var(--rd)" onclick="APP.pedidoDetailCancelar()">CANCELAR ORDEN</button>
+    <button class="pds-foot-btn" style="background:var(--bll2);color:var(--bl)" onclick="APP.pedidoDetailEditar()">EDITAR ORDEN</button>
+    <button class="pds-foot-btn" style="background:#E8F5E9;color:var(--gr)" onclick="APP.showToast('Impresión próximamente')">IMPRESIÓN</button>
+    <button class="pds-foot-btn" style="background:var(--sf2);color:var(--tx2)" onclick="APP.closePedidoDetail()">VOLVER</button>
+  </div>
+</div>
+
+<!-- ══ SHEET OTRAS OPCIONES MESA ══ -->
+<div class="otras-sheet" id="mesa-otras-sheet">
+  <div class="otras-body">
+    <div class="otras-title">Otras opciones — Mesa <span id="mds-otras-num"></span></div>
+    <button class="otras-btn" onclick="APP.mesaOtraDescuento()">DESCUENTO:</button>
+    <button class="otras-btn" onclick="APP.mesaOtraCambio()">MESA DE CAMBIO</button>
+    <button class="otras-btn" onclick="APP.mesaOtraFusion()">MESA DE FUSIÓN</button>
+    <button class="otras-btn" style="background:#9E9E9E" onclick="document.getElementById('mesa-otras-sheet').classList.remove('on')">CANCELAR</button>
   </div>
 </div>
 
@@ -2083,6 +2221,7 @@ APP.renderProducts = function(filter=''){
   ).join('')||`<div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--tx3)">Sin resultados</div>`;
 };
 document.getElementById('search-inp').addEventListener('input',e=>APP.renderProducts(e.target.value));
+APP.renderCatalog = function(){ APP.renderCats(); APP.renderProducts(); };
 
 // Teclado numérico
 APP.numpadPress = function(k){
@@ -2532,23 +2671,16 @@ APP.renderGMTables = function(){
 };
 APP.openMesaSheet = function(id,status,cap){
   APP.mesaData={id,status,cap};
-  document.getElementById('mesa-sheet-title').textContent=`Mesa ${id}`;
-  const a1=document.getElementById('msa1');
-  const a2=document.getElementById('msa2');
-  const a3=document.getElementById('msa3');
   if(status==='libre'){
-    a1.style.display='block'; a1.textContent='📋 Abrir nueva orden';
-    a2.style.display='none'; a3.style.display='none';
-  } else if(status==='ocupada'){
-    a1.style.display='none';
-    a2.style.display='block'; a2.textContent='👁 Ver órdenes activas';
-    a3.style.display='block'; a3.textContent='✅ Liberar mesa';
+    // Mesa vacía → preparar nueva orden directo
+    if(APP.db){const {update,ref}=APP.fb;update(ref(APP.db,`mesas/mesa${id}`),{status:'ocupada',guests:1});}
+    document.getElementById('mesa-sel').value=`Mesa ${id}`;
+    APP.showPanel('p-order','order');
+    APP.showToast(`Mesa ${id} abierta`);
   } else {
-    a1.style.display='block'; a1.textContent='📋 Iniciar orden (con reserva)';
-    a2.style.display='none';
-    a3.style.display='block'; a3.textContent='❌ Cancelar reserva';
+    // Mesa ocupada o reservada → pantalla detalle completa
+    APP.openMesaDetail(id,status,cap);
   }
-  document.getElementById('mesa-sheet').classList.add('on');
 };
 APP.mesaA1 = async function(){
   APP.closeSheet('mesa-sheet');
@@ -2565,6 +2697,166 @@ APP.mesaA3 = async function(){
   APP.showToast(`Mesa ${id} liberada`);
 };
 
+// ── PANTALLA DETALLE MESA ────────────────────
+APP.openMesaDetail = function(id,status,cap){
+  APP.mesaData={id,status,cap};
+  APP.currentMesaId=id;
+  const td=APP.tables[`mesa${id}`]||{};
+  const screen=document.getElementById('mesa-detail-screen');
+  const title=document.getElementById('mds-title');
+  const otras=document.getElementById('mds-otras-num');
+  title.textContent=`${id} Actualizar`;
+  if(otras) otras.textContent=id;
+  APP.renderMesaDetail(id,td);
+  screen.classList.add('on');
+};
+APP.renderMesaDetail = function(id,td){
+  const body=document.getElementById('mds-body'); if(!body) return;
+  const ordenes=APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(id)&&!o.done);
+  const now=new Date();
+  const timeStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${APP.timeNow()}`;
+  // Calcular subtotal de items
+  let allItems=[]; let sub=0;
+  ordenes.forEach(o=>{
+    (o.items||[]).forEach(it=>{
+      // items son strings "2x Producto"
+      const m=it.match(/^(\d+)x\s+(.+)$/);
+      if(m) allItems.push({n:m[2],q:parseInt(m[1]),p:0});
+      else allItems.push({n:it,q:1,p:0});
+    });
+  });
+  // Buscar precios en menuData
+  allItems.forEach(it=>{
+    for(const cat of Object.values(APP.menuData)){
+      const found=cat.find(p=>p.n===it.n);
+      if(found){it.p=found.p;break;}
+    }
+    sub+=it.p*it.q;
+  });
+  const iva=Math.round(sub*0.05);
+  const tot=sub+iva;
+  const guests=td.guests||1;
+  body.innerHTML=`
+    <div class="pds-section">
+      <div class="pds-row"><span class="pds-lbl">Nombre de la tabla:</span><span class="pds-val">${id}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Ordenado por:</span><span class="pds-val">${APP.user.toUpperCase()}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Pedido en:</span><span class="pds-val">${timeStr}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Tipo de orden:</span><span class="pds-val">Mesa</span></div>
+      <div class="pds-row"><span class="pds-lbl">Número de personas</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <button onclick="APP.mesaChgGuests(-1)" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center">−</button>
+          <span id="mds-guests" style="font-weight:800;color:var(--bl);min-width:20px;text-align:center">${guests}</span>
+          <button onclick="APP.mesaChgGuests(1)" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center">+</button>
+        </span>
+      </div>
+    </div>
+    ${allItems.length?`
+    <div class="pds-section">
+      <div class="pds-section-title">ARTÍCULOS</div>
+      ${allItems.map(it=>`
+        <div class="pds-item-row">
+          <div class="pds-item-name">${it.n}</div>
+          <div class="pds-item-unit">${it.p?APP.fmtNum(it.p)+' $':''}</div>
+          <div class="pds-item-qty">x ${it.q}</div>
+          <div class="pds-item-total">${it.p?APP.fmtNum(it.p*it.q)+' $':''}</div>
+        </div>`).join('')}
+    </div>
+    <div class="mds-total-block">
+      <div class="mds-total-row"><span>Total parcial:</span><span style="font-weight:700">${APP.fmtNum(sub)} $</span></div>
+      <div class="mds-total-row"><span>Servicio(%5.0)</span><span style="font-weight:700">${APP.fmtNum(iva)} $</span></div>
+      <div class="mds-total-row grand"><span>Total:</span><span style="color:var(--bl)">${APP.fmtNum(tot)} $</span></div>
+    </div>`:`
+    <div style="text-align:center;padding:2rem;color:var(--tx3)">
+      <div style="font-size:36px;margin-bottom:.5rem">🛒</div>
+      <div style="font-size:13px;font-weight:700">Sin artículos en esta mesa</div>
+      <div style="font-size:11px;margin-top:4px">Toca AGREGAR para añadir productos</div>
+    </div>`}
+    <div style="padding:6px 0">
+      <div class="mds-log" style="font-size:10px;color:var(--bl)">
+        ${timeStr} * Orden creada ( ${APP.user.toUpperCase()} )
+      </div>
+    </div>`;
+  // Guardar total en tabla
+  APP.mesaData._tot=tot; APP.mesaData._sub=sub; APP.mesaData._iva=iva;
+};
+APP.mesaChgGuests = function(d){
+  const cur=parseInt(document.getElementById('mds-guests')?.textContent||1);
+  const nw=Math.max(1,cur+d);
+  const el=document.getElementById('mds-guests'); if(el) el.textContent=nw;
+  APP.mesaData._guests=nw;
+  if(APP.db&&APP.currentMesaId){
+    const {update,ref}=APP.fb;
+    update(ref(APP.db,`mesas/mesa${APP.currentMesaId}`),{guests:nw});
+  }
+};
+APP.closeMesaDetail = function(){
+  document.getElementById('mesa-detail-screen').classList.remove('on');
+};
+APP.mesaDetailAgregar = function(){
+  // Abrir catálogo directamente y al agregar volver a esta mesa
+  APP.closeMesaDetail();
+  document.getElementById('mesa-sel').value=`Mesa ${APP.currentMesaId}`;
+  APP._returnToMesa=APP.currentMesaId;
+  APP.showPanel('p-catalog','catalog');
+};
+APP.mesaDetailVolver = function(){
+  APP.closeMesaDetail();
+  APP.showPanel('p-tables','tables');
+};
+APP.mesaDetailOrdenCompleta = function(){
+  const tot=APP.mesaData._tot||0;
+  APP.closeMesaDetail();
+  document.getElementById('mesa-sel').value=`Mesa ${APP.currentMesaId}`;
+  // Cargar items de cocina en la orden actual
+  const ordenes=APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(APP.currentMesaId)&&!o.done);
+  APP.order=[];
+  ordenes.forEach(o=>{
+    (o.items||[]).forEach(it=>{
+      const m=it.match(/^(\d+)x\s+(.+)$/);
+      if(m){
+        const name=m[2]; const qty=parseInt(m[1]);
+        let price=0;
+        for(const cat of Object.values(APP.menuData)){
+          const f=cat.find(p=>p.n===name); if(f){price=f.p;break;}
+        }
+        const ex=APP.order.find(x=>x.n===name);
+        if(ex) ex.q+=qty;
+        else APP.order.push({n:name,p:price,e:'🍽️',q:qty});
+      }
+    });
+  });
+  APP.renderOrder(); APP.updateOrderCount();
+  APP.openPayScreen();
+};
+APP.mesaDetailCancelar = function(){
+  if(!confirm('¿Cancelar la orden de esta mesa?')) return;
+  const id=APP.currentMesaId;
+  APP.closeMesaDetail();
+  if(APP.db){
+    const {update,remove,ref}=APP.fb;
+    APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','')===String(id)&&!o.done)
+      .forEach(o=>remove(ref(APP.db,`pedidos_cocina/${o.id}`)));
+    update(ref(APP.db,`mesas/mesa${id}`),{status:'libre',guests:0,total:0});
+  }
+  APP.showToast(`Orden Mesa ${id} cancelada`);
+  APP.showPanel('p-tables','tables');
+};
+APP.openMesaDetailOtras = function(){
+  document.getElementById('mesa-otras-sheet').classList.add('on');
+};
+APP.mesaOtraDescuento = function(){
+  document.getElementById('mesa-otras-sheet').classList.remove('on');
+  APP.showToast('Descuento: aplica en pantalla de cobro');
+};
+APP.mesaOtraCambio = function(){
+  document.getElementById('mesa-otras-sheet').classList.remove('on');
+  APP.showToast('Mesa de cambio próximamente');
+};
+APP.mesaOtraFusion = function(){
+  document.getElementById('mesa-otras-sheet').classList.remove('on');
+  APP.showToast('Mesa de fusión próximamente');
+};
+
 // ── PEDIDOS ──────────────────────────────────
 APP.switchPedidosTab = function(tab,el){
   APP.pedidosTab=tab;
@@ -2575,32 +2867,193 @@ APP.renderPedidos = function(){
   const list=document.getElementById('pedidos-list');
   if(!list) return;
   const totBar=document.getElementById('pedidos-total-bar');
-  const orders=[...APP.kitchenOrders].sort((a,b)=>b.timestamp-a.timestamp);
-  if(!orders.length){
-    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">📑 Sin pedidos</div>';
+  // Leer ventas reales de Firebase si están disponibles
+  if(APP.db){
+    const {get,ref}=APP.fb;
+    get(ref(APP.db,`ventas/${APP.today()}/ordenes`)).then(snap=>{
+      const ventasData=snap.val()||{};
+      APP._ventasHoy=Object.entries(ventasData).map(([k,v])=>({id:k,...v}));
+      APP._buildPedidosList();
+    }).catch(()=>APP._buildPedidosList());
+  } else APP._buildPedidosList();
+};
+APP._buildPedidosList=function(){
+  const list=document.getElementById('pedidos-list');
+  const totBar=document.getElementById('pedidos-total-bar');
+  if(!list) return;
+  const ventas=APP._ventasHoy||[];
+  const cocina=APP.kitchenOrders||[];
+  // Combinar: ventas pagadas + pedidos activos de cocina no pagados
+  let all=[];
+  // Ventas pagadas
+  ventas.forEach(v=>{
+    all.push({
+      id:v.id, mesa:v.mesa||'—', time:v.time||'', timestamp:v.timestamp||0,
+      total:v.total||0, method:v.method||'', items:v.items||[],
+      tipo:v.mesa==='Para llevar'?'llevar':v.mesa==='Delivery'?'mensajeria':'mesa',
+      status:'completado', cajero:v.cajero||'', paid:true,
+      cancelado:v.cancelado||false
+    });
+  });
+  // Pedidos activos de cocina no en ventas
+  cocina.filter(o=>!o.done).forEach(o=>{
+    all.push({
+      id:o.id, mesa:o.mesa||'—', time:o.time||'', timestamp:o.timestamp||0,
+      total:0, items:o.items||[], tipo:'mesa', status:'activo', paid:false,
+      mesero:o.mesero||''
+    });
+  });
+  // Ordenar por tiempo desc
+  all.sort((a,b)=>b.timestamp-a.timestamp);
+  // Filtrar por tab
+  const tab=APP.pedidosTab;
+  if(tab==='mesa') all=all.filter(o=>o.tipo==='mesa');
+  else if(tab==='mensajeria') all=all.filter(o=>o.tipo==='mensajeria');
+  else if(tab==='restaurante') all=all.filter(o=>o.tipo==='restaurante');
+  else if(tab==='llevar') all=all.filter(o=>o.tipo==='llevar');
+  else if(tab==='credito') all=all.filter(o=>o.method&&o.method.toLowerCase().includes('créd'));
+  if(!all.length){
+    list.innerHTML=`<div style="text-align:center;padding:3rem 1rem;color:var(--tx3)">
+      <div style="font-size:48px;margin-bottom:.5rem">📑</div>
+      <div style="font-size:13px;font-weight:700">Sin pedidos</div>
+      <div style="font-size:11px;margin-top:4px">Aquí aparecerán tus órdenes</div>
+    </div>`;
     totBar.style.display='none'; return;
   }
-  // Simular datos de pedidos con montos
-  list.innerHTML=orders.map((o,i)=>{
-    const isActive=!o.done;
-    return `<div class="pedido-row${isActive?' active':''}">
-      <div class="pr-icons">
-        <span class="pr-icon">👥</span>
-        <span class="pr-icon">🖥️</span>
-        ${o.done?'<span class="pr-icon">✅</span>':''}
+  const totalMonto=all.reduce((a,o)=>a+(o.total||0),0);
+  const cancelados=all.filter(o=>o.cancelado).length;
+  list.innerHTML=all.map(o=>{
+    const monto=o.total?APP.fmtNum(o.total)+' $':'En cocina';
+    const itemStr=(o.items||[]).slice(0,2).map(i=>typeof i==='string'?i:(i.n||'')).join(', ')+(o.items?.length>2?'...':'');
+    const statusColor=o.cancelado?'#C62828':o.paid?'#2E7D32':'#E65100';
+    const statusBg=o.cancelado?'#FFEBEE':o.paid?'#E8F5E9':'#FFF3E0';
+    const statusTxt=o.cancelado?'Cancelado':o.paid?'✓ Completado':'En cocina';
+    return `<div class="pedido-row-v2${o.cancelado?' cancelado':o.status==='activo'?' activo':''}"
+      onclick="APP.openPedidoDetail('${o.id}')">
+      <div class="pr2-top">
+        <div class="pr2-tabla">Tabla No: ${(o.mesa||'').replace('Mesa ','')}</div>
+        <span class="pr2-status" style="background:${statusBg};color:${statusColor}">${statusTxt}</span>
+        <div class="pr2-monto">${monto}</div>
       </div>
-      <div class="pr-info">
-        <div class="pr-tabla">Tabla No: ${o.mesa.replace('Mesa ','')}</div>
-        <div class="pr-time">${o.time||'--:--'}</div>
-        ${o.mesero?`<div style="font-size:10px;color:var(--bl)">👤 ${o.mesero}</div>`:''}
+      <div class="pr2-bottom">
+        <span>${o.time||'--:--'}</span>
+        ${o.cajero?`<span>· ${o.cajero}</span>`:''}
+        ${o.mesero?`<span>· 👤 ${o.mesero}</span>`:''}
+        <span class="pr2-items">· ${itemStr}</span>
       </div>
-      <div class="pr-amount${isActive?' active':''}" style="font-size:11px;max-width:90px;word-break:break-all">
-        ${(o.items||[]).slice(0,1).join(', ')}...</div>
     </div>`;
   }).join('');
   totBar.style.display='block';
-  totBar.textContent=`Precio total de ${orders.length} pedidos`;
-  APP.updateBadge('pedidos',orders.filter(o=>!o.done).length);
+  const txt=`Precio total de ${all.length} pedidos: ${APP.fmtNum(totalMonto)} $`
+    +(cancelados?`\nPrecio total de ${cancelados} pedidos cancelados`:'');
+  totBar.innerHTML=txt.replace('\n','<br>');
+  APP.updateBadge('pedidos',cocina.filter(o=>!o.done).length);
+};
+APP.openPedidoDetail = function(id){
+  // Buscar en ventas o cocina
+  const venta=(APP._ventasHoy||[]).find(v=>v.id===id);
+  const cocina=APP.kitchenOrders.find(o=>o.id===id);
+  const o=venta||cocina;
+  if(!o){APP.showToast('Pedido no encontrado');return;}
+  APP._currentPedidoId=id;
+  APP._currentPedido=o;
+  const screen=document.getElementById('pedido-detail-screen');
+  const title=document.getElementById('pds-title');
+  const body=document.getElementById('pds-body');
+  const numId=id.substring(0,13)||id;
+  const isPaid=!!(venta&&venta.paid);
+  const isCancelled=!!(venta&&venta.cancelado);
+  title.innerHTML=`Pedido ${numId}<br><span style="font-size:10px;font-weight:400;opacity:.8">( ${isCancelled?'Pedido cancelado':isPaid?'Pedido completado':'En cocina'} )</span>`;
+  const items=venta?venta.items||[]:cocina?(cocina.items||[]).map(it=>{
+    const m=it.match(/^(\d+)x\s+(.+)$/);
+    return m?{n:m[2],q:parseInt(m[1]),p:0}:{n:it,q:1,p:0};
+  }):[];
+  // Enriquecer con precios si faltan
+  items.forEach(it=>{
+    if(!it.p) for(const cat of Object.values(APP.menuData)){
+      const f=cat.find(p=>p.n===it.n);if(f){it.p=f.p;break;}
+    }
+  });
+  const sub=venta?venta.subtotal||venta.total:items.reduce((a,i)=>a+(i.p||0)*(i.q||1),0);
+  const iva=venta?venta.iva||0:Math.round(sub*0.05);
+  const tot=venta?venta.total||0:sub+iva;
+  const timeStr=venta?venta.time||'':cocina?cocina.time||'':'';
+  const now=new Date();
+  const dateStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  body.innerHTML=`
+    <div class="pds-section">
+      <div class="pds-section-title">INFORMACIÓN DEL PEDIDO</div>
+      <div class="pds-row"><span class="pds-lbl">Número de orden:</span><span class="pds-val" style="font-size:10px">${numId}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Pedido en:</span><span class="pds-val">${dateStr} ${timeStr}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Ordenado por:</span><span class="pds-val">${(venta?.cajero||cocina?.mesero||APP.user).toUpperCase()}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Estado de la cocina:</span><span class="pds-val">Si está preparando en la cocina</span></div>
+      <div class="pds-row"><span class="pds-lbl">Estado de la orden:</span><span class="pds-val">${isCancelled?'Cancelado':isPaid?'Pedido completado':'En cocina'}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Tipo de orden:</span><span class="pds-val">${venta?.mesa==='Delivery'?'Delivery':venta?.mesa==='Para llevar'?'Para llevar':'Mesa'}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Nombre de la tabla:</span><span class="pds-val">${(o.mesa||'').replace('Mesa ','')}</span></div>
+      <div class="pds-row"><span class="pds-lbl">Número de personas</span><span class="pds-val">1</span></div>
+    </div>
+    ${items.length?`
+    <div class="pds-section">
+      <div class="pds-section-title">ARTÍCULOS</div>
+      ${items.map(it=>`
+        <div class="pds-item-row">
+          <div class="pds-item-name" style="color:var(--bl)">${it.n}</div>
+          <div class="pds-item-unit">${it.p?APP.fmtNum(it.p)+' $':''}</div>
+          <div class="pds-item-qty">x ${it.q||1}</div>
+          <div class="pds-item-total">${it.p?APP.fmtNum((it.p||0)*(it.q||1))+' $':''}</div>
+        </div>`).join('')}
+    </div>`:''}
+    <div class="pds-section">
+      <div class="pds-section-title">TOTALES</div>
+      ${venta?.method?`<div class="pds-row"><span class="pds-lbl" style="color:var(--bl)">${venta.method==='Efectivo'?'Dinero en efectivo':venta.method} ${APP.fmtNum(venta.efectivo||venta.total||0)} $</span></div>`:''}
+      <div class="pds-row"><span class="pds-lbl">Total parcial:</span><span class="pds-val" style="font-weight:800">${APP.fmtNum(sub)} $</span></div>
+      <div class="pds-row"><span class="pds-lbl">Servicio(%5.0)</span><span class="pds-val">${APP.fmtNum(iva)} $</span></div>
+      <div class="pds-row" style="font-weight:800;font-size:13px"><span class="pds-lbl">Total:</span><span class="pds-val" style="font-size:14px">${APP.fmtNum(tot)} $</span></div>
+    </div>
+    <div class="pds-section">
+      <div class="pds-section-title">HISTORIAL</div>
+      <div class="pds-log-entry">${dateStr} ${timeStr} * Orden creada ( ${(venta?.cajero||cocina?.mesero||APP.user).toUpperCase()} )</div>
+      ${isPaid?`<div class="pds-log-entry">${dateStr} ${timeStr} * Pedido pagado ( ${(venta?.cajero||APP.user).toUpperCase()} )</div>`:''}
+    </div>`;
+  screen.classList.add('on');
+};
+APP.closePedidoDetail = function(){
+  document.getElementById('pedido-detail-screen').classList.remove('on');
+};
+APP.pedidoDetailCancelar = function(){
+  if(!confirm('¿Cancelar este pedido?')) return;
+  const id=APP._currentPedidoId;
+  if(APP.db&&id){
+    const {update,ref}=APP.fb;
+    // Marcar como cancelado en ventas
+    update(ref(APP.db,`ventas/${APP.today()}/ordenes/${id}`),{cancelado:true}).catch(()=>{});
+    // Si está en cocina, remover
+    const co=APP.kitchenOrders.find(o=>o.id===id);
+    if(co){const{remove,ref:r}=APP.fb;remove(r(APP.db,`pedidos_cocina/${id}`)).catch(()=>{});}
+  }
+  APP.closePedidoDetail();
+  APP.showToast('Pedido cancelado');
+  setTimeout(()=>APP.renderPedidos(),800);
+};
+APP.pedidoDetailEditar = function(){
+  const o=APP._currentPedido; if(!o) return;
+  APP.closePedidoDetail();
+  // Cargar items en orden actual para editar
+  const items=o.items||[];
+  APP.order=[];
+  items.forEach(it=>{
+    let name,qty;
+    if(typeof it==='string'){const m=it.match(/^(\d+)x\s+(.+)$/);if(m){name=m[2];qty=parseInt(m[1]);}else{name=it;qty=1;}}
+    else{name=it.n;qty=it.q||1;}
+    if(!name) return;
+    let price=it.p||0;
+    if(!price) for(const cat of Object.values(APP.menuData)){const f=cat.find(p=>p.n===name);if(f){price=f.p;break;}}
+    APP.order.push({n:name,p:price,e:'🍽️',q:qty});
+  });
+  document.getElementById('mesa-sel').value=o.mesa||'Mesa 01';
+  APP.renderOrder(); APP.updateOrderCount();
+  APP.showPanel('p-order','order');
+  APP.showToast('Editando orden — modifica y cobra de nuevo');
 };
 
 // ── INVENTARIO ───────────────────────────────
@@ -3135,7 +3588,35 @@ APP.initAllTables = async function(){
   await set(ref(APP.db,'mesas'),all);
   APP.showToast('✅ Mesas inicializadas');
 };
+APP.openPedidosFiltro = function(){
+  APP.showToast('Filtros: por tiempo, estado, monto, número de pedido');
+};
+
 APP.openFloorSheet = ()=>APP.showToast('Gestión de pisos próximamente');
+const _origPdAgregar = APP.pdAgregar;
+APP.pdAgregar = function(){
+  _origPdAgregar();
+  if(APP._returnToMesa){
+    const mesaId=APP._returnToMesa;
+    APP._returnToMesa=null;
+    // Enviar a cocina y abrir detalle de mesa
+    setTimeout(async()=>{
+      if(APP.db&&APP.order.length){
+        const{push,ref,update}=APP.fb;
+        const mesa=`Mesa ${mesaId}`;
+        await push(ref(APP.db,'pedidos_cocina'),{
+          mesa,mesero:APP.user,
+          items:APP.order.map(i=>`${i.q}x ${i.n}`),
+          timestamp:Date.now(),done:false,urgent:false,time:APP.timeNow()
+        });
+        await update(ref(APP.db,`mesas/mesa${mesaId}`),{status:'ocupada',guests:APP.mesaData?._guests||1});
+        APP.order=[]; APP.renderOrder(); APP.updateOrderCount();
+        APP.showToast('✅ Agregado a la mesa');
+        APP.openMesaDetail(mesaId,'ocupada',APP.mesaData?.cap||4);
+      }
+    },200);
+  }
+};
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
