@@ -2641,6 +2641,7 @@ APP.mesaA3 = async function(){
   APP.showToast(`Mesa ${id} liberada`);
 };
 
+APP.renderGMTables = function(){
   const el=document.getElementById('gm-floor-tabs');
   if(!el) return;
   el.innerHTML=Object.keys(APP.floors).map(f=>
@@ -2651,7 +2652,7 @@ APP.mesaA3 = async function(){
   const fl=APP.floors[APP.activeFloor]||[];
   grid.innerHTML=fl.map(t=>{
     const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
-    return `<div class="tc ${td.status}" onclick="APP.showToast('Mesa ${t.num} — toque prolongado para editar')">
+    return `<div class="tc ${td.status}" onclick="APP.showToast('Mesa ${t.num}')">
       <div class="tc-num">${t.num}</div>
       <div class="tc-stat">${td.status==='libre'?'Vacío':td.status==='ocupada'?'Ordenado':'Reservada'}</div>
       <div class="tc-cap">${t.cap} Persona</div>
