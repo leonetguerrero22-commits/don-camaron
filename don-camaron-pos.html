@@ -1168,30 +1168,56 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ GESTIÓN DE PRODUCTOS ══ -->
       <div id="p-productos" class="panel">
-        <div class="mod-wrap">
+        <div class="mod-wrap" style="padding-bottom:calc(var(--bnav)+60px)">
           <div class="mod-head">
             <div class="mod-title">Gestión de productos</div>
-            <button class="add-btn" onclick="APP.openProductoModal()">+ Añadir</button>
+            <div style="display:flex;gap:6px">
+              <button class="add-btn" style="background:var(--sf2);color:var(--bl);border:1.5px solid var(--bl)" onclick="APP.openCatSheet()">⚙️ Cat.</button>
+              <button class="add-btn" onclick="APP.openProductoModal()">+ Añadir</button>
+            </div>
           </div>
-          <div class="cat-tabs" id="prod-cats" style="margin:0 -10px 10px;padding:0 6px"></div>
+          <!-- Tabs categorías con ícono config -->
+          <div style="display:flex;align-items:center;gap:0;margin:0 -10px 8px;border-bottom:2px solid var(--brd);background:white">
+            <div class="cat-tabs" id="prod-cats" style="margin:0;padding:0 6px;flex:1;overflow-x:auto"></div>
+          </div>
+          <!-- Barra búsqueda productos -->
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <input id="prod-search" placeholder="🔍 Buscar producto..." type="search"
+              style="flex:1;padding:7px 10px;border:1.5px solid var(--brd);border-radius:20px;font-size:12px;outline:none;-webkit-user-select:text;user-select:text"
+              oninput="APP.filterProdGrid(this.value)">
+          </div>
           <div class="prod-grid" id="prod-grid"></div>
-          <div class="seleccion-hint">Seleccione un producto para ver los detalles</div>
+          <div class="seleccion-hint">Toque un producto para editar · Total: <span id="prod-count">0</span></div>
         </div>
+        <!-- FAB agregar -->
+        <button onclick="APP.openProductoModal()" style="position:fixed;bottom:calc(var(--bnav)+14px);right:14px;width:52px;height:52px;border-radius:50%;background:var(--bl);color:white;border:none;font-size:26px;box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:40;display:flex;align-items:center;justify-content:center">+</button>
       </div>
 
       <!-- ══ GESTIÓN DE USUARIOS ══ -->
       <div id="p-usuarios" class="panel">
-        <div class="mod-wrap">
+        <div class="mod-wrap" style="padding-bottom:calc(var(--bnav)+10px)">
           <div class="mod-title" style="margin-bottom:10px">Gestión de usuarios</div>
           <div class="user-tab-strip" id="user-tabs"></div>
-          <div class="user-table-head">
-            <div>Nombre de usuario</div><div>Rol del usuario</div>
-            <div style="text-align:center">Activo pasivo</div><div></div>
+          <!-- Cabecera tabla -->
+          <div class="user-table-head" style="grid-template-columns:1fr 90px 52px 36px">
+            <div>Nombre de usuario</div>
+            <div>Rol del usuario</div>
+            <div style="text-align:center">Activo</div>
+            <div style="display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="APP.selectAllUsers()" title="Seleccionar todos">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect x="1" y="4" width="10" height="2" rx="1" fill="white"/>
+                <rect x="1" y="8" width="10" height="2" rx="1" fill="white"/>
+                <rect x="1" y="12" width="10" height="2" rx="1" fill="white"/>
+                <path d="M12 5l2 2-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
           </div>
           <div id="users-list"></div>
-          <div class="seleccion-hint">Seleccione usuario para ver los detalles</div>
-          <button class="add-btn" style="width:100%;justify-content:center;margin-top:10px"
-            onclick="APP.openUserModal()">⊕ Haga clic para agregar usuarios</button>
+          <!-- Pie fijo -->
+          <div style="position:sticky;bottom:0;background:white;border-top:1px solid var(--brd);padding:8px 0;margin-top:8px">
+            <button class="add-btn" style="width:100%;justify-content:center;background:var(--bl)"
+              onclick="APP.openUserModal()">⊕ Editar datos de usuario seleccionados</button>
+          </div>
         </div>
       </div>
 
@@ -1351,15 +1377,30 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ GESTIÓN DE LA MESA (admin) ══ -->
       <div id="p-gestion-mesa" class="panel">
-        <div class="tables-wrap">
+        <div class="tables-wrap" style="padding-bottom:calc(var(--bnav)+60px)">
           <div class="mod-head">
             <div class="mod-title">Gestión de la mesa</div>
-            <button class="add-btn" onclick="APP.openFloorSheet()">⚙️</button>
+            <div style="display:flex;gap:6px">
+              <!-- toggle vista lista/grid -->
+              <button id="gm-view-btn" onclick="APP.toggleGMView()"
+                style="background:var(--bll2);border:1.5px solid var(--bl);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px">⊞</button>
+              <!-- nav pisos -->
+              <button onclick="APP.gmPrevFloor()" style="width:30px;height:30px;border-radius:7px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:14px">←</button>
+              <button onclick="APP.gmNextFloor()" style="width:30px;height:30px;border-radius:7px;border:1.5px solid var(--brd);background:white;cursor:pointer;font-size:14px">→</button>
+            </div>
           </div>
-          <div class="floor-tabs" id="gm-floor-tabs"></div>
-          <div class="tgrid" id="gm-tgrid" style="margin-top:8px"></div>
-          <div class="seleccion-hint">Seleccione la tabla relacionada para ver los detalles</div>
+          <!-- Tabs pisos + botón config -->
+          <div style="display:flex;align-items:center;border-bottom:2px solid var(--brd);margin-bottom:8px">
+            <div class="floor-tabs" id="gm-floor-tabs" style="flex:1;margin:0;border:none"></div>
+            <button onclick="APP.openFloorSheet()" style="flex-shrink:0;padding:6px 8px;background:none;border:none;cursor:pointer;font-size:18px">⚙️</button>
+          </div>
+          <div id="gm-body"></div>
+          <div style="font-size:11px;color:var(--tx3);text-align:center;padding:6px">
+            ⊕ Seleccione la tabla relacionada para ver los detalles
+          </div>
         </div>
+        <!-- FAB nueva mesa -->
+        <button onclick="APP.openNuevaMesaModal()" style="position:fixed;bottom:calc(var(--bnav)+14px);right:14px;width:52px;height:52px;border-radius:50%;background:var(--bl);color:white;border:none;font-size:22px;box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:40;display:flex;align-items:center;justify-content:center">+</button>
       </div>
 
       <!-- ══ INFORMACIÓN DEL USUARIO ══ -->
@@ -1437,6 +1478,129 @@ body{background:var(--bg);color:var(--tx)}
     <button class="otras-btn" onclick="APP.mesaOtraCambio()">MESA DE CAMBIO</button>
     <button class="otras-btn" onclick="APP.mesaOtraFusion()">MESA DE FUSIÓN</button>
     <button class="otras-btn" style="background:#9E9E9E" onclick="document.getElementById('mesa-otras-sheet').classList.remove('on')">CANCELAR</button>
+  </div>
+</div>
+
+<!-- ══ MODAL NUEVA / EDITAR MESA ══ -->
+<div class="modal-bg" id="nueva-mesa-modal">
+  <div class="modal">
+    <h3 id="nueva-mesa-title">Nueva mesa</h3>
+    <input type="hidden" id="nm-id">
+    <div class="modal-label">Nombre de la tabla</div>
+    <input id="nm-nombre" placeholder="Ej: 01, M1, VIP1..." style="-webkit-user-select:text;user-select:text">
+    <div class="modal-label">Categoría (Piso)</div>
+    <select id="nm-cat">
+      <option value="PISO 1">PISO 1 — Sala principal</option>
+      <option value="TERRAZA">TERRAZA — Exterior</option>
+      <option value="NIVEL CALLE">NIVEL CALLE — Exterior</option>
+    </select>
+    <div class="modal-label">Capacidad (personas)</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:.7rem">
+      <button onclick="APP.nmChgCap(-1)" style="width:36px;height:36px;border-radius:8px;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:20px;cursor:pointer">−</button>
+      <input id="nm-cap" type="number" value="4" min="1" max="20" style="width:60px;text-align:center;padding:8px;border:1.5px solid var(--brd);border-radius:8px;font-size:14px;font-weight:700;-webkit-user-select:text;user-select:text">
+      <button onclick="APP.nmChgCap(1)" style="width:36px;height:36px;border-radius:8px;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:20px;cursor:pointer">+</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.7rem">
+      <input type="checkbox" id="nm-activo" checked style="width:20px;height:20px;accent-color:var(--bl)">
+      <label for="nm-activo" style="font-size:13px;font-weight:600;color:var(--bl)">Activo</label>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn red" id="nm-del-btn" onclick="APP.deleteMesa()" style="display:none">Eliminar</button>
+      <button class="mbtn sec" onclick="APP.closeModal('nueva-mesa-modal')">Cancelar</button>
+      <button class="mbtn pri" onclick="APP.saveNuevaMesa()">AGREGAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL USUARIO ══ -->
+<div class="modal-bg" id="user-modal">
+  <div class="modal">
+    <h3 id="user-modal-title">Agregar usuario</h3>
+    <input type="hidden" id="um-idx">
+    <div class="modal-label">Nombre de usuario</div>
+    <input id="um-nombre" placeholder="Nombre del usuario" style="-webkit-user-select:text;user-select:text">
+    <div class="modal-label">Rol del usuario</div>
+    <select id="um-rol">
+      <option value="cajero">CAJERO</option>
+      <option value="admin">ADMINISTRACIÓN</option>
+      <option value="cocina">COCINA</option>
+      <option value="mesero">MESERO</option>
+      <option value="repartidor">REPARTIDOR</option>
+    </select>
+    <div class="modal-label">Número de teléfono</div>
+    <div style="display:flex;gap:6px;margin-bottom:.7rem">
+      <div style="padding:9px 10px;border:1.5px solid var(--brd);border-radius:9px;font-size:12px;color:var(--tx2);background:var(--sf2)">🇻🇪 +58</div>
+      <input id="um-tel" type="tel" placeholder="424-7592144" style="flex:1;-webkit-user-select:text;user-select:text">
+    </div>
+    <div class="modal-label">Contraseña</div>
+    <input id="um-pass" type="password" placeholder="Dejar vacío = sin contraseña" style="-webkit-user-select:text;user-select:text">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:.5rem;padding:6px 0">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="um-activo" checked style="accent-color:var(--bl)"> Activo
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="um-sinpass" checked style="accent-color:var(--bl)"> Sin contraseña
+      </label>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn red" id="um-del-btn" onclick="APP.deleteUser()" style="display:none">Eliminar</button>
+      <button class="mbtn sec" onclick="APP.closeModal('user-modal')">Cancelar</button>
+      <button class="mbtn pri" onclick="APP.saveUser()">AGREGAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHEET CATEGORÍAS PRODUCTO ══ -->
+<div class="sheet-bg" id="cat-sheet">
+  <div class="sheet">
+    <h4>Gestionar categorías</h4>
+    <button class="sheet-btn" onclick="APP.catAdd()">+ AÑADIR NUEVA CATEGORÍA</button>
+    <button class="sheet-btn red" onclick="APP.catDelete()">✕ ELIMINAR CATEGORÍA SELECCIONADA</button>
+    <button class="sheet-btn" onclick="APP.catEdit()">✏️ EDITAR CATEGORÍA</button>
+    <button class="sheet-btn cancel" onclick="APP.closeSheet('cat-sheet')">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ MODAL EDITAR PRODUCTO ══ -->
+<div class="modal-bg" id="prod-edit-modal">
+  <div class="modal">
+    <h3 id="pem-title">Información del Producto</h3>
+    <input type="hidden" id="pem-orig-name">
+    <input type="hidden" id="pem-orig-cat">
+    <div style="position:relative;width:100%;height:80px;border:2px dashed var(--brd);border-radius:9px;margin-bottom:.6rem;cursor:pointer;overflow:hidden" onclick="document.getElementById('pem-file').click()">
+      <img id="pem-photo-prev" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0">
+      <div id="pem-photo-ph" style="display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--tx3);gap:6px">📷 Foto del plato</div>
+    </div>
+    <input type="file" id="pem-file" accept="image/*" style="display:none" onchange="APP.pemPreviewPhoto(this)">
+    <div class="modal-label">Nombre del producto</div>
+    <input id="pem-name" placeholder="Nombre del plato" style="-webkit-user-select:text;user-select:text">
+    <div class="modal-label">Código de barras (opcional)</div>
+    <input id="pem-barcode" placeholder="Escanear o escribir..." style="-webkit-user-select:text;user-select:text">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:.5rem">
+      <div><div class="modal-label">Precio</div><input id="pem-price" type="number" placeholder="0" style="-webkit-user-select:text;user-select:text"></div>
+      <div><div class="modal-label">Precio compra</div><input id="pem-cost" type="number" placeholder="0" style="-webkit-user-select:text;user-select:text"></div>
+      <div><div class="modal-label">Desc.</div><input id="pem-disc" type="number" placeholder="0" style="-webkit-user-select:text;user-select:text"></div>
+    </div>
+    <div class="modal-label">Descripción</div>
+    <textarea id="pem-desc" placeholder="Descripción breve..." rows="2" style="-webkit-user-select:text;user-select:text;resize:none;width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px;font-size:13px;font-family:inherit;outline:none;margin-bottom:.5rem"></textarea>
+    <div class="modal-label">Tiempo preparación (min)</div>
+    <input id="pem-tiempo" type="number" placeholder="10" min="0" style="-webkit-user-select:text;user-select:text">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:.5rem;padding:4px 0">
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="pem-activo" checked style="accent-color:var(--bl)"> Activo</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="pem-online" checked style="accent-color:var(--bl)"> En línea</label>
+    </div>
+    <div class="modal-label">Categoría</div>
+    <select id="pem-cat" style="margin-bottom:.5rem"></select>
+    <div class="modal-label">Unidad</div>
+    <select id="pem-unit" style="margin-bottom:.5rem">
+      <option>Trozo</option><option>Unidad</option><option>Porción</option>
+      <option>Plato</option><option>Vaso</option><option>Botella</option><option>Kg</option>
+    </select>
+    <div class="modal-btns">
+      <button class="mbtn red" id="pem-del-btn" onclick="APP.deleteProd()" style="display:none">Eliminar</button>
+      <button class="mbtn sec" onclick="APP.closeModal('prod-edit-modal')">Cancelar</button>
+      <button class="mbtn pri" onclick="APP.saveProdEdit()">AGREGAR</button>
+    </div>
   </div>
 </div>
 
@@ -2649,26 +2813,6 @@ APP.renderTables = function(){
     </div>`;
   }).join('');
 };
-APP.renderGMTables = function(){
-  const el=document.getElementById('gm-floor-tabs');
-  if(!el) return;
-  el.innerHTML=Object.keys(APP.floors).map(f=>
-    `<div class="ftab${f===APP.activeFloor?' on':''}" onclick="APP.setFloor('${f}')">${f}</div>`
-  ).join('');
-  const grid=document.getElementById('gm-tgrid');
-  if(!grid) return;
-  const fl=APP.floors[APP.activeFloor]||[];
-  grid.innerHTML=fl.map(t=>{
-    const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
-    return `<div class="tc ${td.status}" onclick="APP.showToast('Mesa ${t.num} — toque prolongado para editar')">
-      <div class="tc-num">${t.num}</div>
-      <div class="tc-stat">${td.status==='libre'?'Vacío':td.status==='ocupada'?'Ordenado':'Reservada'}</div>
-      <div class="tc-cap">${t.cap} Persona</div>
-      <div style="margin-top:4px"><input type="checkbox" ${td.status!=='libre'?'checked':''}
-        style="width:14px;height:14px" readonly></div>
-    </div>`;
-  }).join('');
-};
 APP.openMesaSheet = function(id,status,cap){
   APP.mesaData={id,status,cap};
   if(status==='libre'){
@@ -3486,89 +3630,388 @@ APP.setProdCat = c=>{ APP.activeProdCat=c; APP.renderProdCats(); APP.renderProdG
 APP.renderProdGrid = function(){
   const grid=document.getElementById('prod-grid'); if(!grid) return;
   const items=APP.menuData[APP.activeProdCat]||[];
-  grid.innerHTML=items.map(p=>
-    `<div class="prod-card" onclick="APP.showToast('${p.n.replace(/'/g,"'")} — toque para editar')">
-      <div class="prod-img">${p.e}</div>
-      <div class="prod-check"></div>
+  const cnt=document.getElementById('prod-count'); if(cnt) cnt.textContent=items.length;
+  if(!items.length){
+    grid.innerHTML=`<div style="grid-column:span 3;text-align:center;padding:2rem;color:var(--tx3)">
+      <div style="font-size:36px;margin-bottom:.5rem">📦</div>Sin productos en esta categoría</div>`;
+    return;
+  }
+  grid.innerHTML=items.map((p,i)=>`
+    <div class="prod-card" onclick="APP.openProdEdit('${APP.activeProdCat}',${i})">
+      <div class="prod-img">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover">`:p.e||'🍽️'}</div>
+      <div class="prod-check" id="pcheck-${APP.activeProdCat}-${i}"></div>
       <div class="prod-body">
         <div class="prod-name">${p.n}</div>
-        <div class="prod-price">${APP.fmt(p.p)}</div>
-        <div class="prod-cost" style="color:var(--tx3);font-size:9px">Costo: ${APP.fmt(p.p*0.4)}</div>
+        <div class="prod-price">${APP.fmtNum(p.p)} $</div>
+        <div class="prod-cost" style="font-size:9px;color:var(--tx3)">Costo: ${APP.fmtNum(p.cost||Math.round(p.p*0.4))} $</div>
       </div>
-    </div>`
-  ).join('');
+    </div>`).join('');
+};
+APP.filterProdGrid = function(q){
+  const grid=document.getElementById('prod-grid'); if(!grid) return;
+  let items=APP.menuData[APP.activeProdCat]||[];
+  if(q) items=Object.entries(APP.menuData).flatMap(([cat,arr])=>arr.map(p=>({...p,_cat:cat})))
+    .filter(p=>p.n.toLowerCase().includes(q.toLowerCase()));
+  if(!items.length){grid.innerHTML='<div style="grid-column:span 3;text-align:center;padding:1.5rem;color:var(--tx3)">Sin resultados</div>';return;}
+  grid.innerHTML=items.map((p,i)=>`
+    <div class="prod-card" onclick="APP.openProdEdit('${p._cat||APP.activeProdCat}',${i})">
+      <div class="prod-img">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover">`:p.e||'🍽️'}</div>
+      <div class="prod-body">
+        <div class="prod-name">${p.n}</div>
+        <div class="prod-price">${APP.fmtNum(p.p)} $</div>
+      </div>
+    </div>`).join('');
+};
+APP.openCatSheet = function(){ APP.closeSheet('cat-sheet'); APP.openModal('cat-sheet'); };
+// openModal works for sheet-bg too since it just adds 'on'
+APP.catAdd = function(){
+  APP.closeSheet('cat-sheet');
+  const name=prompt('Nombre de la nueva categoría:');
+  if(!name||!name.trim()) return;
+  const n=name.trim();
+  if(APP.menuData[n]){APP.showToast('Categoría ya existe');return;}
+  APP.menuData[n]=[];
+  APP.renderProdCats(); APP.setProdCat(n);
+  APP.showToast(`✅ Categoría "${n}" creada`);
+};
+APP.catDelete = function(){
+  APP.closeSheet('cat-sheet');
+  if(!APP.activeProdCat){APP.showToast('Selecciona una categoría');return;}
+  if(!confirm(`¿Eliminar categoría "${APP.activeProdCat}" y sus ${(APP.menuData[APP.activeProdCat]||[]).length} productos?`)) return;
+  delete APP.menuData[APP.activeProdCat];
+  const cats=Object.keys(APP.menuData);
+  APP.activeProdCat=cats[0]||'';
+  APP.renderProdCats(); APP.renderProdGrid();
+  APP.showToast('✅ Categoría eliminada');
+};
+APP.catEdit = function(){
+  APP.closeSheet('cat-sheet');
+  const newName=prompt(`Renombrar "${APP.activeProdCat}" a:`);
+  if(!newName||!newName.trim()) return;
+  const n=newName.trim();
+  APP.menuData[n]=APP.menuData[APP.activeProdCat]||[];
+  delete APP.menuData[APP.activeProdCat];
+  APP.activeProdCat=n;
+  APP.renderProdCats(); APP.renderProdGrid();
+  APP.showToast(`✅ Renombrada a "${n}"`);
+};
+APP.openProdEdit = function(cat,idx){
+  const p=(APP.menuData[cat]||[])[idx]; if(!p) return;
+  APP._editProdCat=cat; APP._editProdIdx=idx;
+  document.getElementById('pem-title').textContent='Información del Producto';
+  document.getElementById('pem-orig-name').value=p.n;
+  document.getElementById('pem-orig-cat').value=cat;
+  document.getElementById('pem-name').value=p.n;
+  document.getElementById('pem-barcode').value=p.barcode||'';
+  document.getElementById('pem-price').value=p.p||'';
+  document.getElementById('pem-cost').value=p.cost||'';
+  document.getElementById('pem-disc').value=p.disc||'';
+  document.getElementById('pem-desc').value=p.desc||'';
+  document.getElementById('pem-tiempo').value=p.tiempo||'';
+  document.getElementById('pem-activo').checked=p.activo!==false;
+  document.getElementById('pem-online').checked=p.online!==false;
+  // Fill cat select
+  const cs=document.getElementById('pem-cat');
+  cs.innerHTML=Object.keys(APP.menuData).map(c=>`<option${c===cat?' selected':''}>${c}</option>`).join('');
+  if(p.unit){const us=document.getElementById('pem-unit');[...us.options].forEach(o=>{if(o.value===p.unit)o.selected=true;});}
+  // Photo
+  const prev=document.getElementById('pem-photo-prev'); const ph=document.getElementById('pem-photo-ph');
+  if(p.img){prev.src=p.img;prev.style.display='block';ph.style.display='none';}
+  else{prev.style.display='none';ph.style.display='flex';}
+  APP._pemPhoto=p.img||'';
+  document.getElementById('pem-del-btn').style.display='block';
+  APP.openModal('prod-edit-modal');
 };
 APP.openProductoModal = function(){
-  document.getElementById('prod-modal-overlay').style.display='flex';
-  document.getElementById('pm-name').value='';
-  document.getElementById('pm-price').value='';
-  document.getElementById('pm-cost').value='';
-  document.getElementById('pm-desc').value='';
-  document.getElementById('pm-photo-prev').style.display='none';
-  document.getElementById('pm-photo-placeholder').style.display='flex';
-  APP._pmPhoto='';
+  APP._editProdCat=null; APP._editProdIdx=null; APP._pemPhoto='';
+  document.getElementById('pem-title').textContent='Nuevo Producto';
+  ['pem-name','pem-barcode','pem-price','pem-cost','pem-disc','pem-desc','pem-tiempo'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('pem-activo').checked=true;
+  document.getElementById('pem-online').checked=true;
+  document.getElementById('pem-del-btn').style.display='none';
+  document.getElementById('pem-photo-prev').style.display='none';
+  document.getElementById('pem-photo-ph').style.display='flex';
+  const cs=document.getElementById('pem-cat');
+  cs.innerHTML=Object.keys(APP.menuData).map(c=>`<option${c===APP.activeProdCat?' selected':''}>${c}</option>`).join('');
+  APP.openModal('prod-edit-modal');
 };
-
-// ── GESTIÓN USUARIOS ─────────────────────────
-APP.pmPreviewPhoto = function(input){
+APP.pemPreviewPhoto = function(input){
   const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
   reader.onload=e=>{
-    APP._pmPhoto=e.target.result;
-    document.getElementById('pm-photo-prev').src=e.target.result;
-    document.getElementById('pm-photo-prev').style.display='block';
-    document.getElementById('pm-photo-placeholder').style.display='none';
+    APP._pemPhoto=e.target.result;
+    const prev=document.getElementById('pem-photo-prev');
+    prev.src=e.target.result; prev.style.display='block';
+    document.getElementById('pem-photo-ph').style.display='none';
   };
   reader.readAsDataURL(file);
 };
-APP.saveProdModal = async function(){
-  const name=document.getElementById('pm-name').value.trim();
-  const price=parseFloat(document.getElementById('pm-price').value)||0;
-  const cost=parseFloat(document.getElementById('pm-cost').value)||0;
-  const cat=document.getElementById('pm-cat').value;
-  const desc=document.getElementById('pm-desc').value.trim();
-  if(!name){APP.showToast('Ingresa el nombre del producto');return;}
-  const prod={n:name,p:price,cost,cat,desc,e:'🍽️',img:APP._pmPhoto||''};
-  // Add to menu data for catalog
-  if(!APP.menuData[cat])APP.menuData[cat]=[];
-  APP.menuData[cat].push(prod);
-  // Save to Firebase
-  if(APP.db){
-    const{push,ref}=APP.fb;
-    await push(ref(APP.db,'custom_products'),prod).catch(()=>{});
+APP.saveProdEdit = async function(){
+  const name=document.getElementById('pem-name').value.trim();
+  if(!name){APP.showToast('Ingresa el nombre');return;}
+  const cat=document.getElementById('pem-cat').value;
+  const unit=document.getElementById('pem-unit').value;
+  const prod={
+    n:name, p:parseFloat(document.getElementById('pem-price').value)||0,
+    cost:parseFloat(document.getElementById('pem-cost').value)||0,
+    disc:parseFloat(document.getElementById('pem-disc').value)||0,
+    desc:document.getElementById('pem-desc').value.trim(),
+    tiempo:parseInt(document.getElementById('pem-tiempo').value)||0,
+    activo:document.getElementById('pem-activo').checked,
+    online:document.getElementById('pem-online').checked,
+    barcode:document.getElementById('pem-barcode').value.trim(),
+    unit, cat, e:'🍽️', img:APP._pemPhoto||''
+  };
+  if(!APP.menuData[cat]) APP.menuData[cat]=[];
+  if(APP._editProdIdx!==null&&APP._editProdCat){
+    // Editar existente — mover cat si cambió
+    if(APP._editProdCat!==cat){
+      APP.menuData[APP._editProdCat].splice(APP._editProdIdx,1);
+      APP.menuData[cat].push(prod);
+    } else {
+      APP.menuData[cat][APP._editProdIdx]=prod;
+    }
+    APP.showToast(`✅ "${name}" actualizado`);
+  } else {
+    APP.menuData[cat].push(prod);
+    APP.showToast(`✅ "${name}" agregado`);
   }
-  document.getElementById('prod-modal-overlay').style.display='none';
-  APP.renderProdGrid(); APP.renderCatalog();
-  APP.showToast(`✅ "${name}" agregado al menú`);
+  if(APP.db){const{push,set,ref}=APP.fb;push(ref(APP.db,'custom_products'),prod).catch(()=>{});}
+  APP.closeModal('prod-edit-modal');
+  APP.activeProdCat=cat;
+  APP.renderProdCats(); APP.renderProdGrid(); APP.renderCatalog();
 };
+APP.deleteProd = function(){
+  if(!confirm('¿Eliminar este producto?')) return;
+  const cat=APP._editProdCat; const idx=APP._editProdIdx;
+  if(cat&&idx!==null) APP.menuData[cat].splice(idx,1);
+  APP.closeModal('prod-edit-modal');
+  APP.renderProdGrid(); APP.renderCatalog();
+  APP.showToast('Producto eliminado');
+};
+
+// ── GESTIÓN USUARIOS mejorada ──────────────────
 APP.renderUsers = function(){
   const tabs=document.getElementById('user-tabs'); if(!tabs) return;
   const tabKeys=Object.keys(APP.systemUsers);
   tabs.innerHTML=tabKeys.map(k=>
-    `<div class="user-tab${k===APP.activeUserTab?' on':''}" onclick="APP.setUserTab('${k}')">${k}</div>`
+    `<div class="user-tab${k===APP.activeUserTab?' on':''}" onclick="APP.setUserTab('${k}')">${k} <span style="font-size:10px;opacity:.7">${APP.systemUsers[k].length}</span></div>`
   ).join('');
   const list=document.getElementById('users-list'); if(!list) return;
   const users=APP.systemUsers[APP.activeUserTab]||[];
   const roleColors={CAJERO:'#E65100',ADMINISTRACIÓN:'#0D47A1',COCINA:'#880E4F',MESERO:'#2E7D32',REPARTIDOR:'#6A1B9A'};
   const col=roleColors[APP.activeUserTab]||'#555';
-  list.innerHTML=users.map((u,i)=>
-    `<div class="user-row${i%2===0?' highlighted':''}" onclick="APP.showToast('Usuario: '+${JSON.stringify(u.n)})">
-      <div>${u.n}</div>
-      <div><span class="user-role-badge" style="background:${col}20;color:${col}">${u.r}</span></div>
+  list.innerHTML=`<div style="background:var(--bl);color:white;display:grid;grid-template-columns:1fr 90px 52px 36px;padding:7px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;margin-bottom:0">
+    <div>Nombre de usuario</div><div>Rol del usuario</div><div style="text-align:center">Activo</div><div></div>
+  </div>`+
+  users.map((u,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 90px 52px 36px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--brd);font-size:12px;cursor:pointer;background:${i%2===0?'var(--bll2)':'white'}" onclick="APP.openUserEdit(${i})">
+      <div style="font-weight:${i%2===0?700:500};color:${i%2===0?'var(--bl)':'var(--tx)'}">${u.n}</div>
+      <div><span class="user-role-badge" style="background:${col}18;color:${col};font-size:9px;padding:2px 6px;border-radius:8px">${u.r}</span></div>
       <div style="text-align:center">
-        <div class="user-check${u.active?' on':''}">${u.active?'✓':''}</div>
+        <div style="width:20px;height:20px;border-radius:4px;border:2px solid ${u.active?'var(--bl)':'var(--brd)'};background:${u.active?'var(--bl)':'white'};display:inline-flex;align-items:center;justify-content:center;color:white;font-size:12px">${u.active?'✓':''}</div>
       </div>
-      <div></div>
-    </div>`
-  ).join('');
-  // Alerta licencias mesero
-  if(APP.activeUserTab==='MESERO'){
-    list.insertAdjacentHTML('beforeend',`
-      <div class="user-alert-bar">⚠️ Tienes 1 licencias de camarero. ¡Haga clic para actualizar su paquete!</div>`);
-  }
+      <div style="display:flex;justify-content:center">
+        <div style="width:20px;height:20px;border-radius:4px;border:2px solid var(--bl);background:var(--bl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:12px">✓</div>
+      </div>
+    </div>`).join('')+
+  (APP.activeUserTab==='MESERO'?`<div style="background:#FFF9C4;border-top:2px solid #FFC107;padding:8px 12px;font-size:11px;color:#5D4037;display:flex;align-items:center;gap:6px">⚠️ 1 licencia de mesero activa</div>`:'');
 };
 APP.setUserTab = function(k){ APP.activeUserTab=k; APP.renderUsers(); };
-APP.openUserModal = ()=>APP.showToast('Agregar usuario próximamente');
+APP.selectAllUsers = function(){APP.showToast('Selección múltiple próximamente');};
+APP.openUserModal = function(){
+  APP._editUserIdx=null;
+  document.getElementById('user-modal-title').textContent='Agregar usuario';
+  document.getElementById('um-nombre').value='';
+  document.getElementById('um-tel').value='';
+  document.getElementById('um-pass').value='';
+  document.getElementById('um-activo').checked=true;
+  document.getElementById('um-sinpass').checked=true;
+  document.getElementById('um-del-btn').style.display='none';
+  // Set rol to match active tab
+  const rolMap={CAJERO:'cajero',ADMINISTRACIÓN:'admin',COCINA:'cocina',MESERO:'mesero',REPARTIDOR:'repartidor'};
+  const rs=document.getElementById('um-rol');
+  [...rs.options].forEach(o=>{o.selected=o.value===(rolMap[APP.activeUserTab]||'cajero');});
+  APP.openModal('user-modal');
+};
+APP.openUserEdit = function(idx){
+  APP._editUserIdx=idx;
+  const u=(APP.systemUsers[APP.activeUserTab]||[])[idx]; if(!u) return;
+  document.getElementById('user-modal-title').textContent='Editar usuario';
+  document.getElementById('um-nombre').value=u.n||'';
+  document.getElementById('um-tel').value=u.tel||'';
+  document.getElementById('um-pass').value='';
+  document.getElementById('um-activo').checked=u.active!==false;
+  document.getElementById('um-sinpass').checked=!u.pass;
+  document.getElementById('um-del-btn').style.display='block';
+  const rolMap={CAJERO:'cajero',ADMINISTRACIÓN:'admin',COCINA:'cocina',MESERO:'mesero',REPARTIDOR:'repartidor'};
+  const rs=document.getElementById('um-rol');
+  [...rs.options].forEach(o=>{o.selected=o.value===(rolMap[u.r]||'cajero');});
+  APP.openModal('user-modal');
+};
+APP.saveUser = function(){
+  const name=document.getElementById('um-nombre').value.trim();
+  if(!name){APP.showToast('Ingresa el nombre');return;}
+  const rolMap={cajero:'CAJERO',admin:'ADMINISTRACIÓN',cocina:'COCINA',mesero:'MESERO',repartidor:'REPARTIDOR'};
+  const rol=rolMap[document.getElementById('um-rol').value]||'CAJERO';
+  const active=document.getElementById('um-activo').checked;
+  const tel=document.getElementById('um-tel').value.trim();
+  const pass=document.getElementById('um-pass').value;
+  const sinpass=document.getElementById('um-sinpass').checked;
+  const user={n:name,r:rol,active,tel,pass:sinpass?'':pass};
+  if(!APP.systemUsers[APP.activeUserTab]) APP.systemUsers[APP.activeUserTab]=[];
+  if(APP._editUserIdx!==null){
+    APP.systemUsers[APP.activeUserTab][APP._editUserIdx]=user;
+    APP.showToast(`✅ Usuario "${name}" actualizado`);
+  } else {
+    APP.systemUsers[APP.activeUserTab].push(user);
+    APP.showToast(`✅ Usuario "${name}" agregado`);
+  }
+  APP.closeModal('user-modal'); APP.renderUsers();
+};
+APP.deleteUser = function(){
+  if(!confirm('¿Eliminar este usuario?')) return;
+  const idx=APP._editUserIdx;
+  if(idx!==null) APP.systemUsers[APP.activeUserTab].splice(idx,1);
+  APP.closeModal('user-modal'); APP.renderUsers();
+  APP.showToast('Usuario eliminado');
+};
+
+// ── GESTIÓN MESAS (admin) mejorada ────────────
+APP._gmView='grid'; // 'grid' | 'list'
+APP.toggleGMView = function(){
+  APP._gmView=APP._gmView==='grid'?'list':'grid';
+  const btn=document.getElementById('gm-view-btn');
+  if(btn) btn.textContent=APP._gmView==='grid'?'⊞':'☰';
+  APP.renderGMTables();
+};
+APP.gmPrevFloor = function(){
+  const keys=Object.keys(APP.floors);
+  const i=keys.indexOf(APP.activeFloor);
+  APP.activeFloor=keys[(i-1+keys.length)%keys.length];
+  APP.renderGMTables();
+};
+APP.gmNextFloor = function(){
+  const keys=Object.keys(APP.floors);
+  const i=keys.indexOf(APP.activeFloor);
+  APP.activeFloor=keys[(i+1)%keys.length];
+  APP.renderGMTables();
+};
+APP.renderGMTables = function(){
+  // Tabs
+  const el=document.getElementById('gm-floor-tabs');
+  if(el) el.innerHTML=Object.keys(APP.floors).map(f=>
+    `<div class="ftab${f===APP.activeFloor?' on':''}" onclick="APP.setFloor('${f}');APP.renderGMTables()">${f}</div>`
+  ).join('');
+  const body=document.getElementById('gm-body'); if(!body) return;
+  const fl=APP.floors[APP.activeFloor]||[];
+  if(APP._gmView==='list'){
+    // Vista lista (como capturas RePOS)
+    body.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr 1fr 80px 100px;background:var(--bl);color:white;padding:8px 12px;border-radius:8px 8px 0 0;font-size:11px;font-weight:700;margin-bottom:0">
+        <div>Nombre de la tabla</div>
+        <div>Info de la mesa</div>
+        <div style="text-align:center">Activo</div>
+        <div style="text-align:center">Estado</div>
+      </div>`+
+      fl.map((t,i)=>{
+        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
+        return `<div style="display:grid;grid-template-columns:1fr 1fr 80px 100px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--brd);font-size:12px;cursor:pointer;background:white" onclick="APP.openNuevaMesaModal('${t.id}')">
+          <div style="font-weight:700;color:var(--bl)">${t.num}</div>
+          <div style="color:var(--tx2)">${t.cap} Persona</div>
+          <div style="text-align:center"><div style="width:20px;height:20px;border-radius:4px;border:2px solid var(--bl);background:var(--bl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:12px">✓</div></div>
+          <div style="text-align:center;font-size:10px;font-weight:700;color:${td.status==='libre'?'#2E7D32':'#E65100'}">${td.status==='libre'?'Vacío':'Ordenado'}</div>
+        </div>`;
+      }).join('');
+  } else {
+    // Vista grid
+    body.innerHTML=`<div class="tgrid">`+
+      fl.map(t=>{
+        const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
+        return `<div class="tc libre" style="cursor:pointer" onclick="APP.openNuevaMesaModal('${t.id}')">
+          <div style="font-size:9px;font-weight:700;color:var(--tx3);text-align:center;margin-bottom:2px">${td.status==='libre'?'Vacío':'Ordenado'}</div>
+          <div class="tc-num">${t.num}</div>
+          <div class="tc-cap">${t.cap} Persona</div>
+          <div style="margin-top:4px;text-align:center"><div style="width:18px;height:18px;border-radius:4px;border:2px solid var(--bl);background:var(--bl);display:inline-flex;align-items:center;justify-content:center;color:white;font-size:11px">✓</div></div>
+        </div>`;
+      }).join('')+`</div>`;
+  }
+};
+APP.openNuevaMesaModal = function(editId){
+  if(editId){
+    // Editar mesa existente
+    const fl=Object.entries(APP.floors);
+    let found=null,foundFloor=null;
+    fl.forEach(([floor,tables])=>{const t=tables.find(t=>t.id===editId);if(t){found=t;foundFloor=floor;}});
+    if(!found) return;
+    document.getElementById('nueva-mesa-title').textContent='Editar mesa '+editId;
+    document.getElementById('nm-id').value=editId;
+    document.getElementById('nm-nombre').value=found.num;
+    document.getElementById('nm-cap').value=found.cap;
+    document.getElementById('nm-activo').checked=true;
+    const cs=document.getElementById('nm-cat');
+    [...cs.options].forEach(o=>{o.selected=o.value===foundFloor;});
+    document.getElementById('nm-del-btn').style.display='block';
+    document.getElementById('nueva-mesa-modal').querySelector('.mbtn.pri').textContent='GUARDAR';
+  } else {
+    document.getElementById('nueva-mesa-title').textContent='Nueva mesa';
+    document.getElementById('nm-id').value='';
+    document.getElementById('nm-nombre').value='';
+    document.getElementById('nm-cap').value='4';
+    document.getElementById('nm-activo').checked=true;
+    document.getElementById('nm-del-btn').style.display='none';
+    document.getElementById('nueva-mesa-modal').querySelector('.mbtn.pri').textContent='AGREGAR';
+  }
+  APP.openModal('nueva-mesa-modal');
+};
+APP.nmChgCap = function(d){
+  const el=document.getElementById('nm-cap');if(!el)return;
+  el.value=Math.max(1,Math.min(20,(parseInt(el.value)||4)+d));
+};
+APP.saveNuevaMesa = function(){
+  const nombre=document.getElementById('nm-nombre').value.trim();
+  if(!nombre){APP.showToast('Ingresa el nombre de la mesa');return;}
+  const floor=document.getElementById('nm-cat').value;
+  const cap=parseInt(document.getElementById('nm-cap').value)||4;
+  const editId=document.getElementById('nm-id').value;
+  if(editId){
+    // Editar
+    Object.values(APP.floors).forEach(tables=>{
+      const t=tables.find(t=>t.id===editId);if(t){t.num=nombre;t.cap=cap;}
+    });
+    APP.showToast(`✅ Mesa ${nombre} actualizada`);
+  } else {
+    const id=nombre.replace(/\s+/g,'');
+    if(!APP.floors[floor]) APP.floors[floor]=[];
+    APP.floors[floor].push({id,num:nombre,cap});
+    // Init en Firebase
+    if(APP.db){const{update,ref}=APP.fb;update(ref(APP.db,`mesas/mesa${id}`),{id,num:nombre,floor,status:'libre',guests:0,total:0});}
+    APP.showToast(`✅ Mesa ${nombre} agregada`);
+  }
+  APP.closeModal('nueva-mesa-modal');
+  APP.renderGMTables(); APP.renderTables();
+};
+APP.deleteMesa = function(){
+  const id=document.getElementById('nm-id').value;
+  if(!id||!confirm(`¿Eliminar la mesa ${id}?`)) return;
+  Object.keys(APP.floors).forEach(f=>{
+    APP.floors[f]=APP.floors[f].filter(t=>t.id!==id);
+  });
+  if(APP.db){const{remove,ref}=APP.fb;remove(ref(APP.db,`mesas/mesa${id}`)).catch(()=>{});}
+  APP.closeModal('nueva-mesa-modal');
+  APP.renderGMTables(); APP.renderTables();
+  APP.showToast('Mesa eliminada');
+};
+APP.openFloorSheet = function(){
+  const name=prompt(`Gestión de piso: "${APP.activeFloor}"\n\nEscribe el nuevo nombre del piso actual (o cancela):`);
+  if(!name||!name.trim()) return;
+  const n=name.trim();
+  APP.floors[n]=APP.floors[APP.activeFloor]||[];
+  if(n!==APP.activeFloor) delete APP.floors[APP.activeFloor];
+  APP.activeFloor=n;
+  APP.renderGMTables(); APP.renderTables();
+  APP.showToast(`✅ Piso renombrado a "${n}"`);
+};
 
 // ── FIREBASE TOOLS ───────────────────────────
 APP.uploadMenu = async function(){
@@ -3591,8 +4034,6 @@ APP.initAllTables = async function(){
 APP.openPedidosFiltro = function(){
   APP.showToast('Filtros: por tiempo, estado, monto, número de pedido');
 };
-
-APP.openFloorSheet = ()=>APP.showToast('Gestión de pisos próximamente');
 const _origPdAgregar = APP.pdAgregar;
 APP.pdAgregar = function(){
   _origPdAgregar();
