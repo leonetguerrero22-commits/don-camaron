@@ -1501,10 +1501,18 @@ body{background:var(--bg);color:var(--tx)}
     <div style="font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:3px">Categoría</div>
     <select id="pm-cat" style="width:100%;padding:8px 12px;border:1.5px solid var(--brd);border-radius:9px;font-size:12px;margin-bottom:.5rem;outline:none;background:#fff">
       <option>Entradas</option><option>Menús</option><option>Hamburguesas</option>
-      <option>Bebidas</option><option>Cócteles</option><option>Ceviches</option>
-      <option>Especialidades</option><option>Bandejas</option><option>Pizzas Crema</option>
-      <option>Pastas</option><option>Sushi Tempura</option><option>Empanadas</option>
-      <option>Desayunos</option><option>Adicionales</option>
+      <option>Bebidas</option><option>Cócteles</option><option>Cafés</option>
+      <option>Postre</option><option>Ceviches</option>
+      <option>Cócteles de Camarones</option><option>Empanizados Crispy</option>
+      <option>Pizzas a las Crema</option><option>Bandejas</option>
+      <option>Especialidades de la Casa</option><option>Pastas</option>
+      <option>Pescados</option><option>Pizzas Tradicionales</option>
+      <option>Ensaladas</option><option>Patacones</option>
+      <option>Sushi Tempura</option><option>Sushi Frío</option>
+      <option>Envases Llevar</option><option>Adicionales</option>
+      <option>Delivery</option><option>Pizzas Volcán</option>
+      <option>Submarinos</option><option>Desayunos</option>
+      <option>Sandwich</option><option>Empanadas</option>
     </select>
     <div style="font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:3px">Descripción (opcional)</div>
     <textarea id="pm-desc" placeholder="Breve descripción del plato..." rows="2"
@@ -1886,7 +1894,7 @@ APP.role = 'cajero';
 APP.user = 'Usuario';
 APP.selRoleBtn = null;
 APP.order = [];
-APP.activeCat = 'Entradas';
+APP.activeCat = 'Cócteles de camarones';
 APP.numpadQty = null; // producto seleccionado para numpad
 APP.tables = {};
 APP.inventory = [];
@@ -1904,7 +1912,7 @@ APP.activeAlpha = '';
 APP.activeInvCat = 'Todos';
 APP.activeResDay = '';
 APP.activeUserTab = 'CAJERO';
-APP.activeProdCat = 'Entradas';
+APP.activeProdCat = 'Cócteles de camarones';
 APP.db = null;
 APP.fb = {};
 APP.ventasChartObj = null;
@@ -1968,110 +1976,322 @@ APP.navCfg = {
 // ── MENÚ ─────────────────────────────────────
 APP.menuData = {
   'Entradas':[
-    {n:'Chips de plátano (ración)',p:7000,e:'🍌'},{n:'Chips de plátano y queso crema',p:12000,e:'🍌'},
-    {n:'Ensalada de atún',p:40000,e:'🥗'},{n:'Ensalada primavera pollo crispy bbq',p:52000,e:'🥗'},
-    {n:'Entrada Jamón serrano',p:35000,e:'🥩'},{n:'Jamón serrano/queso burrata',p:50000,e:'🧀'},
-    {n:'Papas con Foundeu de queso',p:27000,e:'🍟'},{n:'Papas fritas',p:8000,e:'🍟'},
-    {n:'Ración pan al ajillo',p:6000,e:'🍞'},{n:'Tostones (ración)',p:8000,e:'🟡'},
-    {n:'Atún rojo a la marinera',p:68000,e:'🐟'},{n:'Brusquetas',p:18000,e:'🍞'},
-    {n:'Dedos de mozzarella',p:22000,e:'🧀'},{n:'Ensalada de cangrejo',p:52000,e:'🦀'},
-    {n:'Ensalada de cangrejo y camarones',p:52000,e:'🦀'},{n:'Galleta de soda',p:2000,e:'🍪'},
-    {n:'Mero a la marinera',p:68000,e:'🐟'},{n:'Ración de arroz',p:5000,e:'🍚'},
+    {n:'Chips de plátano (ración)',p:7000,e:'🍌',img:'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&q=80'},
+    {n:'Chips de plátano y queso crema',p:12000,e:'🍌',img:'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&q=80'},
+    {n:'Ensalada de atún',p:40000,e:'🥗',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80'},
+    {n:'Ensalada primavera de pollo crispy bbq',p:52000,e:'🥗',img:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&q=80'},
+    {n:'Entrada Jamón serrano',p:35000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'Jamón serrano/queso burrata',p:50000,e:'🧀',img:'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=300&q=80'},
+    {n:'Papas con Foundeu de queso',p:27000,e:'🍟',img:'https://images.unsplash.com/photo-1639024471283-03518883512d?w=300&q=80'},
+    {n:'Papas fritas',p:8000,e:'🍟',img:'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=300&q=80'},
+    {n:'Ración pan al ajillo',p:6000,e:'🍞',img:'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=80'},
+    {n:'Tostones (ración)',p:8000,e:'🟡',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80'},
+    {n:'atún rojo a la marinera',p:68000,e:'🐟',img:'https://images.unsplash.com/photo-1611171711791-b34e9e4ef4c2?w=300&q=80'},
+    {n:'brusquetas',p:18000,e:'🍞',img:'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=300&q=80'},
+    {n:'dedos de mozzarella',p:22000,e:'🧀',img:'https://images.unsplash.com/photo-1548340748-6af8e1a1b3a1?w=300&q=80'},
+    {n:'ensalada de cangrejo',p:52000,e:'🦀',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'ensalada de cangrejo y camarones',p:52000,e:'🦀',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'galleta de soda',p:2000,e:'🍪',img:'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=300&q=80'},
+    {n:'mero a la marinera',p:68000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'ración de arroz',p:5000,e:'🍚',img:'https://images.unsplash.com/photo-1536304993881-ff86e0c9ef1d?w=300&q=80'},
   ],
-  'Menús':[{n:'Promo sushi con mitad topping',p:60000,e:'🍣'},{n:'Promo sushi sin topping',p:50000,e:'🍣'},
-    {n:'Plato navideño',p:40000,e:'🍽️'},{n:'Menú ejecutivo',p:25000,e:'🍽️'}],
+  'Menús':[
+    {n:'PROMO SUSHI CON MITAD TOPPING',p:60000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'PROMO SUSHI CON SIN TOPPING',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'Plato navideño',p:40000,e:'🍽️',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'menú ejecutivo',p:25000,e:'🍽️',img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300&q=80'},
+  ],
   'Hamburguesas':[
-    {n:'Hamburguesa (PROMO)',p:20000,e:'🍔'},{n:'Hamburguesa de Camarón crispy',p:35000,e:'🍔'},
-    {n:'Hamburguesa de Cerdo',p:28000,e:'🍔'},{n:'Hamburguesa de Pollo crispy',p:32000,e:'🍔'},
-    {n:'Hamburguesa Premium DC',p:40000,e:'🍔'},{n:'Hamburguesa de salmón crispy',p:55000,e:'🍔'},
-    {n:'Hamburguesa doble croqueta carne',p:32000,e:'🍔'},{n:'Hamburguesa de camarones salteados',p:39000,e:'🍔'},
-    {n:'Hamburguesa parrillera',p:37000,e:'🍔'},{n:'Hamburguesa croqueta Carne PROMO',p:18000,e:'🍔'},
+    {n:'Hamburguesa (PROMO)',p:20000,e:'🍔',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80'},
+    {n:'Hamburguesa De Camarón crispy',p:35000,e:'🍔',img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&q=80'},
+    {n:'Hamburguesa De Cerdo (cochino)',p:28000,e:'🍔',img:'https://images.unsplash.com/photo-1561758033-7e924f619b47?w=300&q=80'},
+    {n:'Hamburguesa De Pollo crispy',p:32000,e:'🍔',img:'https://images.unsplash.com/photo-1550950158-d0d960dff596?w=300&q=80'},
+    {n:'Hamburguesa De croqueta de Carne',p:29000,e:'🍔',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80'},
+    {n:'Hamburguesa De solomo',p:29000,e:'🍔',img:'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=300&q=80'},
+    {n:'Hamburguesa Premium DC',p:40000,e:'🍔',img:'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=300&q=80'},
+    {n:'Hamburguesa croqueta de Carne (PROMO)',p:18000,e:'🍔',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80'},
+    {n:'Hamburguesa de cerdo agridulce',p:35000,e:'🍔',img:'https://images.unsplash.com/photo-1561758033-7e924f619b47?w=300&q=80'},
+    {n:'Hamburguesa de salmón crispy',p:55000,e:'🍔',img:'https://images.unsplash.com/photo-1612392062631-94cbcff3cbdb?w=300&q=80'},
+    {n:'Hamburguesa doble croqueta carne',p:32000,e:'🍔',img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&q=80'},
+    {n:'Hamburguesa pollo a la plancha',p:29000,e:'🍔',img:'https://images.unsplash.com/photo-1550950158-d0d960dff596?w=300&q=80'},
+    {n:'hamburguesa de camarones salteados',p:39000,e:'🍔',img:'https://images.unsplash.com/photo-1610440042657-612c34d95e9f?w=300&q=80'},
+    {n:'hamburguesa parrillera',p:37000,e:'🍔',img:'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=300&q=80'},
   ],
   'Bebidas':[
-    {n:'Agua mineral',p:3000,e:'💧'},{n:'Vaso de agua',p:1000,e:'💧'},
-    {n:'Coca Cola 1lt',p:8000,e:'🥤'},{n:'Coca Cola 2lt',p:12000,e:'🥤'},
-    {n:'Coca Cola (Botella)',p:4000,e:'🥤'},{n:'Coca cola lata 355ml',p:6000,e:'🥤'},
-    {n:'Jugo natural vaso',p:4000,e:'🧃'},{n:'Jarra Nestea 1lt',p:20000,e:'🧋'},
-    {n:'Malta botella',p:3000,e:'🍺'},{n:'Polar blanca',p:4000,e:'🍺'},
-    {n:'Merengada frutas',p:10000,e:'🥛'},{n:'Nestea vaso',p:5000,e:'🧋'},
-    {n:'Caroreña lata',p:8000,e:'🥤'},{n:'Soda Schweppes',p:6000,e:'🥤'},
+    {n:'Agua mineral',p:3000,e:'💧',img:'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80'},
+    {n:'Coca Cola 1lt',p:8000,e:'🥤',img:'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=300&q=80'},
+    {n:'Coca Cola 2lt',p:12000,e:'🥤',img:'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=300&q=80'},
+    {n:'Coca Cola(Botella)',p:4000,e:'🥤',img:'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=300&q=80'},
+    {n:'Jarra Nestea 1 lt',p:20000,e:'🧋',img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80'},
+    {n:'Jarra Nestea 2 lt',p:40000,e:'🧋',img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80'},
+    {n:'Jugo natural vaso',p:4000,e:'🧃',img:'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&q=80'},
+    {n:'Malta botella',p:3000,e:'🍺',img:'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=300&q=80'},
+    {n:'Merengada frutas',p:10000,e:'🥛',img:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=300&q=80'},
+    {n:'Nestea vaso',p:5000,e:'🧋',img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80'},
+    {n:'Vaso de agua',p:1000,e:'💧',img:'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=300&q=80'},
+    {n:'batido fruta natural',p:8000,e:'🥛',img:'https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=300&q=80'},
+    {n:'caroreña lata',p:8000,e:'🥤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&q=80'},
+    {n:'coca cola 1.5 lt',p:10000,e:'🥤',img:'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=300&q=80'},
+    {n:'coca cola lata 355ml',p:6000,e:'🥤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&q=80'},
+    {n:'copa o vaso vidrio roto',p:10000,e:'🥛',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&q=80'},
+    {n:'jugo yukery botella 250 ml',p:5000,e:'🧃',img:'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=300&q=80'},
+    {n:'malta lata grande',p:6000,e:'🍺',img:'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=300&q=80'},
+    {n:'polar blanca',p:4000,e:'🍺',img:'https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=300&q=80'},
+    {n:'polar negra',p:4000,e:'🍺',img:'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=300&q=80'},
+    {n:'soda Schweppes',p:6000,e:'🥤',img:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&q=80'},
   ],
   'Cócteles':[
-    {n:'Blue Hawaii',p:12000,e:'🍹'},{n:'Cuba libre',p:12000,e:'🍹'},
-    {n:'Mojitos',p:12000,e:'🍹'},{n:'Piña colada',p:12000,e:'🍹'},
-    {n:'Sangría con frutas',p:12000,e:'🍷'},{n:'Jarra sangría 1lt',p:50000,e:'🍷'},
-    {n:'Michelada',p:6000,e:'🍺'},{n:'Tinto verano',p:12000,e:'🍷'},
-    {n:'Servicio de licor (ron linaje)',p:100000,e:'🍾'},
+    {n:'Blue Hawaii',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1560508180-03f285f67ded?w=300&q=80'},
+    {n:'Caipirosvka',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=300&q=80'},
+    {n:'Cuba libre',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=300&q=80'},
+    {n:'Daikiry',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=300&q=80'},
+    {n:'Fresa colada',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=300&q=80'},
+    {n:'Mango Colado',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300&q=80'},
+    {n:'Sangría con frutas',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1567696153798-9111f9cd3d0d?w=300&q=80'},
+    {n:'Servicio de licor (ron linaje)',p:100000,e:'🍾',img:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=300&q=80'},
+    {n:'destornillador',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=300&q=80'},
+    {n:'jarra sangría 1lt',p:50000,e:'🍷',img:'https://images.unsplash.com/photo-1567696153798-9111f9cd3d0d?w=300&q=80'},
+    {n:'michelada',p:6000,e:'🍺',img:'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=300&q=80'},
+    {n:'mojitos',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=300&q=80'},
+    {n:'piña colada',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1543253687-c931c8e01820?w=300&q=80'},
+    {n:'tinto verano',p:12000,e:'🍹',img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&q=80'},
+    {n:'vino tinto',p:12000,e:'🍷',img:'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=300&q=80'},
   ],
-  'BEB':[{n:'Café exprés',p:5000,e:'☕'},{n:'Latté',p:7000,e:'☕'},{n:'Moca',p:7000,e:'☕'}],
+  'Cafés':[
+    {n:'Café exprés',p:5000,e:'☕',img:'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=300&q=80'},
+    {n:'Latté',p:7000,e:'☕',img:'https://images.unsplash.com/photo-1561047029-3000c68339ca?w=300&q=80'},
+    {n:'Moca',p:7000,e:'☕',img:'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=300&q=80'},
+  ],
+  'Postre':[
+    {n:'Profiterole',p:15000,e:'🍮',img:'https://images.unsplash.com/photo-1542124937-4b8849429e17?w=300&q=80'},
+    {n:'Quesillo',p:10000,e:'🍮',img:'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=300&q=80'},
+    {n:'marquesa de limón',p:10000,e:'🍰',img:'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=300&q=80'},
+    {n:'pizza Nutella',p:44000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'torta zanahoria',p:12000,e:'🎂',img:'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=300&q=80'},
+  ],
   'Ceviches':[
-    {n:'Ceviche Pulpo',p:55000,e:'🐙'},{n:'Ceviche Salmon',p:55000,e:'🐟'},
-    {n:'Ceviche mixto',p:45000,e:'🍤'},{n:'Ceviche mixto DON CAMARÓN',p:59000,e:'🦐'},
-    {n:'Ceviche solo filet',p:34000,e:'🐟'},{n:'Salpicón (calamar y camarón)',p:35000,e:'🦑'},
+    {n:'Ceviche Pulpo',p:55000,e:'🐙',img:'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=300&q=80'},
+    {n:'Ceviche Salmon',p:55000,e:'🐟',img:'https://images.unsplash.com/photo-1586189407964-5b8a628d88ad?w=300&q=80'},
+    {n:'Ceviche mixto',p:45000,e:'🍤',img:'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=300&q=80'},
+    {n:'Ceviche mixto DON CAMARÓN',p:59000,e:'🦐',img:'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=300&q=80'},
+    {n:'Ceviche solo filet',p:34000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'Salpicón (calamar y camarón)',p:35000,e:'🦑',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
   ],
-  'Cóct. Camarones':[
-    {n:'Coctel de Camarones Grande',p:59000,e:'🦐'},{n:'Coctel de Camarones Medianos',p:45000,e:'🦐'},
-    {n:'Coctel de Camarones Pequeño',p:30000,e:'🦐'},{n:'Coctel del Rey Grande',p:62000,e:'🦀'},
+  'Cócteles de Camarones':[
+    {n:'COCTEL DE CAMARONES GRANDE',p:59000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'COCTEL DE CAMARONES MEDIANOS',p:45000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'COCTEL DE CAMARONES PEQUEÑO',p:30000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'COCTEL DEL REY (camarón y cangrejo) GRANDE',p:62000,e:'🦀',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'COCTEL DEL REY (camarón y cangrejo) MEDIANO',p:50000,e:'🦀',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'COCTEL DEL REY (camarón y cangrejo) PEQUEÑO',p:35000,e:'🦀',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Coctel rompe colchón',p:70000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
   ],
-  'Empanizados':[
-    {n:'Cordon bleu',p:43000,e:'🍗'},{n:'Dados de salmón',p:55000,e:'🐟'},
-    {n:'Calamar crispy',p:30000,e:'🦑'},{n:'Camarones crispy',p:30000,e:'🦐'},
-    {n:'Langostinos crispy',p:65000,e:'🦐'},{n:'Mixto crispy',p:35000,e:'🍤'},
-    {n:'Tenders de pollo crispy',p:35000,e:'🍗'},{n:'Trilogía marina',p:47000,e:'🍤'},
+  'Empanizados Crispy':[
+    {n:'calamar crispy',p:30000,e:'🦑',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=300&q=80'},
+    {n:'camarones crispy',p:30000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'camarones crispy medianos',p:45000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'camarones crispy pequeños',p:30000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'Cordon bleu',p:43000,e:'🍗',img:'https://images.unsplash.com/photo-1604908177453-7462950a6a3b?w=300&q=80'},
+    {n:'Dados de salmón',p:55000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'langostinos crispy',p:65000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'mixto crispy (calamar y camarón)',p:35000,e:'🍤',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=300&q=80'},
+    {n:'tenders de pollo crispy',p:35000,e:'🍗',img:'https://images.unsplash.com/photo-1598514982901-f62a48f1e4f9?w=300&q=80'},
+    {n:'trilogía marina',p:47000,e:'🍤',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
   ],
-  'Especialidades':[
-    {n:'Langosta',p:150000,e:'🦞'},{n:'Langostinos al ajillo',p:75000,e:'🦐'},
-    {n:'Paella de mariscos Valencia',p:60000,e:'🥘'},{n:'Pulpo en ajillo',p:65000,e:'🐙'},
-    {n:'Camarones al ajillo',p:63000,e:'🦐'},{n:'Camarones estilo Luisiana',p:120000,e:'🦐'},
-    {n:'Cazuela de mariscos',p:62000,e:'🦐'},{n:'Parrilla mar y tierra DON CAMARÓN',p:110000,e:'🦐'},
-    {n:'Risotto de salmón y camarón',p:64000,e:'🍚'},{n:'Sopa de mariscos',p:58000,e:'🍲'},
+  'Pizzas a las Crema':[
+    {n:'adicional por ser en crema',p:8000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza a la crema champiñones, pollo, jamón',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza a la crema jamón, tocineta, cebolla, pimentón',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza a la crema langostinos jamón',p:66000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema 4 quesos',p:54000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'Pizza crema mar y tierra',p:63000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema camarón y tocineta',p:53000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema champiñón y tocineta',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema champiñones',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema champiñones y ajo porro',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema especial de tocineta',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'Pizza crema jamón queso y pollo',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema jamón y ajo porro',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema jamón y champiñones',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema tocineta y ajo porro',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
+    {n:'pizza crema tocineta y maíz',p:50000,e:'🍕',img:'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=300&q=80'},
   ],
   'Bandejas':[
-    {n:'Bandeja mixta (picar)',p:120000,e:'🍽️'},{n:'Bandeja MEGA Camarón',p:196000,e:'🦐'},
-    {n:'Bandeja don Camarón',p:96000,e:'🦐'},{n:'Trío de ceviches',p:80000,e:'🍤'},
+    {n:'Bandeja mixta (picar)',p:120000,e:'🍽️',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'bandeja MEGA Camarón',p:196000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'bandeja don Camarón',p:96000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'trío de ceviches',p:80000,e:'🍤',img:'https://images.unsplash.com/photo-1611143669185-af224c5e3252?w=300&q=80'},
   ],
-  'Pizzas':[
-    {n:'Pizza crema 4 quesos',p:54000,e:'🍕'},{n:'Pizza crema mar y tierra',p:63000,e:'🍕'},
-    {n:'Pizza don Camarón tradicional',p:66000,e:'🍕'},{n:'Pizza marinera tradicional',p:70000,e:'🍕'},
-    {n:'Pizza Volcán César',p:100000,e:'🌋'},{n:'Pizza Volcán Parrillera',p:100000,e:'🌋'},
+  'Especialidades de la Casa':[
+    {n:'asopado de mariscos',p:60000,e:'🍲',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=300&q=80'},
+    {n:'camarones al ajillo',p:63000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'camarones en crema de leche',p:65000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'camarones estilo Luisiana',p:120000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'Carpaccio de lomito',p:60000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'Carpaccio salmón',p:65000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'cazuela de mariscos',p:62000,e:'🍲',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=300&q=80'},
+    {n:'cazuela de mariscos en crema',p:62000,e:'🍲',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=300&q=80'},
+    {n:'Langosta',p:150000,e:'🦞',img:'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?w=300&q=80'},
+    {n:'Langostinos al ajillo',p:75000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'mixto de mariscos a la crema',p:63000,e:'🦐',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Mixto de mariscos al ajillo',p:63000,e:'🦐',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Paella de mariscos Valencia',p:60000,e:'🥘',img:'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=300&q=80'},
+    {n:'parrilla mar y tierra',p:44000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'parrilla mar y tierra DON CAMARÓN',p:110000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'parrilla solo tierra',p:35000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'Pulpo en ajillo',p:65000,e:'🐙',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Pulpo en crema',p:65000,e:'🐙',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'risotto de salmón y camarón',p:64000,e:'🍚',img:'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=300&q=80'},
+    {n:'salteado de mariscos',p:63000,e:'🦐',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'sopa de mariscos',p:58000,e:'🍲',img:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=300&q=80'},
+    {n:'zarzuela de mariscos',p:62000,e:'🦐',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
   ],
   'Pastas':[
-    {n:'Pasta en crema de camarones',p:57000,e:'🍝'},{n:'Pasta marinera',p:57000,e:'🍝'},
-    {n:'Pasta pollo y camarones',p:57000,e:'🍝'},
+    {n:'pasta en crema de camarones',p:57000,e:'🍝',img:'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&q=80'},
+    {n:'pasta fidehua',p:57000,e:'🍝',img:'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=80'},
+    {n:'pasta marinera',p:57000,e:'🍝',img:'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&q=80'},
+    {n:'pasta pollo y camarones',p:57000,e:'🍝',img:'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=300&q=80'},
   ],
-  'Sushi':[
-    {n:'Barco sushi',p:200000,e:'🍣'},{n:'Don Camarón classic',p:48000,e:'🍣'},
-    {n:'Don Camarón mix especial',p:60000,e:'🍣'},{n:'Dinamita roll',p:50000,e:'🍣'},
-    {n:'Tropical roll',p:50000,e:'🍣'},{n:'Sushi frío variado',p:48000,e:'🍣'},
+  'Pescados':[
+    {n:'atún rojo al ajillo',p:58000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'atún rojo en crema de camarones',p:58000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'Churrasco o filet de pescado crispy',p:55000,e:'🐟',img:'https://images.unsplash.com/photo-1598514982901-f62a48f1e4f9?w=300&q=80'},
+    {n:'mero al ajillo',p:64000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'mero en crema de camarones',p:64000,e:'🐟',img:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=300&q=80'},
+    {n:'salmon a la marinera',p:68000,e:'🐟',img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&q=80'},
+    {n:'Salmon a la plancha',p:55000,e:'🐟',img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&q=80'},
+    {n:'salmon ajillo',p:60000,e:'🐟',img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&q=80'},
+    {n:'salmon en crema de camarones',p:68000,e:'🐟',img:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&q=80'},
   ],
-  'Patacones':[
-    {n:'Patacón de camarones al ajillo',p:45000,e:'🟡'},{n:'Patacón de camarones crispy',p:38000,e:'🟡'},
-    {n:'Patacón de carne',p:36000,e:'🟡'},{n:'Patacón de pollo crispy',p:39000,e:'🟡'},
+  'Pizzas Tradicionales':[
+    {n:'adicional por ser tamaño familiar',p:12000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza 4 quesos tradicional',p:48000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza camarón y tocineta tradicional',p:46000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza don Camarón tradicional',p:66000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza jamón queso y pollo tradicional',p:42000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza jamón queso y tocineta tradicional',p:42000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza jamón y queso tradicional',p:40000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza mar y tierra',p:56000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza marinera tradicional',p:70000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza proschiutto',p:60000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'pizza tradicional jamón y maíz',p:40000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
   ],
   'Ensaladas':[
-    {n:'Ensalada 7 mares',p:50000,e:'🥗'},{n:'Ensalada César',p:45000,e:'🥗'},
-    {n:'Ensalada de camarones',p:50000,e:'🦐'},
+    {n:'Ensalada 7 mares',p:50000,e:'🥗',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Ensalada César',p:45000,e:'🥗',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80'},
+    {n:'Ensalada César (Porción)',p:29000,e:'🥗',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80'},
+    {n:'Ensalada Neptuno (sushi)',p:60000,e:'🥗',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Ensalada de picadillo (porción)',p:12000,e:'🥗',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80'},
+    {n:'Ensalada julio cesar (porción)',p:10000,e:'🥗',img:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&q=80'},
+    {n:'ensalada de camarones',p:50000,e:'🦐',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+  ],
+  'Patacones':[
+    {n:'Patacón de camarones al ajillo',p:45000,e:'🍽️',img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=80'},
+    {n:'Patacón de camarones crispy',p:38000,e:'🍽️',img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=80'},
+    {n:'Patacón de carne',p:36000,e:'🍽️',img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=80'},
+    {n:'Patacón de coctel de camarones',p:38000,e:'🍽️',img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=80'},
+    {n:'Patacón de pollo a la plancha',p:36000,e:'🍽️',img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=80'},
+    {n:'Patacón de pollo crispy',p:39000,e:'🍽️',img:'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300&q=80'},
+  ],
+  'Sushi Tempura':[
+    {n:'Barco sushi',p:200000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'Delicia roll',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'Dinamita roll',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'Don Camarón classic',p:48000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034496-7f8a6ad748ae?w=300&q=80'},
+    {n:'Don Camarón mix',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034496-7f8a6ad748ae?w=300&q=80'},
+    {n:'Don Camarón mix especial',p:60000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034496-7f8a6ad748ae?w=300&q=80'},
+    {n:'Don camarón especial',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034496-7f8a6ad748ae?w=300&q=80'},
+    {n:'manzana roll tempura',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'tentación roll',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+    {n:'Tropical roll',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=300&q=80'},
+  ],
+  'Sushi Frío':[
+    {n:'Alaska roll classic',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'Alaska roll especial',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'California Roll',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'Delicia roll frío',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'Dinamita roll frío',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'manzana roll frío',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'Tentación roll frío',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+    {n:'Tropical roll frío',p:50000,e:'🍣',img:'https://images.unsplash.com/photo-1617196034646-a21bd04be6df?w=300&q=80'},
+  ],
+  'Envases Llevar':[
+    {n:'caja para pizza',p:4000,e:'📦',img:'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=300&q=80'},
+    {n:'Envase sushi',p:3000,e:'📦',img:'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=300&q=80'},
+    {n:'Envases llevar',p:1000,e:'📦',img:'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=300&q=80'},
+  ],
+  'Adicionales':[
+    {n:'aceitunas negras',p:3000,e:'🫒',img:'https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=300&q=80'},
+    {n:'adicional por ser tamaño familiar',p:12000,e:'➕'},
+    {n:'borde de queso en pizza',p:12000,e:'🍕',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'calamar',p:8000,e:'🦑',img:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=300&q=80'},
+    {n:'camarones',p:8000,e:'🦐',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'Cangrejo',p:8000,e:'🦀',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'carne',p:6000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'Cebolla',p:2000,e:'🧅'},
+    {n:'Champiñones',p:5000,e:'🍄',img:'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&q=80'},
+    {n:'Chuleta ahumada',p:7000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'croqueta pollo crispy',p:10000,e:'🍗',img:'https://images.unsplash.com/photo-1598514982901-f62a48f1e4f9?w=300&q=80'},
+    {n:'Foundeu queso y camarones',p:14000,e:'🧀',img:'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=300&q=80'},
+    {n:'Jamón',p:6000,e:'🥩'},
+    {n:'Jamón serrano',p:15000,e:'🥩',img:'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&q=80'},
+    {n:'Langostinos',p:18000,e:'🦐',img:'https://images.unsplash.com/photo-1625943553852-781d5f278a34?w=300&q=80'},
+    {n:'maíz',p:3000,e:'🌽'},
+    {n:'piña',p:4000,e:'🍍'},
+    {n:'Pimentón',p:3000,e:'🫑'},
+    {n:'pollo',p:9000,e:'🍗',img:'https://images.unsplash.com/photo-1598514982901-f62a48f1e4f9?w=300&q=80'},
+    {n:'pulpo',p:17000,e:'🐙',img:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=300&q=80'},
+    {n:'Queso 100g',p:5000,e:'🧀',img:'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=300&q=80'},
+    {n:'Queso burrata (Und)',p:35000,e:'🧀',img:'https://images.unsplash.com/photo-1559598467-f8b76c8155d0?w=300&q=80'},
+    {n:'servicio aguacate',p:8000,e:'🥑',img:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&q=80'},
+    {n:'Servicio restaurante',p:20000,e:'🍽️'},
+    {n:'Servicio restaurante 2',p:15000,e:'🍽️'},
+    {n:'SR Servicio restaurante',p:15000,e:'🍽️'},
+    {n:'tocineta',p:5000,e:'🥓',img:'https://images.unsplash.com/photo-1606851094851-95f69a6e9f42?w=300&q=80'},
+  ],
+  'Delivery':[
+    {n:'Delivery estándar',p:5000,e:'🛵',img:'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=300&q=80'},
+    {n:'Delivery largo',p:10000,e:'🛵',img:'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=300&q=80'},
+    {n:'recargo',p:2000,e:'🛵'},
+  ],
+  'Pizzas Volcán':[
+    {n:'Pizza Volcán César',p:100000,e:'🌋',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'Pizza Volcán Parrillera',p:100000,e:'🌋',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'Pizza Volcán tender de pollo',p:100000,e:'🌋',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+    {n:'Pizza volcán trilogía',p:105000,e:'🌋',img:'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&q=80'},
+  ],
+  'Submarinos':[
+    {n:'Submarino de camarón crispy',p:28000,e:'🥖',img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80'},
+    {n:'Submarino de pollo crispy',p:25000,e:'🥖',img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80'},
+    {n:'Submarino de carne',p:22000,e:'🥖',img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80'},
   ],
   'Desayunos':[
-    {n:'Desayuno Americano',p:20000,e:'🍳'},{n:'Desayuno criollo',p:18000,e:'🍳'},
-    {n:'Desayuno llanero',p:18000,e:'🍳'},{n:'Desayuno paisa grill',p:20000,e:'🍳'},
-  ],
-  'Empanadas':[
-    {n:'Empanadas de 6 mil',p:6000,e:'🥟'},{n:'Empanadas de 8 mil (Gordon Bleu)',p:8000,e:'🥟'},
-    {n:'Empanadas de 10 mil',p:10000,e:'🥟'},{n:'Pasteles',p:4000,e:'🥟'},
+    {n:'Desayuno Americano',p:20000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno andino',p:20000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno criollo',p:18000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno criollo con aguacate',p:20000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno llanero',p:18000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno paisa grill',p:20000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno primavera',p:20000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
+    {n:'Desayuno tradicional',p:18000,e:'🍳',img:'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=300&q=80'},
   ],
   'Sandwich':[
-    {n:'Clubhouse',p:30000,e:'🥪'},{n:'Sandwich carne',p:15000,e:'🥪'},
-    {n:'Sandwich pollo',p:15000,e:'🥪'},
+    {n:'Clubhouse',p:30000,e:'🥪',img:'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&q=80'},
+    {n:'Sandwich carne',p:15000,e:'🥪',img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80'},
+    {n:'Sandwich normal',p:8000,e:'🥪',img:'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=300&q=80'},
+    {n:'Sandwich pollo',p:15000,e:'🥪',img:'https://images.unsplash.com/photo-1550950158-d0d960dff596?w=300&q=80'},
+    {n:'Sandwich triple carne/pollo',p:23000,e:'🥪',img:'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=300&q=80'},
   ],
-  'Delivery':[{n:'Delivery estándar',p:5000,e:'🛵'},{n:'Delivery largo',p:10000,e:'🛵'}],
-  'Adicionales':[
-    {n:'Camarones',p:8000,e:'🦐'},{n:'Langostinos',p:18000,e:'🦐'},
-    {n:'Queso burrata',p:35000,e:'🧀'},{n:'Jamón serrano',p:15000,e:'🥩'},
-    {n:'Tocineta',p:5000,e:'🥓'},{n:'Envases llevar',p:1000,e:'📦'},
-    {n:'Servicio restaurante',p:20000,e:'🍽️'},
+  'Empanadas':[
+    {n:'Empanadas de 10 mil',p:10000,e:'🥟',img:'https://images.unsplash.com/photo-1604917877934-07d8d248d396?w=300&q=80'},
+    {n:'Empanadas de 6 mil',p:6000,e:'🥟',img:'https://images.unsplash.com/photo-1604917877934-07d8d248d396?w=300&q=80'},
+    {n:'Empanadas de 7 mil',p:7000,e:'🥟',img:'https://images.unsplash.com/photo-1604917877934-07d8d248d396?w=300&q=80'},
+    {n:'Empanadas de 8 mil (Gordon Bleu)',p:8000,e:'🥟',img:'https://images.unsplash.com/photo-1604917877934-07d8d248d396?w=300&q=80'},
+    {n:'Empanadas de 9 mil',p:9000,e:'🥟',img:'https://images.unsplash.com/photo-1604917877934-07d8d248d396?w=300&q=80'},
+    {n:'pasteles',p:4000,e:'🥟',img:'https://images.unsplash.com/photo-1604917877934-07d8d248d396?w=300&q=80'},
   ],
 };
+
 
 // ── PISOS ────────────────────────────────────
 APP.floors = {
@@ -3052,7 +3272,10 @@ APP.renderPedidos = function(){
 
 // ── INVENTARIO ───────────────────────────────
 APP.renderInv = function(){
-  const cats=['Todos','Entradas','Hamburguesas','Bebidas','Ceviches','Especialidades','Pizzas','Otros'];
+  const cats=['Todos','Cócteles de camarones','Empanizados Crispy','Especialidades de la Casa',
+    'Pizzas a las Crema','Pizzas Tradicionales','Pizzas Volcán','Sushi Tempura','Sushi Frío',
+    'Pescados','Pastas','Ensaladas','Patacones','Hamburguesas','Sandwich','Empanadas',
+    'Desayunos','Bebidas','Cócteles','Adicionales','Delivery','Envases Llevar','Bandejas'];
   document.getElementById('inv-cats').innerHTML=cats.map(c=>
     `<div class="ictab${c===APP.activeInvCat?' on':''}" onclick="APP.setInvCat('${c}')">${c}</div>`
   ).join('');
