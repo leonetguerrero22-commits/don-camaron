@@ -820,25 +820,33 @@ body{background:var(--bg);color:var(--tx)}
 
   <!-- DRAWER -->
   <div class="drawer" id="drawer">
-    <div class="dhead">
-      <div class="dav" id="dav">🦐</div>
-      <div>
-        <div class="dname" id="dname">Usuario</div>
-        <div class="drole" id="drole">ROL</div>
-        <div class="dpro">(PROFESSIONAL)</div>
+    <!-- Cabecera usuario -->
+    <div class="dhead" style="padding:14px 14px 12px">
+      <div class="dav" id="dav" style="width:52px;height:52px;border-radius:50%;border:2px solid #E53935;background:var(--bl);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0">E</div>
+      <div style="flex:1;min-width:0">
+        <div class="dname" id="dname" style="font-size:14px;font-weight:700;color:white;line-height:1.2">Usuario</div>
+        <div class="drole" id="drole" style="font-size:11px;color:var(--bll3);font-weight:700;margin-top:1px">ROL</div>
       </div>
+      <div onclick="APP.doLogout()" style="color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:4px;flex-shrink:0" title="Cerrar sesión">→</div>
     </div>
     <div class="dbody">
-      <div class="dmenu-sec">
-        <div style="display:flex;gap:8px;padding:8px;margin:0 2px">
-          <div class="dsec-head caja" style="flex:1;justify-content:center">
-            <span class="dic">🖥️</span>MENÚS DE CAJA</div>
-          <div class="dsec-head" style="flex:1;justify-content:center" id="drawer-admin-btn">
-            <span class="dic">⚙️</span>MENÚS ADMIN</div>
-        </div>
+      <!-- Botones selector caja/admin -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px;border-bottom:1px solid var(--brd)">
+        <button id="drawer-tab-caja" onclick="APP.switchDrawerTab('caja')"
+          style="padding:10px 6px;border-radius:10px;border:2px solid var(--bl);background:var(--bll2);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:20px">🖥️</span>
+          <span style="font-size:9px;font-weight:800;color:var(--bl);letter-spacing:.3px">MENÚS DE CAJA</span>
+        </button>
+        <button id="drawer-tab-admin" onclick="APP.switchDrawerTab('admin')"
+          style="padding:10px 6px;border-radius:10px;border:2px solid var(--brd);background:white;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:20px">⚙️</span>
+          <span style="font-size:9px;font-weight:800;color:var(--tx3);letter-spacing:.3px">MENÚS DE<br>ADMINISTRACIÓN</span>
+        </button>
       </div>
-      <div class="dmenu-sec" id="drawer-caja-items"></div>
-      <div class="dmenu-sec" id="drawer-admin-items" style="display:none"></div>
+      <!-- Items caja -->
+      <div id="drawer-caja-items" style="padding:4px 0"></div>
+      <!-- Items admin (oculto por defecto) -->
+      <div id="drawer-admin-items" style="display:none;padding:4px 0"></div>
     </div>
     <div class="dfooter">
       <button class="dfootbtn" onclick="APP.doLogout()">⏻ &nbsp;Cerrar sesión</button>
@@ -2280,6 +2288,7 @@ APP.doLogin = function(){
   document.getElementById('tb-roletext').textContent=p.label.toUpperCase();
   document.getElementById('dname').textContent=u;
   document.getElementById('drole').textContent=p.label.toUpperCase();
+  const av=document.getElementById('dav'); if(av) av.textContent=(u[0]||'U').toUpperCase();
   document.getElementById('ui-name').textContent=u;
   document.getElementById('ui-role').textContent=p.label.toUpperCase();
   document.getElementById('ui-linked-name').textContent='Erick Martinez';
@@ -2303,26 +2312,74 @@ APP.doLogout = function(){
 };
 
 // ── DRAWER ───────────────────────────────────
+APP._drawerTab = 'caja';
+APP.switchDrawerTab = function(tab){
+  APP._drawerTab = tab;
+  const cajabtn = document.getElementById('drawer-tab-caja');
+  const adminbtn = document.getElementById('drawer-tab-admin');
+  const cajaitems = document.getElementById('drawer-caja-items');
+  const adminitems = document.getElementById('drawer-admin-items');
+  if(tab === 'caja'){
+    cajabtn.style.borderColor='var(--bl)'; cajabtn.style.background='var(--bll2)';
+    cajabtn.querySelector('span:last-child').style.color='var(--bl)';
+    adminbtn.style.borderColor='var(--brd)'; adminbtn.style.background='white';
+    adminbtn.querySelector('span:last-child').style.color='var(--tx3)';
+    cajaitems.style.display='block'; adminitems.style.display='none';
+  } else {
+    adminbtn.style.borderColor='var(--bl)'; adminbtn.style.background='var(--bll2)';
+    adminbtn.querySelector('span:last-child').style.color='var(--bl)';
+    cajabtn.style.borderColor='var(--brd)'; cajabtn.style.background='white';
+    cajabtn.querySelector('span:last-child').style.color='var(--tx3)';
+    adminitems.style.display='block'; cajaitems.style.display='none';
+  }
+};
 APP.buildDrawer = function(){
-  const p=APP.perms[APP.role];
-  const mkItem=k=>{
-    const c=APP.navCfg[k];
-    return `<div class="di" id="dm-${k}" onclick="APP.showPanel('${c.panel}','${k}');APP.closeDrawer()">
-      <span class="dic">${c.icon}</span>
-      <span class="dlabel">${c.label}</span>
-      ${k==='pedidos'||k==='kitchen'?`<span class="dbadge" id="dm-badge-${k}" style="display:none">0</span>`:''}
+  const p = APP.perms[APP.role];
+  // Íconos SVG-style en base64/emoji para cada sección — usar emojis descriptivos
+  const menuIcons = {
+    'catalog':'⏱️','order':'📋','tables':'🪑','ordenes-mesa':'🍽️','pedidos':'📑',
+    'mercado':'🏪','inventory':'📦','reports':'📊','kitchen':'👨‍🍳','gastos':'💵',
+    'clientes':'👤','reservas':'📅','findel':'🏁','config':'⚙️',
+    'productos':'🎁','usuarios':'👥','negocio':'🏢','gestion-mesa':'🪑',
+  };
+  // Construir ítem de drawer estilo RePOS: ícono grande a la izq, label, badge a la der
+  const mkItem = k => {
+    const c = APP.navCfg[k];
+    if(!c) return '';
+    const ico = menuIcons[k] || c.icon;
+    const hasBadge = k==='pedidos'||k==='kitchen'||k==='ordenes-mesa'||k==='mercado';
+    return `<div class="di" id="dm-${k}" onclick="APP.showPanel('${c.panel}','${k}');APP.closeDrawer()"
+      style="padding:12px 16px;gap:14px;border-bottom:1px solid var(--brd)">
+      <span style="font-size:22px;width:28px;text-align:center;flex-shrink:0">${ico}</span>
+      <span class="dlabel" style="font-size:13px;font-weight:500;color:var(--tx);flex:1">${c.label}</span>
+      ${hasBadge ? `<span class="dbadge" id="dm-badge-${k}" style="display:none;background:var(--bl);color:white;border-radius:10px;font-size:11px;padding:1px 8px;font-weight:700;min-width:20px;text-align:center">0</span>` : ''}
     </div>`;
   };
-  document.getElementById('drawer-caja-items').innerHTML=p.caja.map(mkItem).join('');
-  if(p.admin.length){
-    document.getElementById('drawer-admin-items').innerHTML=p.admin.map(mkItem).join('');
-    document.getElementById('drawer-admin-btn').onclick=function(){
-      const el=document.getElementById('drawer-admin-items');
-      el.style.display=el.style.display==='none'?'block':'none';
-    };
-  } else {
-    document.getElementById('drawer-admin-btn').style.opacity='0.4';
-  }
+
+  // ── MENÚS DE CAJA — orden exacto como RePOS ──
+  const cajaOrder = [
+    'catalog','ordenes-mesa','pedidos','mercado',
+    'inventory','reports','gastos','clientes','reservas','findel','config'
+  ].filter(k => p.caja.includes(k) || p.admin.includes(k) || p.nav.includes(k));
+
+  // Filtrar solo los que el rol puede ver
+  const cajaAllowed = [
+    'catalog','ordenes-mesa','pedidos','mercado',
+    'inventory','reports','gastos','clientes','reservas','findel','config'
+  ].filter(k => p.caja.includes(k)||p.admin.includes(k));
+
+  const adminAllowed = [
+    'productos','usuarios','negocio','gestion-mesa'
+  ].filter(k => p.admin.includes(k));
+
+  document.getElementById('drawer-caja-items').innerHTML = cajaAllowed.map(mkItem).join('');
+  document.getElementById('drawer-admin-items').innerHTML = adminAllowed.length
+    ? adminAllowed.map(mkItem).join('')
+    : '<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:12px">Sin acceso a administración</div>';
+
+  // Actualizar avatar con inicial del usuario
+  const av = document.getElementById('dav');
+  if(av) av.textContent = (APP.user||'U')[0].toUpperCase();
 };
 
 // ── NAV ──────────────────────────────────────
