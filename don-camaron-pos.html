@@ -1223,7 +1223,7 @@ body{background:var(--bg);color:var(--tx)}
           <div class="seleccion-hint">Toque un producto para editar · Total: <span id="prod-count">0</span></div>
         </div>
         <!-- FAB agregar -->
-        <button onclick="APP.openProductoModal()" style="position:fixed;bottom:calc(var(--bnav)+14px);right:14px;width:52px;height:52px;border-radius:50%;background:var(--bl);color:white;border:none;font-size:26px;box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:40;display:flex;align-items:center;justify-content:center">+</button>
+        <!-- FAB movido a global -->
       </div>
 
       <!-- ══ GESTIÓN DE USUARIOS ══ -->
@@ -1494,8 +1494,8 @@ body{background:var(--bg);color:var(--tx)}
             ⊕ Seleccione la tabla relacionada para ver los detalles
           </div>
         </div>
-        <!-- FAB nueva mesa -->
-        <button onclick="APP.openNuevaMesaModal()" style="position:fixed;bottom:calc(var(--bnav)+14px);right:14px;width:52px;height:52px;border-radius:50%;background:var(--bl);color:white;border:none;font-size:22px;box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:40;display:flex;align-items:center;justify-content:center">+</button>
+
+
       </div>
 
       <!-- ══ INFORMACIÓN DEL USUARIO ══ -->
@@ -1976,6 +1976,14 @@ body{background:var(--bg);color:var(--tx)}
     </div>
   </div>
 </div>
+
+<!-- ══ FAB GLOBAL ARRASTRABLE ══ -->
+<button id="global-fab" onclick="APP.fabAction()"
+  style="position:fixed;bottom:calc(var(--bnav)+14px);right:14px;width:52px;height:52px;
+  border-radius:50%;background:var(--bl);color:white;border:none;font-size:26px;
+  box-shadow:0 4px 14px rgba(21,101,192,.5);cursor:pointer;z-index:40;
+  display:none;align-items:center;justify-content:center;touch-action:none;
+  user-select:none;-webkit-user-select:none">+</button>
 
 <!-- ══ ORDEN COMPLETADA ══ -->
 <div class="done-screen" id="done-screen">
@@ -2492,9 +2500,70 @@ APP.showPanel = function(pid,nk){
   if(nk==='reports') APP.renderReports();
   if(nk==='findel') APP.renderFinDel();
   if(nk==='inventory') APP.renderInv();
+  if(nk==='pedidos') APP.renderPedidos();
+  if(nk==='ordenes-mesa') APP.renderOrdenesMesa();
+  if(nk==='gastos') APP.renderGastos();
   if(nk==='usuarios') APP.renderUsers();
   if(nk==='clientes') APP.renderClientes();
+  // Mostrar/ocultar FAB global según la sección activa
+  APP._currentPanel=nk;
+  APP.updateFAB();
 };
+// Paneles que tienen FAB y su acción
+APP._fabMap={
+  'productos': {action:'APP.openProductoModal()', icon:'+'},
+  'gestion-mesa': {action:'APP.openNuevaMesaModal()', icon:'+'},
+  'clientes': {action:'APP.openClienteModal()', icon:'+'},
+  'gastos': {action:'APP.openGastoModal()', icon:'+'},
+  'reservas': {action:'APP.openReservaModal()', icon:'+'},
+};
+APP.updateFAB = function(){
+  const fab=document.getElementById('global-fab');
+  if(!fab) return;
+  const cfg=APP._fabMap[APP._currentPanel];
+  if(cfg){
+    fab.style.display='flex';
+    fab.innerHTML=cfg.icon;
+    fab._action=cfg.action;
+  } else {
+    fab.style.display='none';
+  }
+};
+APP.fabAction = function(){
+  const fab=document.getElementById('global-fab');
+  if(fab&&fab._action&&!fab._dragged) eval(fab._action);
+};
+// Drag logic para FAB
+(function(){
+  let fab,startX,startY,fabX,fabY,dragging=false,moved=false;
+  document.addEventListener('DOMContentLoaded',()=>{
+    fab=document.getElementById('global-fab');
+    if(!fab) return;
+    fab.addEventListener('touchstart',e=>{
+      const t=e.touches[0];
+      startX=t.clientX; startY=t.clientY;
+      const r=fab.getBoundingClientRect();
+      fabX=r.left; fabY=r.top;
+      dragging=true; moved=false; fab._dragged=false;
+      e.preventDefault();
+    },{passive:false});
+    document.addEventListener('touchmove',e=>{
+      if(!dragging) return;
+      const t=e.touches[0];
+      const dx=t.clientX-startX; const dy=t.clientY-startY;
+      if(Math.abs(dx)>5||Math.abs(dy)>5){ moved=true; fab._dragged=true; }
+      if(moved){
+        let nx=fabX+dx; let ny=fabY+dy;
+        nx=Math.max(0,Math.min(window.innerWidth-fab.offsetWidth,nx));
+        ny=Math.max(0,Math.min(window.innerHeight-fab.offsetHeight,ny));
+        fab.style.right='auto'; fab.style.bottom='auto';
+        fab.style.left=nx+'px'; fab.style.top=ny+'px';
+        e.preventDefault();
+      }
+    },{passive:false});
+    document.addEventListener('touchend',()=>{ dragging=false; });
+  });
+})();
 APP.updateBadge = function(key,n){
   [document.getElementById('ni-badge-'+key),
    document.getElementById('dm-badge-'+key)].forEach(el=>{
@@ -2756,6 +2825,10 @@ APP.completePay = async function(){
     await set(ref(APP.db,'ventas/'+today+'/resumen'),upd);
     const mk='mesa'+mesa.replace('Mesa ','').trim();
     if(APP.tables[mk])await update(ref(APP.db,'mesas/'+mk),{status:'libre',guests:0,total:0});
+    // Limpiar pedidos de cocina asociados a esta mesa
+    const mesaId=mesa.replace('Mesa ','').trim();
+    APP.kitchenOrders.filter(o=>o.mesa&&o.mesa.replace('Mesa ','').trim()===mesaId&&!o.done)
+      .forEach(o=>{try{const{remove,ref:r2}=APP.fb;remove(r2(APP.db,`pedidos_cocina/${o.id}`));}catch(e){}});
     APP.payState.totalOrders++;
     APP.closePayScreen();
     APP.showDoneScreen(tot,method,elapsed);
@@ -2773,6 +2846,9 @@ APP.showDoneScreen = function(tot,method,elapsed){
   const on=document.getElementById('o-notas');if(on)on.value='';
   const oc=document.getElementById('o-cliente');if(oc)oc.value='';
   const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent='Toca para seleccionar...';
+  // Limpiar selección de mesa para que quede libre
+  const ms=document.getElementById('mesa-sel');if(ms)ms.value='';
+  APP._returnToMesa=null;
   APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
 };
 APP.doneFreezeOrder = function(){document.getElementById('done-screen').classList.remove('on');APP.showPanel('p-catalog','catalog');APP.showToast('Orden congelada');};
@@ -3285,12 +3361,14 @@ APP._buildPedidosList=function(){
   }
   const totalMonto=all.reduce((a,o)=>a+(o.total||0),0);
   const cancelados=all.filter(o=>o.cancelado).length;
-  list.innerHTML=all.map(o=>{
+  const abiertos=all.filter(o=>!o.paid&&!o.cancelado);
+  const cerrados=all.filter(o=>o.paid||o.cancelado);
+  const mkRow = o => {
     const monto=o.total?APP.fmtNum(o.total)+' $':'En cocina';
     const itemStr=(o.items||[]).slice(0,2).map(i=>typeof i==='string'?i:(i.n||'')).join(', ')+(o.items?.length>2?'...':'');
     const statusColor=o.cancelado?'#C62828':o.paid?'#2E7D32':'#E65100';
     const statusBg=o.cancelado?'#FFEBEE':o.paid?'#E8F5E9':'#FFF3E0';
-    const statusTxt=o.cancelado?'Cancelado':o.paid?'✓ Completado':'En cocina';
+    const statusTxt=o.cancelado?'Cancelado':o.paid?'✓ Completado':'🍳 En cocina';
     return `<div class="pedido-row-v2${o.cancelado?' cancelado':o.status==='activo'?' activo':''}"
       onclick="APP.openPedidoDetail('${o.id}')">
       <div class="pr2-top">
@@ -3305,7 +3383,19 @@ APP._buildPedidosList=function(){
         <span class="pr2-items">· ${itemStr}</span>
       </div>
     </div>`;
-  }).join('');
+  };
+  let html='';
+  if(abiertos.length){
+    html+=`<div style="background:var(--bl);color:white;padding:6px 12px;font-size:11px;font-weight:700;border-radius:8px;margin:6px 0 4px">
+      🟢 PEDIDOS ABIERTOS (${abiertos.length})</div>`;
+    html+=abiertos.map(mkRow).join('');
+  }
+  if(cerrados.length){
+    html+=`<div style="background:#F5F5F5;color:var(--tx2);padding:6px 12px;font-size:11px;font-weight:700;border-radius:8px;margin:10px 0 4px">
+      ✓ CERRADOS / CANCELADOS (${cerrados.length})</div>`;
+    html+=cerrados.map(mkRow).join('');
+  }
+  list.innerHTML=html;
   totBar.style.display='block';
   const txt=`Precio total de ${all.length} pedidos: ${APP.fmtNum(totalMonto)} $`
     +(cancelados?`\nPrecio total de ${cancelados} pedidos cancelados`:'');
