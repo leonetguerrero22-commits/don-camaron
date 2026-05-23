@@ -235,8 +235,96 @@ body{background:var(--bg);color:var(--tx)}
 .cobrar-btn.green:active{background:#1B5E20}
 .empty-order{text-align:center;padding:3rem 1rem;color:var(--tx3)}
 .empty-order .eico{font-size:52px;display:block;margin-bottom:.7rem}
+.otp-btn{flex:1;padding:7px 4px;background:#fff;border:2px solid var(--brd);border-radius:9px;font-size:9px;font-weight:700;color:var(--tx2);cursor:pointer;text-align:center;line-height:1.4}
+.otp-btn.on{border-color:var(--bl);background:var(--bll2);color:var(--bl)}
+#order-type-bar{display:flex}
+.pay-screen{position:fixed;inset:0;background:#F0F4F8;z-index:400;display:none;flex-direction:column}
+.pay-screen.on{display:flex}
+.pay-screen-head{background:var(--bl);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pay-screen-title{font-size:13px;font-weight:700}
+.pay-otro-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer}
+.pay-screen-body{flex:1;overflow-y:auto;padding:.8rem}
+.pay-total-card{background:#fff;border-radius:12px;border:2px solid var(--bl);padding:1rem;margin-bottom:.7rem;text-align:center}
+.pay-serv-row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--tx2);margin-bottom:.5rem}
+.pay-serv-minus{width:22px;height:22px;border-radius:50%;border:2px solid var(--bl);background:#fff;color:var(--bl);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.pay-monto-lbl{font-size:11px;color:var(--tx2);margin-bottom:2px}
+.pay-monto-val{font-size:22px;font-weight:800;color:var(--tx)}
+.pay-methods{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:.7rem}
+.pm-card{background:#fff;border:2px solid var(--brd);border-radius:10px;padding:9px 6px;text-align:center;cursor:pointer}
+.pm-card.on{border-color:var(--bl)}
+.pm-card-ico{font-size:20px;display:block;margin-bottom:3px}
+.pm-card-lbl{font-size:9px;font-weight:700;color:var(--tx2)}
+.pm-card.on .pm-card-lbl{color:var(--bl)}
+.pm-card-inp{width:100%;border:none;border-bottom:1.5px solid var(--brd);font-size:11px;font-weight:700;text-align:center;outline:none;color:var(--bl);background:transparent;padding:2px 0;margin-top:3px;-webkit-user-select:text;user-select:text}
+.pay-totals-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:.7rem}
+.pay-tot-card{background:#fff;border-radius:10px;border:1.5px solid var(--brd);padding:9px;text-align:center}
+.pay-tot-ico{font-size:16px;margin-bottom:2px}
+.pay-tot-lbl{font-size:10px;color:var(--tx2);font-weight:600}
+.pay-tot-val{font-size:13px;font-weight:800;color:var(--bl)}
+.pay-footer{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:.7rem;background:#fff;border-top:1px solid var(--brd);flex-shrink:0}
+.pay-foot-btn{padding:13px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
+.otras-sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center}
+.otras-sheet.on{display:flex}
+.otras-body{background:#fff;border-radius:20px 20px 0 0;padding:1.2rem;width:100%;max-width:480px}
+.otras-title{font-size:15px;font-weight:800;text-align:center;color:var(--bl);margin-bottom:.9rem}
+.otras-btn{display:block;width:100%;padding:14px;border:none;background:var(--bl);color:#fff;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:7px}
+.otras-btn.disabled{background:#90A4AE}
+.done-screen{position:fixed;inset:0;background:#fff;z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center;overflow-y:auto}
+.done-screen.on{display:flex}
+.done-check{width:100px;height:100px;border-radius:50%;border:4px solid var(--bl);display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:1rem;margin-left:auto;margin-right:auto}
+.done-title{font-size:17px;font-weight:800;color:var(--bl);margin-bottom:.3rem}
+.done-total{font-size:15px;font-weight:800;color:var(--bl);margin-bottom:.2rem}
+.done-method{font-size:13px;color:var(--tx2);margin-bottom:1.2rem}
+.done-stats{background:#F0F4F8;border-radius:12px;padding:1rem;width:100%;margin-bottom:1.2rem}
+.done-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.done-stat{text-align:center}
+.done-stat-ico{font-size:22px;display:block;margin-bottom:3px}
+.done-stat-val{font-size:16px;font-weight:800;color:var(--bl)}
+.done-stat-lbl{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px}
+.done-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+.done-footer button{padding:13px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
+.done-never{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2);margin-bottom:1rem;cursor:pointer}
+.prod-detail-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:350;display:none;align-items:flex-end;justify-content:center}
+.prod-detail-bg.on{display:flex}
+.prod-detail{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.pd-img{width:100%;height:200px;object-fit:cover;background:linear-gradient(135deg,#E3F2FD,#BBDEFB);display:flex;align-items:center;justify-content:center;font-size:60px;border-radius:20px 20px 0 0;overflow:hidden}
+.pd-body{padding:1rem}
+.pd-name{font-size:16px;font-weight:800;color:var(--bl);text-align:center;margin-bottom:4px}
+.pd-price{font-size:20px;font-weight:800;color:var(--bl);text-align:center;margin-bottom:.8rem}
+.pd-type-btn{width:100%;padding:11px;border:2px solid var(--brd);border-radius:10px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;color:var(--tx)}
+.pd-type-btn.on{border-color:var(--bl);background:var(--bll2);color:var(--bl)}
+.pd-check-item{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--brd);font-size:13px;cursor:pointer}
+.pd-check-item input{width:18px;height:18px;accent-color:var(--bl);cursor:pointer}
+.pd-qty-row{display:flex;align-items:center;justify-content:center;gap:0;margin:.8rem 0}
+.pd-qbtn{width:56px;height:56px;border-radius:10px;background:var(--bl);color:#fff;border:none;cursor:pointer;font-size:24px;font-weight:800}
+.pd-qnum{width:80px;text-align:center;font-size:28px;font-weight:800;color:var(--bl)}
+.pd-footer{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:.8rem}
+.pd-foot-btn{padding:14px;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer}
+.cli-sel-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;flex-direction:column;justify-content:flex-end;align-items:center}
+.cli-sel-bg.on{display:flex}
+.cli-sel-panel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column}
+.cli-sel-head{background:var(--bl);color:#fff;padding:.9rem 1rem;display:flex;align-items:center;gap:8px;border-radius:20px 20px 0 0;flex-shrink:0}
+.cli-sel-search{flex:1;padding:7px 10px;border-radius:7px;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;outline:none;-webkit-user-select:text;user-select:text}
+.cli-sel-search::placeholder{color:rgba(255,255,255,.7)}
+.cli-sel-list{flex:1;overflow-y:auto}
+.cli-sel-item{padding:12px 1rem;border-bottom:1px solid var(--brd);cursor:pointer}
+.cli-sel-item:active{background:var(--bll2)}
+.cli-sel-name{font-size:13px;font-weight:700;color:var(--bl)}
+.cli-sel-phone{font-size:11px;color:var(--tx2)}
+.delivery-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:450;display:none;align-items:center;justify-content:center;padding:1rem}
+.delivery-bg.on{display:flex}
+.delivery-modal{background:#fff;border-radius:16px;width:100%;max-width:420px;overflow:hidden}
+.delivery-title{font-size:14px;font-weight:800;color:var(--bl);padding:1rem;text-align:center;border-bottom:1px solid var(--brd)}
+.delivery-section{padding:.7rem 1rem;border-bottom:1px solid var(--brd)}
+.delivery-sec-title{font-size:10px;font-weight:800;color:var(--bl);margin-bottom:.4rem;text-transform:uppercase}
+.delivery-info{padding:.5rem .8rem;border:1.5px solid var(--bll3);border-radius:8px;font-size:11px;color:var(--tx);line-height:1.8;background:var(--bll2)}
+.delivery-repartidor-inp{width:100%;padding:8px 10px;border:1.5px solid var(--brd);border-radius:8px;font-size:12px;outline:none;-webkit-user-select:text;user-select:text}
+.delivery-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:1rem}
+.delivery-st-btn{padding:11px;border:none;border-radius:9px;font-size:11px;font-weight:800;cursor:pointer}
+.delivery-footer{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:.7rem 1rem;border-top:1px solid var(--brd)}
+.partial-bg{position:fixed;inset:0;background:#F0F4F8;z-index:450;display:none;flex-direction:column}
+.partial-bg.on{display:flex}
 
-/* ═══ MESAS ═══ */
 .tables-wrap{padding:10px;padding-bottom:calc(var(--bnav)+10px)}
 .floor-tabs{display:flex;border-bottom:2px solid var(--brd);
   margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
@@ -701,7 +789,7 @@ body{background:var(--bg);color:var(--tx)}
           <div class="sb-icon">⚖️</div>
         </div>
         <div class="order-footer" onclick="APP.showPanel('p-order','order')">
-          <span class="order-footer-label">Resumen de la orden (<span id="order-count">0</span>)</span>
+          <span class="order-footer-label">Resumen de la orden (<span id="order-count">0</span>) : <span id="order-footer-total" style="color:rgba(255,255,255,.9)">0.00 $</span></span>
           <span style="font-size:18px">↑</span>
         </div>
       </div>
@@ -725,60 +813,53 @@ body{background:var(--bg);color:var(--tx)}
               <option>Para llevar</option><option>Delivery</option>
             </select>
           </div>
-          <div class="o-client-row">
-            <label>Cliente:</label>
-            <input id="o-cliente" placeholder="Nombre del cliente (opcional)" style="-webkit-user-select:text;user-select:text">
+
+          <!-- Cliente row clickable -->
+          <div class="o-client-row" onclick="APP.openClienteSelector()" style="cursor:pointer">
+            <label style="cursor:pointer">👤 Cliente:</label>
+            <span id="o-cliente-lbl" style="flex:1;font-size:11px;color:var(--tx2)">Toca para seleccionar...</span>
+            <span style="font-size:11px;color:var(--bl)">+</span>
           </div>
+          <input type="hidden" id="o-cliente">
+
           <div id="olist"></div>
           <div class="ototal-box" id="ototal-box" style="display:none">
             <div class="otr"><span>Subtotal</span><span id="osub">$0</span></div>
             <div class="otr" id="odisc-row" style="display:none"><span>Descuento</span><span id="odisc" style="color:#2E7D32">-$0</span></div>
-            <div class="otr" id="oiva-row"><span>Servicio restaurante (2%)</span><span id="oiva">$0</span></div>
-            <div class="otr grand"><span>TOTAL A PAGAR</span><span id="otot">$0</span></div>
-          </div>
-          <!-- Descuento -->
-          <div id="disc-section" style="display:none;margin-bottom:.5rem">
-            <div style="display:flex;gap:6px;align-items:center;margin-bottom:.4rem">
-              <span style="font-size:10px;font-weight:700;color:var(--tx2);white-space:nowrap">Descuento:</span>
-              <input id="disc-val" type="number" placeholder="0" min="0"
-                style="width:60px;padding:5px 8px;border:1.5px solid var(--brd);border-radius:7px;font-size:11px;outline:none"
-                oninput="APP.renderOrder()">
-              <select id="disc-type" onchange="APP.renderOrder()"
-                style="padding:5px 8px;border:1.5px solid var(--brd);border-radius:7px;font-size:11px;outline:none;background:#fff">
-                <option value="pct">%</option>
-                <option value="fixed">$ fijo</option>
-              </select>
-              <button onclick="APP.toggleIva()"
-                style="padding:5px 9px;border-radius:7px;border:1.5px solid var(--brd);background:var(--sf2);color:var(--tx2);font-size:10px;font-weight:700;cursor:pointer"
-                id="btn-noiva">Sin impuesto</button>
+            <div class="otr" id="oiva-row" style="display:flex;align-items:center;gap:4px">
+              <span id="oiva-btn" onclick="APP.toggleIva()"
+                style="width:20px;height:20px;border-radius:50%;border:2px solid var(--bl);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--bl);flex-shrink:0">−</span>
+              <span id="oiva-lbl">Servicio (5%)</span>
+              <span id="oiva" style="margin-left:auto">$0</span>
             </div>
+            <div class="otr grand"><span>EL MONTO A PAGAR</span><span id="otot">$0</span></div>
           </div>
-          <textarea class="o-notes" id="o-notas" rows="2" 
-            placeholder="Notas de cocina: sin picante, término medio, alérgias..."></textarea>
-          <div id="pay-section" style="display:none">
-            <div class="pay-label">Forma de pago:</div>
-            <div class="pay-grid">
-              <button class="pb" onclick="APP.selPago('Efectivo',this)">
-                <span class="pbi">💵</span>Efectivo</button>
-              <button class="pb" onclick="APP.selPago('Tarjeta',this)">
-                <span class="pbi">💳</span>Tarjeta</button>
-              <button class="pb" onclick="APP.selPago('Transferencia',this)">
-                <span class="pbi">🏦</span>Transferencia</button>
-            </div>
-            <div class="pay-grid">
-              <button class="pb" onclick="APP.selPago('Dólares',this)">
-                <span class="pbi">💲</span>Dólares</button>
-              <button class="pb" onclick="APP.selPago('Bancolombia',this)">
-                <span class="pbi">🏧</span>Bancolombia</button>
-              <button class="pb" onclick="APP.selPago('Crédito',this)">
-                <span class="pbi">📝</span>Crédito</button>
-            </div>
-            <button class="cobrar-btn" onclick="APP.cobrar()">✓ Cobrar orden</button>
+
+          <!-- Notas -->
+          <textarea class="o-notes" id="o-notas" rows="2"
+            placeholder="📝 Añadir la nota..."></textarea>
+
+          <!-- Tipo de orden (íconos como en RePOS) -->
+          <div id="order-type-bar" style="display:none;gap:6px;margin-bottom:.5rem">
+            <button class="otp-btn on" id="otp-mesa" onclick="APP.setOrderType('mesa',this)">🪑<br><span>Mesa</span></button>
+            <button class="otp-btn" id="otp-llevar" onclick="APP.setOrderType('llevar',this)">🛍️<br><span>Llevar</span></button>
+            <button class="otp-btn" id="otp-delivery" onclick="APP.setOrderType('delivery',this)">🛵<br><span>Delivery</span></button>
           </div>
-          <button class="cobrar-btn" id="cobrar-main-btn" onclick="APP.showPay()" style="display:none">
-            Cobrar orden →</button>
+
+          <!-- Botones inferiores: VOLVER / PAGO RÁPIDO / PAGO -->
+          <div id="order-action-bar" style="display:none;gap:6px;margin-top:.5rem">
+            <button style="flex:1;padding:11px 6px;background:#9E9E9E;color:#fff;border:none;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer"
+              onclick="APP.showPanel('p-catalog','catalog')">VOLVER</button>
+            <button id="pago-rapido-btn" style="flex:1;padding:11px 6px;background:var(--gr);color:#fff;border:none;border-radius:9px;font-size:10px;font-weight:800;cursor:pointer;line-height:1.3"
+              onclick="APP.pagoRapidoEfectivo()">PAGO RÁPIDO<br>EN EFECTIVO</button>
+            <button id="pago-btn" style="flex:1;padding:11px 6px;background:var(--bl);color:#fff;border:none;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer"
+              onclick="APP.openPayScreen()">PAGO</button>
+          </div>
+
+          <!-- Botón enviar a cocina (mesero) -->
           <button class="cobrar-btn green" id="send-kitchen-btn" onclick="APP.sendToCocina()" style="display:none">
             📤 Enviar pedido a cocina</button>
+
           <div class="empty-order" id="oempty">
             <span class="eico">🛒</span>
             <div style="font-size:14px;font-weight:700">Orden vacía</div>
@@ -1356,6 +1437,271 @@ body{background:var(--bg);color:var(--tx)}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ PANTALLA COBRO ══ -->
+<div class="pay-screen" id="pay-screen">
+  <div class="pay-screen-head">
+    <div>
+      <div style="font-size:10px;color:rgba(255,255,255,.7)">Transacciones de pago</div>
+      <div class="pay-screen-title">(Total parcial : <span id="ps-subtotal">0</span> $)</div>
+    </div>
+    <button class="pay-otro-btn" onclick="APP.openOtras()">Otro<br>Opciones</button>
+  </div>
+  <div class="pay-screen-body">
+    <!-- Servicio + Monto -->
+    <div class="pay-total-card">
+      <div class="pay-serv-row">
+        <span class="pay-serv-minus" onclick="APP.togglePayIva()" id="pay-iva-toggle">−</span>
+        <span id="pay-iva-lbl">Servicio(%5.0): <span id="pay-iva-val">0</span> $</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.3rem">
+        <span style="font-size:22px">💵</span>
+      </div>
+      <div class="pay-monto-lbl">El monto a pagar :</div>
+      <div class="pay-monto-val"><span id="pay-total-val">0.00</span> $</div>
+    </div>
+    <!-- Métodos de pago principales -->
+    <div class="pay-methods">
+      <div class="pm-card" onclick="APP.selectPayMethod('efectivo',this)" id="pmc-efectivo">
+        <span class="pm-card-ico">💵</span>
+        <div class="pm-card-lbl">Dinero en efectivo</div>
+        <input class="pm-card-inp" id="pmi-efectivo" type="number" placeholder=". , ."
+          oninput="APP.updatePayTotals()">
+      </div>
+      <div class="pm-card" onclick="APP.selectPayMethod('tarjeta',this)" id="pmc-tarjeta">
+        <span class="pm-card-ico">💳</span>
+        <div class="pm-card-lbl">Tarjeta de crédito</div>
+        <input class="pm-card-inp" id="pmi-tarjeta" type="number" placeholder=". , ."
+          oninput="APP.updatePayTotals()">
+      </div>
+      <div class="pm-card" onclick="APP.selectPayMethod('boleto',this)" id="pmc-boleto">
+        <span class="pm-card-ico">🎫</span>
+        <div class="pm-card-lbl">Boleto de la comida</div>
+        <input class="pm-card-inp" id="pmi-boleto" type="number" placeholder=". , ."
+          oninput="APP.updatePayTotals()">
+      </div>
+    </div>
+    <!-- Totales pagado / restante -->
+    <div class="pay-totals-grid">
+      <div class="pay-tot-card">
+        <div class="pay-tot-ico">💵</div>
+        <div class="pay-tot-lbl">Total pagado:</div>
+        <div class="pay-tot-val"><span id="pay-paid-val">0.00</span> $</div>
+      </div>
+      <div class="pay-tot-card">
+        <div class="pay-tot-ico">🪙</div>
+        <div class="pay-tot-lbl">Restante:</div>
+        <div class="pay-tot-val" id="pay-remaining">−</div>
+      </div>
+    </div>
+  </div>
+  <div class="pay-footer">
+    <button class="pay-foot-btn" style="background:var(--bl);color:#fff" onclick="APP.openPartialPay()">PAGO PARCIAL</button>
+    <button class="pay-foot-btn" style="background:var(--bl);color:#fff" onclick="APP.completePay()">COMPLETO</button>
+    <button class="pay-foot-btn" style="background:#C62828;color:#fff" onclick="APP.closePayScreen()">REGRESAR</button>
+    <div></div>
+  </div>
+</div>
+
+<!-- ══ OTRAS OPCIONES ══ -->
+<div class="otras-sheet" id="otras-sheet">
+  <div class="otras-body">
+    <div class="otras-title">Otras opciones</div>
+    <button class="otras-btn" onclick="APP.otraInsertarDinero()">INSERTAR DINERO</button>
+    <button class="otras-btn" onclick="APP.otraDescuento()">DESCUENTO:</button>
+    <button class="otras-btn" onclick="APP.otraImpuesto()">IMPUESTO DE VENTA:</button>
+    <button class="otras-btn" onclick="APP.otraCliente()">CLIENTE / POR CLIENTE</button>
+    <button class="otras-btn disabled" onclick="APP.showToast('Configura la impresora del cajero en Configuración')">IMPRESIÓN<br>( IMPRESORA DEL CAJERO )</button>
+    <button class="otras-btn disabled" onclick="APP.showToast('Configura la impresora de cocina en Configuración')">IMPRESIÓN<br>( IMPRESORA DE COCINA )</button>
+    <button class="otras-btn" style="background:#E65100" onclick="APP.otraMantenerOrden()">MANTENER ORDEN</button>
+    <button class="otras-btn" style="background:#9E9E9E" onclick="APP.closeOtras()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- ══ MODAL DESCUENTO (desde Otras opciones) ══ -->
+<div class="otras-sheet" id="disc-modal-sheet">
+  <div class="otras-body">
+    <div class="otras-title">Descuento</div>
+    <div style="display:flex;gap:7px;margin-bottom:1rem">
+      <input id="disc-val" type="number" placeholder="0" min="0"
+        style="flex:1;padding:10px 12px;border:1.5px solid var(--brd);border-radius:9px;font-size:14px;outline:none;-webkit-user-select:text;user-select:text"
+        oninput="APP.renderOrder()">
+      <select id="disc-type" onchange="APP.renderOrder()"
+        style="padding:10px 12px;border:1.5px solid var(--brd);border-radius:9px;font-size:14px;outline:none;background:#fff">
+        <option value="pct">%</option>
+        <option value="fixed">$ fijo</option>
+      </select>
+    </div>
+    <button class="otras-btn" onclick="APP.applyDiscount()">APLICAR DESCUENTO</button>
+    <button class="otras-btn" style="background:#9E9E9E" onclick="APP.closeOtras();document.getElementById('disc-modal-sheet').classList.remove('on')">CANCELAR</button>
+  </div>
+</div>
+
+<!-- ══ PAGO PARCIAL ══ -->
+<div class="partial-bg" id="partial-bg">
+  <div class="pay-screen-head">
+    <button style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer" onclick="APP.closePartialPay()">←</button>
+    <div class="pay-screen-title">Pago parcial</div>
+    <div></div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:.8rem">
+    <div id="partial-items-list"></div>
+  </div>
+  <div style="padding:.7rem;background:#fff;border-top:1px solid var(--brd)">
+    <div class="pay-methods" style="margin-bottom:.5rem">
+      <div class="pm-card" onclick="APP.selectPayMethod('p-efectivo',this)" id="pmc-p-efectivo">
+        <span class="pm-card-ico">💵</span>
+        <div class="pm-card-lbl">Dinero en efectivo</div>
+        <input class="pm-card-inp" id="pmi-p-efectivo" type="number" placeholder=". , ." oninput="APP.updatePartialTotals()">
+      </div>
+      <div class="pm-card" onclick="APP.selectPayMethod('p-tarjeta',this)" id="pmc-p-tarjeta">
+        <span class="pm-card-ico">💳</span>
+        <div class="pm-card-lbl">Tarjeta de crédito</div>
+        <input class="pm-card-inp" id="pmi-p-tarjeta" type="number" placeholder=". , ." oninput="APP.updatePartialTotals()">
+      </div>
+      <div class="pm-card" onclick="APP.selectPayMethod('p-boleto',this)" id="pmc-p-boleto">
+        <span class="pm-card-ico">🎫</span>
+        <div class="pm-card-lbl">Boleto de la comida</div>
+        <input class="pm-card-inp" id="pmi-p-boleto" type="number" placeholder=". , ." oninput="APP.updatePartialTotals()">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-top:1px solid var(--brd)">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700">💵 Total pagado :</div>
+      <div style="font-size:13px;font-weight:800;color:var(--bl)"><span id="partial-paid">0.00</span> $</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700">🪙 Restante :</div>
+      <div style="font-size:13px;font-weight:800;color:var(--bl)" id="partial-remaining">−</div>
+    </div>
+    <div style="display:flex;gap:7px;margin-top:.4rem">
+      <button style="flex:1;padding:12px;background:#9E9E9E;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer" onclick="APP.closePartialPay()">VOLVER</button>
+      <button style="flex:1;padding:12px;background:var(--bl);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer" onclick="APP.confirmPartialPay()">PAGO</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDEN COMPLETADA ══ -->
+<div class="done-screen" id="done-screen">
+  <div class="done-check">✓</div>
+  <div class="done-title">orden completada</div>
+  <div class="done-total" id="done-total">TOTAL: 0.00 $</div>
+  <div class="done-method" id="done-method">Dinero en efectivo: 0.00 $</div>
+  <div class="done-stats">
+    <div class="done-stat-grid">
+      <div class="done-stat">
+        <span class="done-stat-ico">📋</span>
+        <div class="done-stat-val" id="done-items">0</div>
+        <div class="done-stat-lbl">Número de artículos pedidos</div>
+      </div>
+      <div class="done-stat">
+        <span class="done-stat-ico">🍔</span>
+        <div class="done-stat-val" id="done-total-orders">0</div>
+        <div class="done-stat-lbl">Total de pedidos realizados</div>
+      </div>
+      <div class="done-stat">
+        <span class="done-stat-ico">⏱️</span>
+        <div class="done-stat-val" id="done-time">0 SEG</div>
+        <div class="done-stat-lbl">Hora de ordenar</div>
+      </div>
+      <div class="done-stat">
+        <span class="done-stat-ico">⏰</span>
+        <div class="done-stat-val">−</div>
+        <div class="done-stat-lbl">Tiempo promedio para ordenar</div>
+      </div>
+    </div>
+  </div>
+  <label class="done-never">
+    <input type="checkbox" id="done-never-cb" style="width:18px;height:18px;accent-color:var(--bl)">
+    Nunca mostrarlo de nuevo
+  </label>
+  <div class="done-footer">
+    <button style="background:#1565C0;color:#fff" onclick="APP.doneFreezeOrder()">CONGELAR</button>
+    <button style="background:#1565C0;color:#fff" onclick="APP.doneQuota()">CUOTA</button>
+  </div>
+</div>
+
+<!-- ══ MODAL PRODUCTO DETALLE ══ -->
+<div class="prod-detail-bg" id="prod-detail-bg">
+  <div class="prod-detail">
+    <div class="pd-img" id="pd-img-wrap">
+      <img id="pd-img" style="width:100%;height:100%;object-fit:cover;display:none">
+      <span id="pd-emoji" style="font-size:60px">🍽️</span>
+    </div>
+    <div class="pd-body">
+      <div class="pd-name" id="pd-name">Producto</div>
+      <div class="pd-price" id="pd-price">0,000.00 $</div>
+      <!-- Tipo de servicio -->
+      <div class="pd-type-btn on" id="pd-tipo-btn" onclick="APP.togglePdTipo()">
+        <span id="pd-tipo-lbl">servido</span>
+        <span class="pd-type-arrow" id="pd-tipo-arrow">∧</span>
+      </div>
+      <div id="pd-tipo-opts" style="display:none">
+        <div class="pd-check-item" onclick="APP.setPdTipo('llevar',this)">
+          <input type="checkbox" id="pd-ch-llevar">
+          <span id="pd-llevar-lbl">llevar (+1,000.00 $)</span>
+        </div>
+        <div class="pd-check-item" onclick="APP.setPdTipo('comer',this)">
+          <input type="checkbox" id="pd-ch-comer">
+          <span>comer en establecimiento</span>
+        </div>
+      </div>
+      <!-- Cantidad -->
+      <div class="pd-qty-row">
+        <button class="pd-qbtn" onclick="APP.pdChgQty(-1)">−</button>
+        <div class="pd-qnum" id="pd-qty">1</div>
+        <button class="pd-qbtn" onclick="APP.pdChgQty(1)">+</button>
+      </div>
+    </div>
+    <div class="pd-footer">
+      <button class="pd-foot-btn" style="background:#C62828;color:#fff" onclick="APP.closePdModal()">REGRESAR</button>
+      <button class="pd-foot-btn" style="background:var(--bl);color:#fff" onclick="APP.pdAgregar()">AGREGAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SELECTOR CLIENTE ══ -->
+<div class="cli-sel-bg" id="cli-sel-bg">
+  <div class="cli-sel-panel">
+    <div class="cli-sel-head">
+      <div style="font-size:16px">🔍</div>
+      <input class="cli-sel-search" id="cli-sel-inp" placeholder="Buscar" oninput="APP.filterCliSel(this.value)">
+      <div style="font-size:22px;cursor:pointer" onclick="APP.openModal('cliente-modal')">👤+</div>
+    </div>
+    <div class="cli-sel-list" id="cli-sel-list"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL DELIVERY ══ -->
+<div class="delivery-bg" id="delivery-bg">
+  <div class="delivery-modal">
+    <div class="delivery-title">Información al cliente</div>
+    <div class="delivery-section">
+      <div class="delivery-info" id="delivery-cli-info">Sin cliente seleccionado</div>
+    </div>
+    <div class="delivery-section">
+      <div class="delivery-sec-title">Repartidor</div>
+      <input class="delivery-repartidor-inp" id="delivery-rep" placeholder="Nombre del repartidor" value="Mensajero I">
+    </div>
+    <div class="delivery-section">
+      <div style="font-size:11px;font-weight:700;color:var(--bl);text-align:center;margin-bottom:.5rem">
+        Seleccionar estado del pedido de mensajería</div>
+      <div class="delivery-status-grid">
+        <button class="delivery-st-btn" style="background:var(--gr);color:#fff"
+          onclick="APP.deliverySend()">ENVIAR A COCINA</button>
+        <button class="delivery-st-btn" style="background:#9E9E9E;color:#fff"
+          onclick="APP.deliveryRepartidor()">ENTREGAR AL<br>REPARTIDO</button>
+      </div>
+      <div style="text-align:center;padding:.3rem">
+        <span style="font-size:11px;color:var(--bl);cursor:pointer" onclick="APP.openOtras()">Otras opciones</span>
+      </div>
+    </div>
+    <div class="delivery-footer">
+      <button style="flex:1;padding:11px;background:#C62828;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer" onclick="APP.closeDelivery()">REGRESAR</button>
+      <button style="flex:1;padding:11px;background:var(--bl);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer" onclick="APP.deliveryContinuar()">CONTINUAR</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -1750,17 +2096,18 @@ APP.numpadPress = function(k){
 };
 
 // ── ORDEN ─────────────────────────────────────
-APP.addItem = function(en,price,em){
+APP.addItem = function(en,price,em,imgData){
   const name=decodeURIComponent(en);
   APP.numpadLast={n:name,p:price,e:em,q:1};
-  const ex=APP.order.find(x=>x.n===name);
-  if(ex) ex.q++; else APP.order.push({n:name,p:price,e:em,q:1});
-  APP.renderOrder(); APP.updateOrderCount();
-  APP.showToast(`✓ ${name.substring(0,25)}`);
+  // Open product detail modal (RePOS style)
+  APP.openPdModal({n:name,p:price,e:em,img:imgData||''});
 };
 APP.updateOrderCount = function(){
   const total=APP.order.reduce((a,i)=>a+i.q,0);
+  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
   document.getElementById('order-count').textContent=total;
+  const ft=document.getElementById('order-footer-total');
+  if(ft&&APP.perms[APP.role]?.verPrecios) ft.textContent=APP.fmtNum(sub)+' $';
 };
 APP.renderOrder = function(){
   const p=APP.perms[APP.role];
@@ -1770,10 +2117,18 @@ APP.renderOrder = function(){
   const cmb=document.getElementById('cobrar-main-btn');
   const skb=document.getElementById('send-kitchen-btn');
   const psec=document.getElementById('pay-section');
+  const oab=document.getElementById('order-action-bar');
+  const otb=document.getElementById('order-type-bar');
+  const prb=document.getElementById('pago-rapido-btn');
+  const pb=document.getElementById('pago-btn');
   if(!APP.order.length){
     list.innerHTML=''; empty.style.display='block';
-    otbox.style.display='none'; cmb.style.display='none';
-    skb.style.display='none'; psec.style.display='none';
+    otbox.style.display='none';
+    if(cmb)cmb.style.display='none';
+    if(skb)skb.style.display='none';
+    if(psec)psec.style.display='none';
+    if(oab)oab.style.display='none';
+    if(otb)otb.style.display='none';
     return;
   }
   empty.style.display='none';
@@ -1781,13 +2136,16 @@ APP.renderOrder = function(){
     `<div class="oi">
       <div class="oi-em">${it.e}</div>
       <div class="oi-info">
-        <div class="oi-name">${it.n}</div>
-        ${p.verPrecios?`<div class="oi-price">${APP.fmt(it.p*it.q)}</div>`:''}
+        <div class="oi-name">${it.n}${it._tipo&&it._tipo!=='servido'?' <span style="font-size:9px;color:var(--bl)">('+it._tipo+')</span>':''}</div>
+        ${p.verPrecios?`<div class="oi-price">${APP.fmt(it.p)} $ / Trozo</div>`:''}
       </div>
-      <div class="qc">
-        <button class="qb" onclick="APP.chgQ('${encodeURIComponent(it.n)}',-1)">−</button>
-        <span class="qn">${it.q}</span>
-        <button class="qb" onclick="APP.chgQ('${encodeURIComponent(it.n)}',1)">+</button>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+        ${p.verPrecios?`<div style="font-size:11px;font-weight:800;color:var(--bl);min-width:60px;text-align:right">${APP.fmtNum(it.p*it.q)} $<br><span style="font-size:9px;font-weight:600">X ${it.q}</span></div>`:''}
+        <div class="qc" style="margin-left:4px">
+          <button class="qb" onclick="APP.chgQ('${encodeURIComponent(it.n)}',-1)">−</button>
+          <span class="qn">${it.q}</span>
+          <button class="qb" onclick="APP.chgQ('${encodeURIComponent(it.n)}',1)">+</button>
+        </div>
       </div>
     </div>`
   ).join('');
@@ -1795,24 +2153,24 @@ APP.renderOrder = function(){
     const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
     const disc=APP.getDiscount?APP.getDiscount(sub):0;
     const subAfter=Math.max(0,sub-disc);
-    const togIva=document.getElementById('tog-iva');
-    const noIva=(APP.state&&APP.state.noIva)||false;
-    const hasIva=!noIva&&(!togIva||togIva.classList.contains('on'));
-    const iva=hasIva?Math.round(subAfter*0.02):0;
+    const noIva=(APP.payState&&APP.payState.noIva)||false;
+    const iva=!noIva?Math.round(subAfter*0.05):0;
     const tot=subAfter+iva;
     document.getElementById('osub').textContent=APP.fmt(sub);
-    // Discount row
     const dr=document.getElementById('odisc-row');
     if(dr){dr.style.display=disc>0?'flex':'none';const od=document.getElementById('odisc');if(od)od.textContent='-'+APP.fmt(disc);}
     document.getElementById('oiva').textContent=APP.fmt(iva);
     document.getElementById('otot').textContent=APP.fmt(tot);
     otbox.style.display='block';
-    cmb.style.display='block';
-    skb.style.display='none';
+    // New RePOS-style action bar
+    if(oab)oab.style.display='flex';
+    if(cmb)cmb.style.display='none';
+    if(skb)skb.style.display='none';
   } else {
     otbox.style.display='none';
-    cmb.style.display='none';
-    skb.style.display='block';
+    if(cmb)cmb.style.display='none';
+    if(oab)oab.style.display='none';
+    if(skb)skb.style.display='block';
   }
 };
 APP.chgQ = function(en,d){
@@ -1823,79 +2181,262 @@ APP.chgQ = function(en,d){
   if(APP.order[idx].q<=0) APP.order.splice(idx,1);
   APP.renderOrder(); APP.updateOrderCount();
 };
-APP.showPay = function(){
-  const ps=document.getElementById('pay-section');
-  ps.style.display=ps.style.display==='block'?'none':'block';
-  document.getElementById('cobrar-main-btn').style.display='none';
-  // Show discount section when pay is visible
-  const ds=document.getElementById('disc-section');
-  if(ds) ds.style.display=ps.style.display==='block'?'block':'none';
+
+// ── VARIABLES ESTADO DE COBRO ──────────────────
+APP.payState = {noIva:false, discVal:0, discType:'pct', orderStartTime:Date.now(), totalOrders:0};
+
+APP.showPay = APP.openPayScreen = function(){
+  const sub = APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const disc = APP.getDiscount(sub);
+  const subAfter = Math.max(0,sub-disc);
+  const ivaRate = 0.05;
+  const iva = !APP.payState.noIva ? Math.round(subAfter*ivaRate) : 0;
+  const tot = subAfter + iva;
+  const el1=document.getElementById('ps-subtotal');if(el1)el1.textContent=APP.fmtNum(sub);
+  const el2=document.getElementById('pay-iva-val');if(el2)el2.textContent=APP.fmtNum(iva);
+  const el3=document.getElementById('pay-total-val');if(el3)el3.textContent=APP.fmtNum(tot);
+  const el4=document.getElementById('pmi-efectivo');if(el4){el4.value=tot>0?APP.fmtNum(tot):'';}
+  const el5=document.getElementById('pmi-tarjeta');if(el5)el5.value='';
+  const el6=document.getElementById('pmi-boleto');if(el6)el6.value='';
+  APP.updatePayTotals();
+  document.getElementById('pay-screen').classList.add('on');
 };
-APP.toggleIva = function(){
-  APP.state=APP.state||{};
-  APP.state.noIva=!APP.state.noIva;
-  const btn=document.getElementById('btn-noiva');
-  if(btn){btn.style.background=APP.state.noIva?'#FFEBEE':'var(--sf2)';btn.style.color=APP.state.noIva?'#C62828':'var(--tx2)';}
-  APP.renderOrder();
+APP.closePayScreen = function(){
+  document.getElementById('pay-screen').classList.remove('on');
 };
+APP.fmtNum = n => (n||0).toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2});
+APP.togglePayIva = function(){
+  APP.payState.noIva = !APP.payState.noIva;
+  const btn=document.getElementById('pay-iva-toggle');
+  if(btn){btn.style.background=APP.payState.noIva?'#FFEBEE':'';btn.style.color=APP.payState.noIva?'#C62828':'';}
+  APP.openPayScreen();
+};
+APP.toggleIva = APP.togglePayIva;
 APP.getDiscount = function(sub){
-  const dv=parseFloat(document.getElementById('disc-val')?.value)||0;
-  const dt=document.getElementById('disc-type')?.value||'pct';
+  const dv=parseFloat(document.getElementById('disc-val')?.value)||APP.payState.discVal||0;
+  const dt=document.getElementById('disc-type')?.value||APP.payState.discType||'pct';
   return dt==='pct'?Math.round(sub*dv/100):Math.min(dv,sub);
+};
+APP.selectPayMethod = function(id,card){
+  ['pmc-efectivo','pmc-tarjeta','pmc-boleto','pmc-p-efectivo','pmc-p-tarjeta','pmc-p-boleto'].forEach(c=>{
+    const el=document.getElementById(c);if(el)el.classList.remove('on');
+  });
+  if(card)card.classList.add('on');
+  const inp=document.getElementById('pmi-'+id);if(inp){inp.focus();}
+};
+APP.updatePayTotals = function(){
+  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const disc=APP.getDiscount(sub);
+  const subAfter=Math.max(0,sub-disc);
+  const iva=!APP.payState.noIva?Math.round(subAfter*0.05):0;
+  const tot=subAfter+iva;
+  const ef=parseFloat(document.getElementById('pmi-efectivo')?.value)||0;
+  const tj=parseFloat(document.getElementById('pmi-tarjeta')?.value)||0;
+  const bl=parseFloat(document.getElementById('pmi-boleto')?.value)||0;
+  const paid=ef+tj+bl;
+  const rem=tot-paid;
+  const epv=document.getElementById('pay-paid-val');if(epv)epv.textContent=APP.fmtNum(paid);
+  const erm=document.getElementById('pay-remaining');if(erm)erm.textContent=rem<=0?'\u2212':APP.fmtNum(rem)+' $';
+};
+APP.updatePartialTotals = function(){
+  const ef=parseFloat(document.getElementById('pmi-p-efectivo')?.value)||0;
+  const tj=parseFloat(document.getElementById('pmi-p-tarjeta')?.value)||0;
+  const bl=parseFloat(document.getElementById('pmi-p-boleto')?.value)||0;
+  const paid=ef+tj+bl;
+  const pp=document.getElementById('partial-paid');if(pp)pp.textContent=APP.fmtNum(paid);
 };
 APP.selPago = function(m,btn){
   document.querySelectorAll('.pb').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel'); APP.selMetodo=m;
+  if(btn)btn.classList.add('sel');APP.selMetodo=m;
 };
-APP.cobrar = async function(){
-  if(!APP.selMetodo){APP.showToast('Selecciona método de pago');return;}
-  if(!APP.db){APP.showToast('Sin conexión Firebase');return;}
+APP.pagoRapidoEfectivo = async function(){
+  if(!APP.order.length){APP.showToast('Orden vacc\xeda');return;}
+  APP.selMetodo='Efectivo';
+  await APP.completePay();
+};
+APP.openOtras = function(){document.getElementById('otras-sheet').classList.add('on');};
+APP.closeOtras = function(){document.getElementById('otras-sheet').classList.remove('on');};
+APP.otraInsertarDinero = function(){
+  APP.closeOtras();APP.showToast('Ingresa el monto en el campo Efectivo');
+  const inp=document.getElementById('pmi-efectivo');if(inp){inp.focus();inp.select();}
+};
+APP.otraDescuento = function(){APP.closeOtras();document.getElementById('disc-modal-sheet').classList.add('on');};
+APP.applyDiscount = function(){
+  document.getElementById('disc-modal-sheet').classList.remove('on');
+  APP.renderOrder();APP.openPayScreen();APP.showToast('Descuento aplicado');
+};
+APP.otraImpuesto = function(){APP.closeOtras();APP.togglePayIva();APP.showToast(APP.payState.noIva?'Impuesto quitado':'Impuesto agregado');};
+APP.otraCliente = function(){APP.closeOtras();APP.openClienteSelector();};
+APP.otraMantenerOrden = function(){APP.closeOtras();APP.closePayScreen();APP.showToast('Orden mantenida');};
+APP.completePay = async function(){
+  if(!APP.db){APP.showToast('Sin conexi\xf3n Firebase');return;}
+  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const disc=APP.getDiscount(sub);
+  const subAfter=Math.max(0,sub-disc);
+  const iva=!APP.payState.noIva?Math.round(subAfter*0.05):0;
+  const tot=subAfter+iva;
+  const ef=parseFloat(document.getElementById('pmi-efectivo')?.value)||0;
+  const tj=parseFloat(document.getElementById('pmi-tarjeta')?.value)||0;
+  const bl=parseFloat(document.getElementById('pmi-boleto')?.value)||0;
+  let method='Efectivo';
+  if(tj>0&&tj>=ef&&tj>=bl)method='Tarjeta';
+  else if(bl>0&&bl>=ef&&bl>=tj)method='Boleto';
+  APP.selMetodo=method;
   const mesa=document.getElementById('mesa-sel').value;
   const cliente=document.getElementById('o-cliente').value.trim();
   const notas=document.getElementById('o-notas').value.trim();
-  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
-  const disc=APP.getDiscount?APP.getDiscount(sub):0;
-  const subAfter=Math.max(0,sub-disc);
-  const togIva=document.getElementById('tog-iva');
-  const noIva=(APP.state&&APP.state.noIva)||false;
-  const hasIva=!noIva&&(!togIva||togIva.classList.contains('on'));
-  const iva=hasIva?Math.round(subAfter*0.02):0;
-  const tot=subAfter+iva;
   const {push,ref,get,set,update}=APP.fb;
-  const today=APP.today(); const t=APP.timeNow();
+  const today=APP.today();const t=APP.timeNow();
+  const elapsed=Math.round((Date.now()-APP.payState.orderStartTime)/1000);
   try{
-    await push(ref(APP.db,`ventas/${today}/ordenes`),{
-      mesa,cliente,notas,method:APP.selMetodo,
+    await push(ref(APP.db,'ventas/'+today+'/ordenes'),{
+      mesa,cliente,notas,method,
       items:APP.order.map(i=>({n:i.n,p:i.p,q:i.q})),
-      subtotal:sub,descuento:disc,iva,total:tot,timestamp:Date.now(),time:t,
-      rol:APP.role,cajero:APP.user,paid:true
+      subtotal:sub,descuento:disc,iva,total:tot,
+      efectivo:ef,tarjeta:tj,boleto:bl,
+      timestamp:Date.now(),time:t,rol:APP.role,cajero:APP.user,paid:true
     });
     await push(ref(APP.db,'pedidos_cocina'),{
       mesa,cliente,notas,mesero:APP.user,
-      items:APP.order.map(i=>`${i.q}x ${i.n}`),
+      items:APP.order.map(i=>i.q+'x '+i.n),
       timestamp:Date.now(),done:false,urgent:false,time:t
     });
-    const snap=await get(ref(APP.db,`ventas/${today}/resumen`));
+    const snap=await get(ref(APP.db,'ventas/'+today+'/resumen'));
     const prev=snap.val()||{total:0,ordenes:0,efectivo:0,tarjeta:0,transf:0,dolares:0,bancolombia:0,credito:0,lucro:0};
-    const km={Efectivo:'efectivo',Tarjeta:'tarjeta',Transferencia:'transf',
-      Dólares:'dolares',Bancolombia:'bancolombia',Crédito:'credito'};
-    const upd={...prev,total:(prev.total||0)+tot,ordenes:(prev.ordenes||0)+1,lucro:(prev.lucro||0)+iva};
-    upd[km[APP.selMetodo]||'efectivo']=(prev[km[APP.selMetodo]||'efectivo']||0)+tot;
-    APP.state=APP.state||{}; APP.state.salesData=upd;
-    await set(ref(APP.db,`ventas/${today}/resumen`),upd);
+    const upd={...prev,total:(prev.total||0)+tot,ordenes:(prev.ordenes||0)+1,lucro:(prev.lucro||0)+iva,efectivo:(prev.efectivo||0)+ef,tarjeta:(prev.tarjeta||0)+tj};
+    APP.state=APP.state||{};APP.state.salesData=upd;
+    await set(ref(APP.db,'ventas/'+today+'/resumen'),upd);
     const mk='mesa'+mesa.replace('Mesa ','').trim();
-    if(APP.tables[mk]) await update(ref(APP.db,`mesas/${mk}`),{status:'libre',guests:0,total:0});
-    APP.showToast(`✅ ${APP.fmt(tot)} · ${APP.selMetodo}`);
-    APP.order=[]; APP.selMetodo=null;
-    document.querySelectorAll('.pb').forEach(b=>b.classList.remove('sel'));
-    document.getElementById('o-cliente').value='';
-    document.getElementById('o-notas').value='';
-    document.getElementById('pay-section').style.display='none';
-    document.getElementById('cobrar-main-btn').style.display='none';
-    APP.renderOrder(); APP.updateOrderCount();
-    APP.showPanel('p-catalog','catalog');
-  }catch(e){APP.showToast('❌ '+e.message);}
+    if(APP.tables[mk])await update(ref(APP.db,'mesas/'+mk),{status:'libre',guests:0,total:0});
+    APP.payState.totalOrders++;
+    APP.closePayScreen();
+    APP.showDoneScreen(tot,method,elapsed);
+  }catch(e){APP.showToast('Error: '+e.message);}
 };
+APP.showDoneScreen = function(tot,method,elapsed){
+  const items=APP.order.reduce((a,i)=>a+i.q,0);
+  const el1=document.getElementById('done-total');if(el1)el1.textContent='TOTAL:'+APP.fmtNum(tot)+' $';
+  const el2=document.getElementById('done-method');if(el2)el2.textContent=method+': '+APP.fmtNum(tot)+' $';
+  const el3=document.getElementById('done-items');if(el3)el3.textContent=items;
+  const el4=document.getElementById('done-total-orders');if(el4)el4.textContent=13498+APP.payState.totalOrders;
+  const el5=document.getElementById('done-time');if(el5)el5.textContent=(elapsed||0)+' SEGUNDOS';
+  document.getElementById('done-screen').classList.add('on');
+  APP.order=[];APP.selMetodo=null;APP.payState.discVal=0;APP.payState.orderStartTime=Date.now();
+  const on=document.getElementById('o-notas');if(on)on.value='';
+  const oc=document.getElementById('o-cliente');if(oc)oc.value='';
+  const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent='Toca para seleccionar...';
+  APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
+};
+APP.doneFreezeOrder = function(){document.getElementById('done-screen').classList.remove('on');APP.showPanel('p-catalog','catalog');APP.showToast('Orden congelada');};
+APP.doneQuota = function(){document.getElementById('done-screen').classList.remove('on');APP.showPanel('p-catalog','catalog');APP.showToast('Cuota registrada');};
+APP.cobrar = async function(){await APP.completePay();};
+APP.openPartialPay = function(){
+  APP.order.forEach(it=>it._partialQty=0);
+  const list=document.getElementById('partial-items-list');if(!list)return;
+  list.innerHTML=APP.order.map((it,i)=>`
+    <div style="background:#fff;border-radius:10px;border:1px solid var(--brd);padding:12px;margin-bottom:7px;display:flex;align-items:center;gap:10px">
+      <div style="flex:1"><div style="font-size:10px;color:var(--tx2)">${APP.fmtNum(it.p)} $ / Trozo</div>
+        <div style="font-size:12px;font-weight:700;color:var(--bl)">${it.n}</div>
+        <div style="font-size:11px;color:var(--tx2)">(${APP.fmtNum(it.p*it.q)} $)</div></div>
+      <button onclick="APP.partialChg(${i},-1)" style="width:36px;height:36px;border-radius:6px;border:2px solid var(--brd);background:#fff;font-size:18px;cursor:pointer">\u2212</button>
+      <div style="font-size:13px;font-weight:700;color:var(--bl);min-width:40px;text-align:center"><span id="pq-${i}">0</span> / ${it.q}</div>
+      <button onclick="APP.partialChg(${i},1)" style="width:36px;height:36px;border-radius:6px;border:2px solid var(--brd);background:#fff;font-size:18px;cursor:pointer">+</button>
+      <div style="min-width:60px;text-align:right;font-size:11px;color:var(--bl)">(<span id="pa-${i}">0.00</span> $)</div>
+    </div>`).join('');
+  document.getElementById('partial-bg').classList.add('on');
+  document.getElementById('pay-screen').classList.remove('on');
+};
+APP.partialChg = function(i,d){
+  const it=APP.order[i];if(!it)return;
+  it._partialQty=Math.max(0,Math.min(it.q,(it._partialQty||0)+d));
+  const pq=document.getElementById('pq-'+i);if(pq)pq.textContent=it._partialQty;
+  const pa=document.getElementById('pa-'+i);if(pa)pa.textContent=APP.fmtNum(it.p*it._partialQty);
+  APP.updatePartialTotals();
+};
+APP.closePartialPay = function(){
+  document.getElementById('partial-bg').classList.remove('on');
+  document.getElementById('pay-screen').classList.add('on');
+};
+APP.confirmPartialPay = function(){APP.showToast('Pago parcial registrado');APP.closePartialPay();APP.closePayScreen();APP.showPanel('p-catalog','catalog');};
+APP._pdProduct=null;
+APP.openPdModal = function(p){
+  APP._pdProduct=p;APP._pdQty=1;APP._pdTipo='servido';
+  const img=document.getElementById('pd-img');
+  const em=document.getElementById('pd-emoji');
+  if(p.img){img.src=p.img;img.style.display='block';em.style.display='none';}
+  else{img.style.display='none';em.style.display='block';em.textContent=p.e||'\ud83c\udf7d\ufe0f';}
+  const pn=document.getElementById('pd-name');if(pn)pn.textContent=p.n;
+  const showPrice=APP.perms[APP.role]?.verPrecios;
+  const pp=document.getElementById('pd-price');if(pp)pp.textContent=showPrice?APP.fmtNum(p.p)+' $':'';
+  const ll=document.getElementById('pd-llevar-lbl');if(ll)ll.textContent='llevar (+'+APP.fmtNum(Math.round(p.p*0.1))+' $)';
+  const pq=document.getElementById('pd-qty');if(pq)pq.textContent=1;
+  const cl=document.getElementById('pd-ch-llevar');if(cl)cl.checked=false;
+  const cc=document.getElementById('pd-ch-comer');if(cc)cc.checked=false;
+  const tb=document.getElementById('pd-tipo-btn');if(tb)tb.classList.add('on');
+  const tl=document.getElementById('pd-tipo-lbl');if(tl)tl.textContent='servido';
+  const to=document.getElementById('pd-tipo-opts');if(to)to.style.display='none';
+  const ta=document.getElementById('pd-tipo-arrow');if(ta)ta.textContent='\u2227';
+  document.getElementById('prod-detail-bg').classList.add('on');
+};
+APP.closePdModal = function(){document.getElementById('prod-detail-bg').classList.remove('on');};
+APP.togglePdTipo = function(){
+  const opts=document.getElementById('pd-tipo-opts');
+  const arrow=document.getElementById('pd-tipo-arrow');
+  const open=opts.style.display==='block';
+  opts.style.display=open?'none':'block';
+  arrow.textContent=open?'\u2227':'\u2228';
+};
+APP.setPdTipo = function(tipo){
+  APP._pdTipo=tipo;
+  const cl=document.getElementById('pd-ch-llevar');if(cl)cl.checked=tipo==='llevar';
+  const cc=document.getElementById('pd-ch-comer');if(cc)cc.checked=tipo==='comer';
+  const tl=document.getElementById('pd-tipo-lbl');if(tl)tl.textContent=tipo==='llevar'?'llevar':tipo==='comer'?'comer en establecimiento':'servido';
+};
+APP.pdChgQty = function(d){APP._pdQty=Math.max(1,(APP._pdQty||1)+d);const pq=document.getElementById('pd-qty');if(pq)pq.textContent=APP._pdQty;};
+APP.pdAgregar = function(){
+  const p=APP._pdProduct;if(!p)return;
+  const qty=APP._pdQty||1;
+  let price=p.p;
+  if(APP._pdTipo==='llevar')price=Math.round(price*1.1);
+  const ex=APP.order.find(x=>x.n===p.n&&x._tipo===APP._pdTipo);
+  if(ex)ex.q+=qty;else APP.order.push({...p,p:price,q:qty,_tipo:APP._pdTipo});
+  APP.closePdModal();
+  APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
+  APP.showToast(qty+'x '+p.n);
+  APP.showPanel('p-order','order');
+};
+APP.openClienteSelector = function(){
+  APP.filterCliSel('');
+  document.getElementById('cli-sel-bg').classList.add('on');
+  const inp=document.getElementById('cli-sel-inp');if(inp)inp.value='';
+};
+APP.filterCliSel = function(q){
+  const list=document.getElementById('cli-sel-list');if(!list)return;
+  const items=q?APP.clientes.filter(c=>c.name?.toLowerCase().includes(q.toLowerCase())||c.phone?.includes(q)):APP.clientes;
+  list.innerHTML=items.length?items.map(c=>`
+    <div class="cli-sel-item" onclick="APP.selectCliente('${encodeURIComponent(c.name||'')}','${c.phone||''}','${encodeURIComponent(c.address||'')}')">
+      <div class="cli-sel-name">${c.name}</div>
+      <div class="cli-sel-phone">( ${c.phone||'Sin tel\xe9fono'} )</div>
+    </div>`).join(''):'<div style="padding:1.5rem;text-align:center;color:var(--tx3);font-size:12px">Sin clientes.</div>';
+};
+APP.selectCliente = function(nameEnc,phone,addrEnc){
+  const name=decodeURIComponent(nameEnc);
+  const addr=decodeURIComponent(addrEnc)||'';
+  const oc=document.getElementById('o-cliente');if(oc)oc.value=name;
+  const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent=name+(phone?' \u00b7 '+phone:'');
+  document.getElementById('cli-sel-bg').classList.remove('on');
+  const mesa=document.getElementById('mesa-sel').value;
+  if(mesa==='Delivery'){
+    const dci=document.getElementById('delivery-cli-info');
+    if(dci)dci.innerHTML=name+'<br>'+(addr||'Direcci\xf3n de casa')+'<br><br>( '+phone+' )';
+    document.getElementById('delivery-bg').classList.add('on');
+  }
+};
+APP.closeDelivery = function(){document.getElementById('delivery-bg').classList.remove('on');};
+APP.deliverySend = async function(){document.getElementById('delivery-bg').classList.remove('on');await APP.sendToCocina();};
+APP.deliveryRepartidor = function(){document.getElementById('delivery-bg').classList.remove('on');APP.showToast('Asignado al repartidor: '+document.getElementById('delivery-rep').value);};
+APP.deliveryContinuar = function(){document.getElementById('delivery-bg').classList.remove('on');APP.openPayScreen();};
+
 APP.sendToCocina = async function(){
   if(!APP.db){APP.showToast('Sin conexión');return;}
   const mesa=document.getElementById('mesa-sel').value;
