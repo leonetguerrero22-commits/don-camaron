@@ -107,12 +107,11 @@ body{background:var(--bg);color:var(--tx)}
   font-size:11px;padding:2px 8px;font-weight:700;min-width:22px;text-align:center}
 
 /* ═══ MAIN CONTENT ═══ */
-.main{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
-.cnt{flex:1;overflow:hidden;position:relative}
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-height:0}
+.cnt{flex:1;overflow:hidden;position:relative;min-height:0}
 .panel{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .panel.on{display:flex;flex-direction:column}
-/* El catálogo tiene layout especial */
-#p-catalog.on{display:flex;flex-direction:column}
+#p-catalog.on{display:flex;flex-direction:column;overflow:hidden}
 
 /* ═══ BOTTOM NAV ═══ */
 .bnav{display:none !important; /* eliminado - navegacion solo por drawer */ position:fixed;bottom:0;left:0;right:0;background:white;
@@ -139,23 +138,29 @@ body{background:var(--bg);color:var(--tx)}
   cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
   white-space:nowrap;flex-shrink:0;transition:all .15s;letter-spacing:.2px}
 .ctab.on{color:var(--bl);border-bottom-color:var(--bl)}
-.catalog-body{flex:1;overflow:hidden;display:flex;position:relative}
+.catalog-body{flex:1;overflow:hidden;display:flex;position:relative;min-height:0}
 .pgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;
-  gap:8px;padding:8px;align-content:start;padding-bottom:8px;
-  -webkit-overflow-scrolling:touch}
+  gap:8px;padding:8px;align-content:start;
+  -webkit-overflow-scrolling:touch;touch-action:pan-y}
 .pc{background:white;border-radius:var(--r);overflow:hidden;cursor:pointer;
   box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid var(--brd);
-  transition:transform .1s;display:flex;flex-direction:column}
+  transition:transform .1s;display:flex;flex-direction:column;
+  min-height:130px;max-height:160px}
 .pc:active{transform:scale(.97)}
-.pimg{width:100%;height:90px;flex-shrink:0;display:flex;align-items:center;
-  justify-content:center;font-size:28px;background:linear-gradient(135deg,#E3F2FD,#BBDEFB);
+.pimg{width:100%;height:80px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:30px;
+  background:linear-gradient(135deg,#E3F2FD,#BBDEFB);
   overflow:hidden;position:relative}
-.pimg img{width:100%;height:100%;object-fit:cover;display:block}
-.pinfo{padding:5px 7px 7px;flex:1;display:flex;flex-direction:column;
-  background:white;min-height:42px}
-.pname{font-size:10px;font-weight:700;color:var(--bl);line-height:1.3;
-  margin-bottom:3px;flex:1}
-.pprice{font-size:11px;font-weight:800;color:var(--tx2);flex-shrink:0}
+.pimg img{position:absolute;top:0;left:0;width:100%;height:100%;
+  object-fit:cover;display:block}
+.pimg img.err{display:none} /* ocultar si falla */
+.pinfo{padding:5px 8px 7px;flex:1;display:flex;flex-direction:column;
+  background:white;overflow:hidden}
+.pname{font-size:10px;font-weight:700;color:var(--bl);line-height:1.2;
+  margin-bottom:3px;flex:1;overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pprice{font-size:11px;font-weight:800;color:var(--tx2);flex-shrink:0;
+  white-space:nowrap}
 /* Teclado numérico lateral */
 .numpad{width:44px;flex-shrink:0;display:flex;flex-direction:column;
   background:white;border-left:1px solid var(--brd);overflow:hidden}
@@ -844,21 +849,39 @@ body{background:var(--bg);color:var(--tx)}
 
   <!-- DRAWER -->
   <div class="drawer" id="drawer">
-    <!-- Header con usuario -->
-    <div class="dhead" style="display:flex;align-items:center;gap:12px;padding:14px 16px;
-      background:#f0f4f8;border-bottom:1px solid var(--brd)">
-      <div class="dav" id="dav" style="width:48px;height:48px;border-radius:50%;
-        background:var(--bl);color:#fff;display:flex;align-items:center;justify-content:center;
-        font-size:22px;font-weight:800;border:3px solid #C62828;flex-shrink:0">L</div>
+    <!-- Header usuario — igual al RePOS -->
+    <div style="background:#EEF2F8;padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)">
+      <div id="dav" style="width:48px;height:48px;border-radius:50%;background:#7B68EE;
+        color:#fff;display:flex;align-items:center;justify-content:center;
+        font-size:20px;font-weight:800;border:2px solid #C62828;flex-shrink:0">E</div>
       <div style="flex:1;min-width:0">
-        <div class="drole" id="drole" style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase">CAJA</div>
-        <div class="dname" id="dname" style="font-size:14px;font-weight:800;color:var(--tx)">CAJERO</div>
-        <div class="dpro" style="font-size:11px;font-weight:700;color:#C62828">(PROFESSIONAL)</div>
+        <div style="font-size:13px;color:var(--tx);font-weight:500" id="drole-sub">maritza</div>
+        <div style="font-size:14px;font-weight:800;color:var(--bl)" id="dname">CAJERO</div>
       </div>
-      <div onclick="APP.doLogout()" style="color:var(--bl);font-size:20px;cursor:pointer;padding:4px">→</div>
+      <div onclick="APP.doLogout()" style="color:var(--bl);font-size:22px;cursor:pointer;padding:4px"
+        title="Cerrar sesión">→</div>
     </div>
-    <!-- Lista única de items — igual al RePOS -->
-    <div class="dbody" style="flex:1;overflow-y:auto">
+
+    <!-- Dos botones TAB: MENÚS DE CAJA / MENÚS DE ADMINISTRACIÓN -->
+    <div id="drawer-tab-btns" style="display:flex;gap:8px;padding:10px 12px;background:white;border-bottom:1px solid var(--brd)">
+      <button id="dtab-caja" onclick="APP.switchDrawerTab('caja')"
+        style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--bl);
+          background:var(--bl);color:#fff;font-size:10px;font-weight:700;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.3">
+        <span style="font-size:18px">🖥️</span>
+        <span>MENÚS DE<br>CAJA</span>
+      </button>
+      <button id="dtab-admin" onclick="APP.switchDrawerTab('admin')"
+        style="flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--brd);
+          background:white;color:var(--tx2);font-size:10px;font-weight:700;cursor:pointer;
+          display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.3">
+        <span style="font-size:18px">⚙️</span>
+        <span>MENÚS DE<br>ADMINISTRACIÓN</span>
+      </button>
+    </div>
+
+    <!-- Lista de items (cambia según tab activo) -->
+    <div class="dbody" style="flex:1;overflow-y:auto;padding:6px 0">
       <div id="drawer-all-items"></div>
     </div>
   </div>
@@ -868,7 +891,7 @@ body{background:var(--bg);color:var(--tx)}
     <div class="cnt" id="main-cnt">
 
       <!-- ══ PEDIDO RÁPIDO ══ -->
-      <div id="p-catalog" class="panel on" style="height:100%;display:flex;flex-direction:column">
+      <div id="p-catalog" class="panel on" style="height:100%;display:flex;flex-direction:column;overflow:hidden">
         <div class="cat-tabs" id="cat-tabs"></div>
         <div class="catalog-body">
           <div class="pgrid" id="pgrid"></div>
@@ -2085,57 +2108,90 @@ APP.pedidosEspera = []; // pedidos guardados en espera (reloj de arena)
 
 // ── PERMISOS ─────────────────────────────────
 APP.perms = {
-  admin:{label:'Administrador',verPrecios:true,cobrar:true,verInformes:true,
-    verGastos:true,verClientes:true,verConfig:true,verInventario:true,
-    verUsuarios:true,verProductos:true,verMercado:true,verNegocio:true,
-    caja:['catalog','order','tables','ordenes-mesa','pedidos'],
-    admin:['inventory','reports','kitchen','gastos','clientes','reservas','findel',
-           'productos','usuarios','negocio','config','mercado','gestion-mesa'],
-    nav:['catalog','order','tables','pedidos','reports']},
-  supervisor:{label:'Supervisor',verPrecios:true,cobrar:false,verInformes:true,
-    verGastos:false,verClientes:true,verConfig:false,verInventario:true,
-    verUsuarios:false,verProductos:false,verMercado:false,verNegocio:false,
-    caja:['catalog','order','tables','ordenes-mesa','pedidos'],
+  // ── ADMINISTRADOR — ve todo con tabs CAJA + ADMIN ──
+  admin:{
+    label:'Administrador', verPrecios:true, cobrar:true, verInformes:true,
+    verGastos:true, verClientes:true, verConfig:true, verInventario:true,
+    verUsuarios:true, verProductos:true, verMercado:true, verNegocio:true,
+    caja:['catalog','ordenes-mesa','pedidos','mercado'],
+    admin:['inventory','reports','kitchen','gastos','clientes','reservas',
+           'findel','productos','usuarios','negocio','config','mercado','gestion-mesa'],
+    nav:[]
+  },
+
+  // ── SUPERVISOR — tabs CAJA + ADMIN parcial ──
+  supervisor:{
+    label:'Supervisor', verPrecios:true, cobrar:false, verInformes:true,
+    verGastos:false, verClientes:true, verConfig:false, verInventario:true,
+    verUsuarios:false, verProductos:false, verMercado:false, verNegocio:false,
+    caja:['catalog','ordenes-mesa','pedidos','tables'],
     admin:['inventory','reports','reservas'],
-    nav:['catalog','order','tables','pedidos','reports']},
-  cajero:{label:'Cajero',verPrecios:true,cobrar:true,verInformes:true,
-    verGastos:true,verClientes:true,verConfig:false,verInventario:false,
-    verUsuarios:false,verProductos:false,verMercado:false,verNegocio:false,
-    caja:['catalog','order','tables','ordenes-mesa','pedidos'],
-    admin:['reports','gastos','clientes'],
-    nav:['catalog','order','tables','pedidos','reports']},
-  mesero:{label:'Mesero',verPrecios:false,cobrar:false,verInformes:false,
-    verGastos:false,verClientes:false,verConfig:false,verInventario:false,
-    verUsuarios:false,verProductos:false,verMercado:false,verNegocio:false,
-    caja:['catalog','order','tables','ordenes-mesa','pedidos'],
+    nav:[]
+  },
+
+  // ── CAJERO — lista única sin tabs, igual al RePOS ──
+  // Exactamente lo que aparece en la captura: todas las opciones en una sola lista
+  cajero:{
+    label:'Cajero', verPrecios:true, cobrar:true, verInformes:true,
+    verGastos:true, verClientes:true, verConfig:true, verInventario:true,
+    verUsuarios:false, verProductos:false, verMercado:true, verNegocio:false,
+    caja:['catalog','ordenes-mesa','pedidos','tables','mercado',
+          'inventory','reports','gastos','clientes','reservas','findel','config'],
+    admin:[], // sin tab de admin — todo en caja
+    nav:[]
+  },
+
+  // ── MESERO — solo toma pedidos ──
+  mesero:{
+    label:'Mesero', verPrecios:false, cobrar:false, verInformes:false,
+    verGastos:false, verClientes:false, verConfig:false, verInventario:false,
+    verUsuarios:false, verProductos:false, verMercado:false, verNegocio:false,
+    caja:['catalog','ordenes-mesa','pedidos','tables'],
     admin:[],
-    nav:['catalog','order','tables','ordenes-mesa','pedidos']},
-  cocina:{label:'Cocina',verPrecios:false,cobrar:false,verInformes:false,
-    verGastos:false,verClientes:false,verConfig:false,verInventario:false,
-    verUsuarios:false,verProductos:false,verMercado:false,verNegocio:false,
-    caja:['kitchen'],admin:[],nav:['kitchen']},
+    nav:[]
+  },
+
+  // ── COCINA — solo pantalla de cocina ──
+  cocina:{
+    label:'Cocina', verPrecios:false, cobrar:false, verInformes:false,
+    verGastos:false, verClientes:false, verConfig:false, verInventario:false,
+    verUsuarios:false, verProductos:false, verMercado:false, verNegocio:false,
+    caja:['kitchen'],
+    admin:[],
+    nav:[]
+  },
+
+  // ── REPARTIDOR — solo pedidos delivery ──
+  repartidor:{
+    label:'Repartidor', verPrecios:false, cobrar:false, verInformes:false,
+    verGastos:false, verClientes:false, verConfig:false, verInventario:false,
+    verUsuarios:false, verProductos:false, verMercado:false, verNegocio:false,
+    caja:['pedidos'],
+    admin:[],
+    nav:[]
+  },
 };
 
 // ── NAV CONFIG ───────────────────────────────
 APP.navCfg = {
-  'catalog':{icon:'⚡',label:'Pedido rápido',panel:'p-catalog'},
-  'order':{icon:'📋',label:'Orden',panel:'p-order'},
-  'tables':{icon:'🪑',label:'Gestión de mesa',panel:'p-tables'},
-  'ordenes-mesa':{icon:'🍽️',label:'Órdenes de mesa',panel:'p-ordenes-mesa',badge:true},
-  'pedidos':{icon:'📑',label:'Pedidos',panel:'p-pedidos',badge:true},
-  'inventory':{icon:'📦',label:'Estado del inventario',panel:'p-inventory'},
-  'reports':{icon:'📊',label:'Informe',panel:'p-reports'},
-  'kitchen':{icon:'👨‍🍳',label:'Cocina',panel:'p-kitchen',badge:true},
-  'gastos':{icon:'💸',label:'Gastos',panel:'p-gastos'},
-  'clientes':{icon:'👥',label:'Gestión de clientes',panel:'p-clientes'},
-  'reservas':{icon:'📅',label:'Reserva de mesa',panel:'p-reservas'},
-  'findel':{icon:'🏁',label:'Fin del día',panel:'p-findel'},
-  'productos':{icon:'🎁',label:'Gestión de productos',panel:'p-productos'},
-  'usuarios':{icon:'👤',label:'Gestión de usuarios',panel:'p-usuarios'},
-  'negocio':{icon:'🏢',label:'Información de negocios',panel:'p-negocio'},
-  'config':{icon:'⚙️',label:'Configuración del cajero',panel:'p-config'},
-  'mercado':{icon:'🌐',label:'Mercado en línea',panel:'p-mercado'},
-  'gestion-mesa':{icon:'🗺️',label:'Gestión de la mesa',panel:'p-gestion-mesa'},
+  'catalog':      {icon:'⏱️', label:'Pedido rápido',           panel:'p-catalog'},
+  'order':        {icon:'📋', label:'Orden',                    panel:'p-order'},
+  'ordenes-mesa': {icon:'🍽️', label:'Órdenes de mesa',         panel:'p-ordenes-mesa', badge:true},
+  'pedidos':      {icon:'📑', label:'Pedidos',                  panel:'p-pedidos',      badge:true},
+  'tables':       {icon:'🪑', label:'Gestión de mesa',          panel:'p-tables'},
+  'mercado':      {icon:'🏪', label:'Mercado en línea',         panel:'p-mercado'},
+  'inventory':    {icon:'📦', label:'Estado del inventario',    panel:'p-inventory'},
+  'reports':      {icon:'📊', label:'Informe',                  panel:'p-reports'},
+  'kitchen':      {icon:'👨‍🍳', label:'Cocina',                  panel:'p-kitchen',      badge:true},
+  'gastos':       {icon:'💲', label:'Gastos',                   panel:'p-gastos'},
+  'clientes':     {icon:'👤', label:'Gestión de clientes',      panel:'p-clientes'},
+  'reservas':     {icon:'📅', label:'Reserva de mesa',          panel:'p-reservas'},
+  'findel':       {icon:'🏁', label:'Fin del día',              panel:'p-findel'},
+  'productos':    {icon:'🎁', label:'Gestión de productos',     panel:'p-productos'},
+  'usuarios':     {icon:'👥', label:'Gestión de usuarios',      panel:'p-usuarios'},
+  'negocio':      {icon:'🏢', label:'Información de negocios',  panel:'p-negocio'},
+  'config':       {icon:'⚙️', label:'Configuración del cajero', panel:'p-config'},
+  'gestion-mesa': {icon:'🗺️', label:'Gestión de la mesa',      panel:'p-gestion-mesa'},
 };
 
 // ── MENÚ ─────────────────────────────────────
@@ -2527,26 +2583,36 @@ APP.selRole = function(r,btn){
 };
 APP.doLogin = function(){
   if(!APP.selRoleBtn){APP.showToast('Selecciona un rol');return;}
-  const u=document.getElementById('l-user').value.trim()||'Usuario';
-  APP.user=u;
-  const p=APP.perms[APP.role];
+  const u = document.getElementById('l-user').value.trim() || 'Usuario';
+  APP.user = u;
+  const p = APP.perms[APP.role];
+  if(!p){APP.showToast('Rol no reconocido');return;}
+
   document.getElementById('login').classList.remove('on');
   document.getElementById('app').classList.add('on');
-  document.getElementById('tb-roletext').textContent=p.label.toUpperCase();
-  document.getElementById('dname').textContent=u;
-  document.getElementById('drole').textContent=p.label.toUpperCase();
-  document.getElementById('ui-name').textContent=u;
-  document.getElementById('ui-role').textContent=p.label.toUpperCase();
-  document.getElementById('ui-linked-name').textContent='Erick Martinez';
-  document.getElementById('ui-linked-email').textContent='erick1957@gmail.com';
-  document.getElementById('ui-email').textContent='erick1957@gmail.com';
-  if(APP.role==='cocina') document.getElementById('numpad').style.display='none';
-  APP.buildNav(); APP.buildDrawer();
-  APP.renderCats(); APP.renderProducts();
-  APP.renderReservaCal(); APP.renderUsers();
-  APP.renderProdCats(); APP.renderProdGrid();
-  const first=p.nav[0];
-  APP.showPanel(APP.navCfg[first].panel,first);
+
+  // Topbar
+  const roleLabel = p.label.toUpperCase();
+  const tb = document.getElementById('tb-roletext');
+  if(tb) tb.textContent = roleLabel;
+
+  // Ocultar numpad para cocina y repartidor
+  const numpad = document.getElementById('numpad');
+  if(numpad) numpad.style.display = (APP.role==='cocina'||APP.role==='repartidor') ? 'none' : '';
+
+  APP.buildNav();
+  APP.buildDrawer();
+  APP.renderCats();
+  APP.renderProducts();
+  APP.renderReservaCal();
+  APP.renderUsers();
+  APP.renderProdCats();
+  APP.renderProdGrid();
+
+  // Navegar a la primera pantalla disponible para este rol
+  const firstKey = p.caja[0] || p.admin[0] || 'catalog';
+  const firstPanel = APP.navCfg[firstKey]?.panel || 'p-catalog';
+  APP.showPanel(firstPanel, firstKey);
 };
 APP.doLogout = function(){
   document.getElementById('app').classList.remove('on');
@@ -2558,22 +2624,46 @@ APP.doLogout = function(){
 };
 
 // ── DRAWER ───────────────────────────────────
+APP._drawerTab = 'caja';
+
 APP.buildDrawer = function(){
   const p = APP.perms[APP.role];
-  // Actualizar header del drawer
+  if(!p) return;
+
+  // Header — nombre arriba, rol abajo (igual al RePOS)
   const initial = (APP.user||'U')[0].toUpperCase();
   const dav = document.getElementById('dav');
   if(dav) dav.textContent = initial;
+  // Nombre del usuario arriba (más pequeño)
+  const droleSub = document.getElementById('drole-sub');
+  if(droleSub) droleSub.textContent = APP.user || 'Usuario';
+  // Rol abajo en azul negrita
   const dname = document.getElementById('dname');
-  if(dname) dname.textContent = APP.user || 'Usuario';
-  const drole = document.getElementById('drole');
-  if(drole) drole.textContent = ({
-    admin:'ADMINISTRACIÓN', supervisor:'SUPERVISOR', cajero:'CAJA',
-    mesero:'MESERO', cocina:'COCINA', repartidor:'REPARTIDOR'
-  }[APP.role] || APP.role).toUpperCase();
+  const roleLabels = {admin:'ADMINISTRACIÓN',supervisor:'SUPERVISOR',cajero:'CAJERO',mesero:'MESERO',cocina:'COCINA',repartidor:'REPARTIDOR'};
+  if(dname) dname.textContent = roleLabels[APP.role] || APP.role.toUpperCase();
 
-  // Una sola lista — todos los items juntos como en el RePOS
-  const allKeys = [...p.caja, ...p.admin];
+  // Mostrar/ocultar tab de administración
+  const adminBtn = document.getElementById('dtab-admin');
+  const tabBtns  = document.getElementById('drawer-tab-btns');
+  if(adminBtn) adminBtn.style.display = p.admin.length ? '' : 'none';
+  if(tabBtns)  tabBtns.style.display  = p.admin.length ? '' : 'none';
+
+  APP._drawerCajaKeys  = p.caja  || [];
+  APP._drawerAdminKeys = p.admin || [];
+  APP._drawerTab = 'caja';
+  APP.switchDrawerTab('caja');
+};
+
+APP.switchDrawerTab = function(tab){
+  APP._drawerTab = tab;
+  const btnCaja  = document.getElementById('dtab-caja');
+  const btnAdmin = document.getElementById('dtab-admin');
+  const activeStyle  = 'background:var(--bl);color:#fff;border-color:var(--bl)';
+  const inactiveStyle = 'background:white;color:var(--tx2);border-color:var(--brd)';
+  if(btnCaja)  btnCaja.style.cssText  += (tab==='caja'  ? ';background:var(--bl);color:#fff;border-color:var(--bl)' : ';background:white;color:var(--tx2);border-color:var(--brd)');
+  if(btnAdmin) btnAdmin.style.cssText += (tab==='admin' ? ';background:var(--bl);color:#fff;border-color:var(--bl)' : ';background:white;color:var(--tx2);border-color:var(--brd)');
+
+  const keys = tab==='admin' ? (APP._drawerAdminKeys||[]) : (APP._drawerCajaKeys||[]);
   const mkItem = k => {
     const c = APP.navCfg[k];
     if(!c) return '';
@@ -2584,10 +2674,9 @@ APP.buildDrawer = function(){
     </div>`;
   };
   const container = document.getElementById('drawer-all-items');
-  if(container) container.innerHTML = allKeys.map(mkItem).join('');
+  if(container) container.innerHTML = keys.map(mkItem).join('');
 };
 
-// Navegar desde drawer: cerrar primero, luego ir a la pantalla
 APP.drawerGo = function(panel, key){
   APP.closeDrawer();
   setTimeout(()=>APP.showPanel(panel, key), 80);
@@ -2664,23 +2753,33 @@ APP.renderProducts = function(filter=''){
     const inOrder = APP.order.find(o=>o.n===item.n);
     const qty = inOrder?.q||0;
     const isActive = item.n===activeName;
-    // Stock from inventory
     const invItem = APP.inventory?.find(inv=>inv.name===item.n);
     const stock = invItem?.stock;
     const showLow = stock!=null && stock<=0;
     const showStock = stock!=null && stock>0 && stock<=5;
-    return `<div class="pc${isActive?' active':''}" 
-      onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${item.e||'🍽️'}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})"
-      style="position:relative">
+    const emoji = item.e||'🍽️';
+    // Imagen con fallback al emoji si no carga
+    const imgHtml = item.img
+      ? `<img src="${item.img}" alt="${item.n}"
+           style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        +`<span style="font-size:28px;display:none;position:absolute;inset:0;
+           align-items:center;justify-content:center">${emoji}</span>`
+      : `<span style="font-size:28px">${emoji}</span>`;
+
+    return `<div class="pc${isActive?' active':''}"
+      onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
       <div class="pimg">
-        ${item.img?`<img src="${item.img}" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:28px">${item.e||'🍽️'}</span>`}
-        ${qty>0?`<div class="pc-qty-badge">x${qty}.0</div>`:''}
-        ${showLow?`<div class="pc-stock-badge">-${Math.abs(stock)}<br>Restante</div>`:''}
-        ${showStock?`<div class="pc-stock-badge">${stock}<br>Restante</div>`:''}
+        ${imgHtml}
+        ${qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
+        ${showLow?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">-${Math.abs(stock)}<br>Rest.</div>`:''}
+        ${showStock?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">${stock}<br>Rest.</div>`:''}
       </div>
       <div class="pinfo">
         <div class="pname">${item.n}</div>
-        ${p.verPrecios?`<div class="pprice">${APP.fmtNum(item.p)} $</div>`:'<div class="pprice" style="color:var(--tx3);font-size:10px">—</div>'}
+        ${p.verPrecios
+          ? `<div class="pprice">${APP.fmtNum(item.p)} $</div>`
+          : `<div class="pprice" style="color:var(--tx3)">—</div>`}
       </div>
     </div>`;
   }).join('')||`<div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--tx3)">Sin resultados</div>`;
@@ -2911,11 +3010,18 @@ APP.renderOrder = function(){
     document.getElementById('oiva').textContent=APP.fmt(iva);
     document.getElementById('otot').textContent=APP.fmt(tot);
     otbox.style.display='block';
-    // New RePOS-style action bar
-    if(oab)oab.style.display='flex';
-    if(cmb)cmb.style.display='none';
-    if(skb)skb.style.display='none';
+
+    const puedeCobrar = APP.perms[APP.role]?.cobrar;
+    // Botones de cobro solo para roles que pueden cobrar (admin, cajero)
+    if(oab){
+      oab.style.display = 'flex';
+      if(prb) prb.style.display = puedeCobrar ? '' : 'none';
+      if(pb)  pb.style.display  = puedeCobrar ? '' : 'none';
+    }
+    if(cmb) cmb.style.display = 'none';
+    if(skb) skb.style.display = 'none';
   } else {
+    // Mesero — solo botón de enviar a cocina
     otbox.style.display='none';
     if(cmb)cmb.style.display='none';
     if(oab)oab.style.display='none';
