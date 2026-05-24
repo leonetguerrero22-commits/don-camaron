@@ -733,6 +733,7 @@ body{background:var(--bg);color:var(--tx)}
 
 /* ═══ FIN DEL DÍA ═══ */
 /* ═══ TOAST / MODALS ═══ */
+@keyframes kitPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.97)}}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
   background:#212121;color:white;padding:10px 20px;border-radius:20px;
   font-size:13px;font-weight:600;z-index:999;opacity:0;
@@ -1040,19 +1041,24 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ PEDIDOS ══ -->
       <div id="p-pedidos" class="panel" style="display:none;flex-direction:column;height:100%">
-        <!-- Tabs: TODAS / ÓRDENES DE MESA / ÓRDENES DE MENSAJERÍA -->
-        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0">
-          <div class="kit-tabs" id="pedidos-tabs" style="padding:0 8px">
-            <div class="ktab on" onclick="APP.switchPedidosTab('todas',this)">TODAS</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('mesa',this)">ÓRDENES DE MESA</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('mensajeria',this)">ÓRDENES DE MENSAJERÍA ▲▼</div>
+        <!-- Tabs scrollables -->
+        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap">
+          <div style="display:inline-flex;padding:0 6px;min-width:100%">
+            <div class="ktab on" onclick="APP.switchPedidosTab('todas',this)" style="flex-shrink:0">TODAS</div>
+            <div class="ktab" onclick="APP.switchPedidosTab('mesa',this)" style="flex-shrink:0">ÓRDENES DE MESA</div>
+            <div class="ktab" onclick="APP.switchPedidosTab('llevar',this)" style="flex-shrink:0">ÓRDENES PARA LLEVAR</div>
+            <div class="ktab" onclick="APP.switchPedidosTab('credito',this)" style="flex-shrink:0">PEDIDOS A CRÉDITO</div>
+            <div style="display:flex;align-items:center;padding:0 8px;gap:4px;flex-shrink:0">
+              <span style="font-size:18px;color:var(--bl);cursor:pointer">▲</span>
+              <span style="font-size:18px;color:var(--bl);cursor:pointer">▼</span>
+            </div>
           </div>
         </div>
-        <!-- Lista scrollable -->
-        <div id="pedidos-list" style="flex:1;overflow-y:auto;padding:8px"></div>
-        <!-- Footer fijo igual al RePOS -->
-        <div style="flex-shrink:0;background:var(--bl);padding:10px 14px">
-          <div style="background:white;border-radius:8px;padding:9px 14px;
+        <!-- Lista azul/blanco alterna scrollable -->
+        <div id="pedidos-list" style="flex:1;overflow-y:auto;background:#f5f5f5"></div>
+        <!-- Footer fijo -->
+        <div style="flex-shrink:0;background:var(--bl);padding:8px 14px">
+          <div style="background:white;border-radius:8px;padding:10px 14px;
             text-align:center;font-size:13px;font-weight:700;color:var(--tx);margin-bottom:6px"
             id="pedidos-total-bar">Precio total de 0 pedidos: 0,00 $</div>
           <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.85)">
@@ -1160,13 +1166,79 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ COCINA ══ -->
-      <div id="p-kitchen" class="panel">
-        <div class="mod-wrap">
-          <div class="kit-tabs">
-            <div class="ktab on" onclick="APP.switchKitTab('pending',this)">Pendientes</div>
-            <div class="ktab" onclick="APP.switchKitTab('done',this)">Completados</div>
+      <!-- ══ COCINA — Órdenes de cocina ══ -->
+      <div id="p-kitchen" class="panel" style="display:none;flex-direction:column;height:100%">
+        <!-- Tabs: ORDENES ABIERTAS / COMPLETADAS / CANCELADA -->
+        <div style="background:white;border-bottom:2px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap">
+          <div style="display:inline-flex;padding:0 8px;min-width:100%">
+            <div class="ktab on" id="kt-abiertas"
+              onclick="APP.switchKitTab('pending',this)"
+              style="font-size:12px;font-weight:800;padding:12px 16px;flex-shrink:0">
+              ORDENES ABIERTAS</div>
+            <div class="ktab" id="kt-completadas"
+              onclick="APP.switchKitTab('done',this)"
+              style="font-size:12px;font-weight:800;padding:12px 16px;flex-shrink:0">
+              ÓRDENES COMPLETADAS</div>
+            <div class="ktab" id="kt-canceladas"
+              onclick="APP.switchKitTab('cancelled',this)"
+              style="font-size:12px;font-weight:800;padding:12px 16px;flex-shrink:0">
+              ORDEN CANCELADA</div>
           </div>
-          <div id="klist"></div>
+        </div>
+        <!-- Lista de órdenes -->
+        <div id="klist" style="flex:1;overflow-y:auto;padding:10px;background:#f5f5f5"></div>
+      </div>
+
+      <!-- ══ AJUSTES (mesero/cocina) ══ -->
+      <div id="p-ajustes" class="panel" style="display:none;flex-direction:column;height:100%;overflow-y:auto">
+        <div style="padding:12px">
+          <!-- Notificaciones -->
+          <div style="background:var(--bl);border-radius:10px;padding:12px 16px;
+            margin-bottom:12px;color:white;font-size:13px;font-weight:700">
+            Configuración de las notificaciones</div>
+          <div style="background:white;border-radius:10px;padding:14px 16px;
+            margin-bottom:12px;border:1px solid var(--brd)">
+            <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:4px">
+              Propiedades de notificación</div>
+            <div style="font-size:12px;color:var(--tx3)">
+              Notificación de sonido, Notificación vibratoria, Pantalla de detalles de notificación</div>
+          </div>
+          <div style="background:white;border-radius:10px;padding:14px 16px;
+            margin-bottom:12px;border:1px solid var(--brd)">
+            <div style="font-size:13px;font-weight:700;color:var(--bl);margin-bottom:4px">
+              Repos/Repos Waiter › Cocina Notificaciones</div>
+            <div style="font-size:12px;color:var(--tx3)">
+              Cuando se ordena, Cuando se actualiza el pedido</div>
+          </div>
+          <!-- Impresora cocina -->
+          <div style="background:white;border:1.5px solid var(--brd);border-radius:10px;
+            padding:14px 16px;margin-bottom:12px;text-align:center;cursor:pointer"
+            onclick="APP.showToast('Configura tu impresora de cocina')">
+            <div style="font-size:14px;font-weight:700;color:var(--bl)">
+              Configuración de la impresora de cocina</div>
+          </div>
+          <!-- Config general -->
+          <div style="background:var(--bl);border-radius:10px;padding:12px 16px;
+            margin-bottom:12px;color:white;font-size:13px;font-weight:700">
+            Configuración general</div>
+          ${[
+            ['Configuración de inicio automático','La app se inicia automáticamente cuando el dispositivo se reinicia'],
+            ['¿Orientación de pantalla gestionada por la aplicación?','La aplicación gestiona automáticamente la orientación de la pantalla'],
+            ['¿Configuración de pantalla completa de la aplicación?','¡La aplicación se ejecutará en pantalla completa!']
+          ].map(([t,d])=>`
+          <div style="background:white;border-radius:10px;padding:14px 16px;
+            margin-bottom:8px;border:1px solid var(--brd);
+            display:flex;justify-content:space-between;align-items:center;gap:10px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--bl)">${t}</div>
+              <div style="font-size:11px;color:var(--tx3);margin-top:3px">${d}</div>
+            </div>
+            <div style="width:44px;height:24px;border-radius:12px;background:var(--bl);
+              flex-shrink:0;position:relative;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:50%;background:white;
+                position:absolute;right:2px;top:2px;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>
+            </div>
+          </div>`).join('')}
         </div>
       </div>
 
@@ -2141,22 +2213,22 @@ APP.perms = {
     nav:[]
   },
 
-  // ── MESERO — solo toma pedidos ──
+  // ── MESERO — Pedido rápido, Órdenes de mesa, Pedidos, Ajustes ──
   mesero:{
     label:'Mesero', verPrecios:false, cobrar:false, verInformes:false,
     verGastos:false, verClientes:false, verConfig:false, verInventario:false,
     verUsuarios:false, verProductos:false, verMercado:false, verNegocio:false,
-    caja:['catalog','ordenes-mesa','pedidos','tables'],
+    caja:['catalog','ordenes-mesa','pedidos','ajustes'],
     admin:[],
     nav:[]
   },
 
-  // ── COCINA — solo pantalla de cocina ──
+  // ── COCINA — Pedidos (cocina) + Ajustes ──
   cocina:{
     label:'Cocina', verPrecios:false, cobrar:false, verInformes:false,
     verGastos:false, verClientes:false, verConfig:false, verInventario:false,
     verUsuarios:false, verProductos:false, verMercado:false, verNegocio:false,
-    caja:['kitchen'],
+    caja:['kitchen','ajustes'],
     admin:[],
     nav:[]
   },
@@ -2192,6 +2264,7 @@ APP.navCfg = {
   'negocio':      {icon:'🏢', label:'Información de negocios',  panel:'p-negocio'},
   'config':       {icon:'⚙️', label:'Configuración del cajero', panel:'p-config'},
   'gestion-mesa': {icon:'🗺️', label:'Gestión de la mesa',      panel:'p-gestion-mesa'},
+  'ajustes':      {icon:'⚙️', label:'Ajustes',                  panel:'p-ajustes'},
 };
 
 // ── MENÚ ─────────────────────────────────────
@@ -2723,6 +2796,7 @@ APP.showPanel = function(pid,nk){
   if(nk==='gastos') APP.renderGastos();
   if(nk==='reservas') APP.renderReservaCal();
   if(nk==='pedidos') APP.renderPedidos();
+  if(nk==='kitchen') APP.renderKitchen();
 };
 APP.updateBadge = function(key,n){
   [document.getElementById('ni-badge-'+key),
@@ -3691,26 +3765,36 @@ APP.mesaA3 = async function(){
 
 // ── PEDIDOS ──────────────────────────────────
 APP.switchPedidosTab = function(tab,el){
-  APP.pedidosTab=tab;
-  document.querySelectorAll('#pedidos-tabs .ktab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on'); APP.renderPedidos();
+  APP.pedidosTab = tab;
+  document.querySelectorAll('#p-pedidos .ktab').forEach(t=>t.classList.remove('on'));
+  if(el) el.classList.add('on');
+  APP.renderPedidos();
 };
 APP.renderPedidos = function(){
   const list = document.getElementById('pedidos-list'); if(!list) return;
   const totBar = document.getElementById('pedidos-total-bar');
   const tab = APP.pedidosTab || 'todas';
 
-  let orders = [...APP.kitchenOrders].sort((a,b)=>b.timestamp-a.timestamp);
-  if(tab==='mesa') orders = orders.filter(o=>o.mesa&&!o.mesa.toLowerCase().includes('llevar')&&!o.mesa.toLowerCase().includes('delivery'));
-  if(tab==='mensajeria') orders = orders.filter(o=>o.mesa&&(o.mesa.toLowerCase().includes('llevar')||o.mesa.toLowerCase().includes('delivery')));
+  // Usar ventas guardadas en Firebase (histórico real)
+  let orders = [...(APP.ventas||[]), ...APP.kitchenOrders]
+    .sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
 
-  const total = orders.reduce((a,o)=>a+(o.total||0),0);
+  // Deduplicar por id
+  const seen = new Set();
+  orders = orders.filter(o=>{ if(seen.has(o.id)) return false; seen.add(o.id); return true; });
+
+  // Filtrar por tab
+  if(tab==='mesa') orders = orders.filter(o=>o.mesa&&!o.mesa.toLowerCase().includes('llevar')&&!o.mesa.toLowerCase().includes('delivery'));
+  if(tab==='llevar') orders = orders.filter(o=>o.mesa&&(o.mesa.toLowerCase().includes('llevar')||o.mesa.toLowerCase().includes('delivery')));
+  if(tab==='credito') orders = orders.filter(o=>o.method==='Crédito por pagar');
+
+  const total = orders.reduce((a,o)=>a+(o.total||o.subtotal||0),0);
   if(totBar) totBar.textContent = `Precio total de ${orders.length} pedidos: ${APP.fmtNum(total)} $`;
 
   if(!orders.length){
-    list.innerHTML=`<div style="text-align:center;padding:4rem 2rem;color:var(--tx3)">
-      <div style="font-size:60px;opacity:.15;font-weight:900;line-height:1">R</div>
-      <div style="font-size:13px;font-weight:700;margin-top:1rem;max-width:260px;margin-left:auto;margin-right:auto">
+    list.innerHTML=`<div style="text-align:center;padding:5rem 2rem">
+      <div style="font-size:80px;opacity:.1;font-weight:900;font-style:italic;color:var(--bl);font-family:serif;line-height:1">R</div>
+      <div style="font-size:13px;font-weight:700;color:var(--bl);margin-top:1rem;max-width:260px;margin-left:auto;margin-right:auto">
         Aún no ha recibido ningún pedido. Puede ver sus pedidos aquí después de recibir pedidos.</div>
     </div>`;
     APP.updateBadge('pedidos',0);
@@ -3718,36 +3802,82 @@ APP.renderPedidos = function(){
   }
 
   list.innerHTML = orders.map((o,i)=>{
-    const elapsed = Math.round((Date.now()-(o.timestamp||Date.now()))/60000);
-    const isActive = !o.done;
-    return `<div style="border:1.5px solid ${isActive?'var(--bl)':'var(--brd)'};border-radius:10px;
-        padding:12px 14px;margin-bottom:8px;background:white;cursor:pointer"
+    const even = i%2===0;
+    const bg = even ? 'var(--bl)' : 'white';
+    const fg = even ? 'white' : 'var(--tx)';
+    const fg3 = even ? 'rgba(255,255,255,.75)' : 'var(--tx3)';
+
+    // Fecha y hora
+    const dt = o.timestamp ? new Date(o.timestamp) : null;
+    const dateStr = dt ? `${String(dt.getDate()).padStart(2,'0')}.${String(dt.getMonth()+1).padStart(2,'0')}` : (o.date||'--');
+    const timeStr = o.time || (dt ? dt.toTimeString().substring(0,8) : '--:--');
+
+    // Tipo de orden — mesa o mercado
+    const isMesa = o.mesa && !o.mesa.toLowerCase().includes('llevar') && !o.mesa.toLowerCase().includes('delivery');
+    const tipoIcon = isMesa
+      ? `<svg width="28" height="22" viewBox="0 0 28 22" fill="none">
+          <rect x="0" y="12" width="28" height="2" rx="1" fill="currentColor"/>
+          <rect x="4" y="14" width="2" height="8" rx="1" fill="currentColor"/>
+          <rect x="22" y="14" width="2" height="8" rx="1" fill="currentColor"/>
+          <rect x="8" y="6" width="12" height="8" rx="1" fill="currentColor"/>
+          <rect x="6" y="3" width="2" height="10" rx="1" fill="currentColor"/>
+          <rect x="20" y="3" width="2" height="10" rx="1" fill="currentColor"/>
+        </svg>`
+      : `<svg width="24" height="22" viewBox="0 0 24 22" fill="none">
+          <rect x="0" y="4" width="24" height="14" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+          <rect x="3" y="8" width="4" height="4" rx="1" fill="currentColor"/>
+          <rect x="10" y="7" width="7" height="2" rx="1" fill="currentColor"/>
+          <rect x="10" y="11" width="5" height="2" rx="1" fill="currentColor"/>
+        </svg>`;
+
+    const monto = o.total || o.subtotal || 0;
+    const mesaLabel = o.mesa ? `Tabla No: ${(o.mesa||'').replace(/[^0-9]/g,'')||o.mesa}` : '';
+
+    return `<div style="background:${bg};padding:11px 14px;
+        border-bottom:1px solid rgba(255,255,255,.15);cursor:pointer;
+        display:flex;align-items:center;gap:10px"
       onclick="APP.verPedidoDetalle('${o.id}')">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-        <div>
-          <div style="font-size:13px;font-weight:800;color:var(--bl)">
-            ${o.mesa||'Sin mesa'}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-top:2px">
-            ⏱ ${o.time||'--:--'} · ${elapsed} min
-            ${o.mesero?` · 👤 ${o.mesero}`:''}
-          </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0">
-          ${isActive
-            ? `<span style="background:var(--bl);color:#fff;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700">Activo</span>`
-            : `<span style="background:var(--gr2);color:var(--gr);padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700">✓ Listo</span>`}
-          ${o.total?`<div style="font-size:12px;font-weight:700;color:var(--tx);margin-top:4px">${APP.fmtNum(o.total)} $</div>`:''}
-        </div>
+      <!-- Fecha y mesa -->
+      <div style="flex:0 0 80px;min-width:0">
+        ${mesaLabel?`<div style="font-size:12px;font-weight:700;color:${fg}">${mesaLabel}</div>`:''}
+        <div style="font-size:11px;color:${fg3}">${dateStr} /</div>
+        <div style="font-size:11px;color:${fg3}">${timeStr}</div>
       </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--tx)">
-        ${(o.items||[]).map(it=>`<span style="display:inline-block;background:#f0f4f8;border-radius:6px;padding:2px 8px;margin:2px;font-size:11px">${it}</span>`).join('')}
+      <!-- Íconos tipo orden + método pago -->
+      <div style="display:flex;gap:6px;align-items:center;color:${fg};flex:0 0 auto">
+        <span style="opacity:.8">${tipoIcon}</span>
+        <svg width="22" height="18" viewBox="0 0 22 18" fill="${fg}" opacity=".8">
+          <circle cx="11" cy="9" r="8" stroke="${fg}" stroke-width="1.5" fill="none"/>
+          <text x="11" y="13" text-anchor="middle" font-size="9" font-weight="bold" fill="${fg}">$</text>
+        </svg>
+      </div>
+      <!-- Monto -->
+      <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:${fg}">
+        ${APP.fmtNum(monto)} $
+      </div>
+      <!-- Íconos extra (cocina lista) -->
+      <div style="display:flex;gap:4px;align-items:center;flex:0 0 auto">
+        ${o.done||o.paid ? `<svg width="20" height="20" viewBox="0 0 20 20">
+          <circle cx="10" cy="10" r="9" fill="#27AE60"/>
+          <path d="M5 10l4 4 6-6" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+        </svg>` : ''}
+        <!-- Check verde siempre -->
+        <svg width="22" height="22" viewBox="0 0 22 22">
+          <rect x="1" y="1" width="20" height="20" rx="3" fill="none" stroke="${even?'rgba(255,255,255,.4)':'var(--brd)'}" stroke-width="1.5"/>
+          <path d="M5 11l5 5 7-7" stroke="#27AE60" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        </svg>
       </div>
     </div>`;
   }).join('');
-  APP.updateBadge('pedidos', orders.filter(o=>!o.done).length);
+
+  APP.updateBadge('pedidos', APP.kitchenOrders.filter(o=>!o.done).length);
 };
+
 APP.verPedidoDetalle = function(id){
-  APP.showToast('Pedido: '+id);
+  const o = [...(APP.ventas||[]), ...APP.kitchenOrders].find(x=>x.id===id);
+  if(!o){ APP.showToast('Pedido no encontrado'); return; }
+  const items = (o.items||[]).map(it=>typeof it==='string'?it:`${it.q}x ${it.n}`).join('\n');
+  APP.showToast(`${o.mesa||'Sin mesa'} — ${APP.fmtNum(o.total||0)} $`);
 };
 
 // ── INVENTARIO ───────────────────────────────
@@ -3951,50 +4081,159 @@ APP.exportExcel = function(){
 };
 
 // ── COCINA ───────────────────────────────────
-APP.switchKitTab = function(tab,el){
-  APP.kitTab=tab;
+APP.switchKitTab = function(tab, el){
+  APP.kitTab = tab;
   document.querySelectorAll('#p-kitchen .ktab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on'); APP.renderKitchen();
+  if(el) el.classList.add('on');
+  APP.renderKitchen();
 };
+
+// ── SEMÁFORO DE TIEMPO — colores por minutos transcurridos ──
+APP.kitSemaforo = function(mins){
+  if(mins < 10)  return {color:'#1D9E75', bg:'#EAF3DE', label:`${mins} min`,    pulse:false, icon:''};
+  if(mins < 20)  return {color:'#BA7517', bg:'#FAEEDA', label:`${mins} min`,    pulse:false, icon:''};
+  if(mins < 30)  return {color:'#D85A30', bg:'#FAECE7', label:`⚠ ${mins} min`, pulse:true,  icon:''};
+  return          {color:'#E24B4A', bg:'#FCEBEB', label:`🔴 ${mins} min`,       pulse:true,  icon:''};
+};
+
 APP.renderKitchen = function(){
-  const list=document.getElementById('klist'); if(!list) return;
-  const items=APP.kitTab==='pending'
-    ?APP.kitchenOrders.filter(o=>!o.done)
-    :APP.kitchenOrders.filter(o=>o.done);
-  const sorted=[...items].sort((a,b)=>a.timestamp-b.timestamp);
+  const list = document.getElementById('klist'); if(!list) return;
+
+  let items;
+  if(APP.kitTab === 'pending')   items = APP.kitchenOrders.filter(o=>!o.done && !o.cancelled);
+  else if(APP.kitTab === 'done') items = APP.kitchenOrders.filter(o=>o.done);
+  else                           items = APP.kitchenOrders.filter(o=>o.cancelled);
+
+  // Ordenar: más urgentes (más tiempo) primero en pendientes
+  const sorted = [...items].sort((a,b)=>
+    APP.kitTab==='pending'
+      ? (a.timestamp||0)-(b.timestamp||0)  // más antiguos primero
+      : (b.timestamp||0)-(a.timestamp||0)  // más recientes primero en completados
+  );
+
   if(!sorted.length){
-    list.innerHTML='<div style="text-align:center;padding:2.5rem;color:var(--tx3)"><div style="font-size:48px">✅</div><div style="font-size:14px;font-weight:700;margin-top:.5rem">Todo al día</div><div style="font-size:12px;margin-top:4px">Sin pedidos pendientes</div></div>';
+    list.innerHTML=`<div style="text-align:center;padding:5rem 2rem">
+      <div style="font-size:80px;opacity:.1;font-weight:900;font-style:italic;
+        color:#185FA5;font-family:serif;line-height:1">R</div>
+      <div style="font-size:15px;font-weight:700;color:#185FA5;margin-top:1rem">
+        No tienes órdenes.</div>
+    </div>`;
+    APP.updateBadge('kitchen',0);
     return;
   }
-  list.innerHTML=sorted.map(o=>
-    `<div class="ko${o.urgent?' urg':''}${o.done?' done':''}">
-      <div class="ko-head">
-        <div class="ko-tabla">🪑 ${o.mesa}</div>
-        <div class="ko-time">⏱ ${o.time||''}</div>
-        ${o.urgent?'<span class="urgbadge">URGENTE</span>':''}
-        ${o.mesero?`<span class="mesero-badge">👤 ${o.mesero}</span>`:''}
+
+  list.innerHTML = sorted.map(o=>{
+    const mins = Math.round((Date.now()-(o.timestamp||Date.now()))/60000);
+    const sem = APP.kitSemaforo(mins);
+
+    const itemChecks = (o.items||[]).map((it,i)=>{
+      const checked = o.itemsDone?.[i] || o.done;
+      const match = (it||'').match(/^(\d+)x\s+(.+)$/);
+      const qty  = match ? parseInt(match[1]) : 1;
+      const name = match ? match[2] : it;
+      const doneQty = checked ? qty : 0;
+      return `<div style="display:flex;align-items:flex-start;gap:12px;padding:9px 0;
+          border-bottom:1px solid #f5f5f5;cursor:pointer"
+        onclick="APP.toggleKitItem('${o.id}',${i})">
+        <div style="width:22px;height:22px;border:2px solid ${checked?sem.color:'#ccc'};
+          border-radius:4px;flex-shrink:0;background:${checked?sem.color:'white'};
+          display:flex;align-items:center;justify-content:center;margin-top:1px">
+          ${checked?`<span style="color:white;font-size:13px;font-weight:800">✓</span>`:''}
+        </div>
+        <div style="${checked?'text-decoration:line-through;':''}
+          font-size:14px;font-weight:700;color:${checked?'#aaa':'#1a1a1a'}">
+          ${name}
+          <span style="display:block;font-size:12px;font-weight:500;color:#888;margin-top:1px">
+            ( x ${doneQty} / ${qty} )</span>
+        </div>
+      </div>`;
+    }).join('');
+
+    const allDone = o.done || ((o.itemsDone||[]).filter(Boolean).length === (o.items||[]).length);
+    const mesaNum = (o.mesa||'').replace(/\D/g,'').padStart(2,'0') || '??';
+    const rol = (o.rol||o.mesero||'CAJA').toUpperCase();
+    const pid = String(o.id||o.timestamp||'').slice(-10);
+
+    // Badge de tiempo con pulso si es urgente
+    const timerBadge = `<div style="display:flex;align-items:center;gap:5px;
+      border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;
+      background:${sem.bg};color:${sem.color};flex-shrink:0;
+      ${sem.pulse?'animation:kitPulse 1.2s ease-in-out infinite':''}">
+      <div style="width:9px;height:9px;border-radius:50%;background:${sem.color};flex-shrink:0"></div>
+      ${sem.label}
+    </div>`;
+
+    return `<div style="background:white;border-radius:12px;
+        border:2px solid ${sem.color};margin-bottom:14px;overflow:hidden">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;
+        border-bottom:2px solid ${sem.color}22;background:${sem.bg}22">
+        <span style="font-size:18px">🍽️</span>
+        <span style="font-size:12px;font-weight:700;color:#185FA5;flex:1;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ( ${mesaNum} ) N° ${pid} / ${o.time||'--:--'} / ${rol}
+        </span>
+        ${timerBadge}
       </div>
-      ${(o.items||[]).map(it=>`<div class="ko-item" style="font-size:14px;font-weight:600">• ${it}</div>`).join('')}
-      ${o.notas?`<div class="ko-note">📝 <strong>Nota:</strong> ${o.notas}</div>`:''}
-      <div class="ko-btns">
-        ${!o.done?`
-          <button class="kbtn kb-gr" onclick="APP.markKitchen('${o.id}',true)">✓ Artículos listos</button>
-          <button class="kbtn kb-rd" onclick="APP.toggleUrgent('${o.id}',${!o.urgent})">${o.urgent?'Quitar urgente':'⚠️ Urgente'}</button>`:''}
-        ${o.done?`<button class="kbtn kb-bl" onclick="APP.markKitchen('${o.id}',false)">✗ Entregar / Cerrar</button>`:''}
-      </div>
-    </div>`
-  ).join('');
-  APP.updateBadge('kitchen',APP.kitchenOrders.filter(o=>!o.done).length);
+      <!-- Items -->
+      <div style="padding:4px 14px">${itemChecks}</div>
+      <!-- Nota -->
+      ${o.notas?`<div style="margin:4px 14px 8px;background:#FFFDE7;border-radius:6px;
+        padding:7px 10px;font-size:12px;color:#5D4037;border-left:3px solid #FFC107">
+        📝 ${o.notas}</div>`:''}
+      <!-- Botón color según semáforo -->
+      <button onclick="APP.markKitchenComplete('${o.id}')"
+        style="width:100%;padding:13px;border:none;cursor:pointer;
+          font-size:13px;font-weight:800;letter-spacing:.5px;
+          background:${allDone?'#9E9E9E':sem.color};color:white">
+        ${allDone?'PEDIDO COMPLETADO':'MARCAR PEDIDO COMO COMPLETO'}
+      </button>
+    </div>`;
+  }).join('');
+
+  APP.updateBadge('kitchen', APP.kitchenOrders.filter(o=>!o.done&&!o.cancelled).length);
 };
-APP.markKitchen = async function(id,ready){
+
+// Auto-refresh cada 30 segundos para actualizar los colores del semáforo
+if(!APP._kitTimer){
+  APP._kitTimer = setInterval(()=>{
+    if(document.getElementById('p-kitchen')?.classList.contains('on')){
+      APP.renderKitchen();
+    }
+  }, 30000);
+}
+
+APP.toggleKitItem = async function(orderId, itemIdx){
+  // Marcar/desmarcar item individual en cocina
+  const order = APP.kitchenOrders.find(o=>o.id===orderId);
+  if(!order) return;
+  if(!order.itemsDone) order.itemsDone = new Array(order.items.length).fill(false);
+  order.itemsDone[itemIdx] = !order.itemsDone[itemIdx];
+  APP.renderKitchen();
+  // Guardar en Firebase
+  if(APP.db){
+    const {update,ref} = APP.fb;
+    await update(ref(APP.db,`pedidos_cocina/${orderId}`),{itemsDone: order.itemsDone});
+  }
+};
+
+APP.markKitchenComplete = async function(id){
+  if(!APP.db){ APP.showToast('Sin conexión'); return; }
+  const {update,ref} = APP.fb;
+  await update(ref(APP.db,`pedidos_cocina/${id}`),{done:true,itemsDone:null});
+  APP.showToast('✅ Pedido completado');
+};
+
+APP.markKitchen = async function(id, ready){
   if(!APP.db) return;
-  const {update,remove,ref}=APP.fb;
+  const {update,remove,ref} = APP.fb;
   if(ready) await update(ref(APP.db,`pedidos_cocina/${id}`),{done:true});
   else await remove(ref(APP.db,`pedidos_cocina/${id}`));
 };
+
 APP.toggleUrgent = async function(id,val){
   if(!APP.db) return;
-  const {update,ref}=APP.fb;
+  const {update,ref} = APP.fb;
   await update(ref(APP.db,`pedidos_cocina/${id}`),{urgent:val});
 };
 
