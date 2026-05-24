@@ -108,10 +108,9 @@ body{background:var(--bg);color:var(--tx)}
 
 /* ═══ MAIN CONTENT ═══ */
 .main{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-height:0}
-.cnt{flex:1;overflow:hidden;position:relative;min-height:0}
-.panel{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.panel.on{display:flex;flex-direction:column}
-#p-catalog.on{display:flex;flex-direction:column;overflow:hidden}
+.cnt{flex:1;overflow:hidden;position:relative;min-height:0;display:flex;flex-direction:column}
+.panel{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-direction:column}
+#p-catalog{overflow:hidden !important}
 
 /* ═══ BOTTOM NAV ═══ */
 .bnav{display:none !important; /* eliminado - navegacion solo por drawer */ position:fixed;bottom:0;left:0;right:0;background:white;
@@ -892,7 +891,7 @@ body{background:var(--bg);color:var(--tx)}
     <div class="cnt" id="main-cnt">
 
       <!-- ══ PEDIDO RÁPIDO ══ -->
-      <div id="p-catalog" class="panel on" style="height:100%;display:flex;flex-direction:column;overflow:hidden">
+      <div id="p-catalog" class="panel on">
         <div class="cat-tabs" id="cat-tabs"></div>
         <div class="catalog-body">
           <div class="pgrid" id="pgrid"></div>
@@ -1040,7 +1039,7 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ PEDIDOS ══ -->
-      <div id="p-pedidos" class="panel" style="display:none;flex-direction:column;height:100%">
+      <div id="p-pedidos" class="panel">
         <!-- Tabs scrollables -->
         <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap">
           <div style="display:inline-flex;padding:0 6px;min-width:100%">
@@ -1067,7 +1066,7 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ ESTADO INVENTARIO ══ -->
-      <div id="p-inventory" class="panel" style="display:none;flex-direction:column;height:100%">
+      <div id="p-inventory" class="panel">
         <!-- Tabs de categorías scrollables -->
         <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">
           <div class="kit-tabs" id="inv-cats" style="padding:0 6px;flex-wrap:nowrap;display:inline-flex;min-width:100%"></div>
@@ -1167,7 +1166,7 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ COCINA ══ -->
       <!-- ══ COCINA — Órdenes de cocina ══ -->
-      <div id="p-kitchen" class="panel" style="display:none;flex-direction:column;height:100%">
+      <div id="p-kitchen" class="panel">
         <!-- Tabs: ORDENES ABIERTAS / COMPLETADAS / CANCELADA -->
         <div style="background:white;border-bottom:2px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap">
           <div style="display:inline-flex;padding:0 8px;min-width:100%">
@@ -1190,7 +1189,7 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ AJUSTES (mesero/cocina) ══ -->
-      <div id="p-ajustes" class="panel" style="display:none;flex-direction:column;height:100%;overflow-y:auto">
+      <div id="p-ajustes" class="panel">
         <div style="padding:12px">
           <!-- Notificaciones -->
           <div style="background:var(--bl);border-radius:10px;padding:12px 16px;
@@ -1243,7 +1242,7 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ GASTOS ══ -->
-      <div id="p-gastos" class="panel" style="display:none;flex-direction:column;height:100%">
+      <div id="p-gastos" class="panel">
         <!-- Cabecera de tabla -->
         <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0">
           <div style="display:grid;grid-template-columns:1fr 90px 1fr 80px 60px;
@@ -1275,7 +1274,7 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ CLIENTES ══ -->
-      <div id="p-clientes" class="panel" style="display:none;flex-direction:column;height:100%;position:relative">
+      <div id="p-clientes" class="panel">
         <!-- Header con columnas -->
         <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0">
           <div style="display:grid;grid-template-columns:1fr 1fr 32px;
@@ -2752,51 +2751,80 @@ APP.switchDrawerTab = function(tab){
 
 APP.drawerGo = function(panel, key){
   APP.closeDrawer();
-  setTimeout(()=>APP.showPanel(panel, key), 80);
+  // Sin delay — navega inmediatamente
+  APP.showPanel(panel, key);
 };
 
 // ── NAV ──────────────────────────────────────
-// buildNav eliminado — navegación solo por drawer como en RePOS
 APP.buildNav = function(){ /* sin bottom nav */ };
-APP.showPanel = function(pid,nk){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+
+APP.showPanel = function(pid, nk){
+  // Ocultar TODOS los paneles
+  document.querySelectorAll('.panel').forEach(p=>{
+    p.classList.remove('on');
+    p.style.display = 'none';
+  });
   document.querySelectorAll('.di').forEach(d=>d.classList.remove('on'));
-  const p=document.getElementById(pid); if(p) p.classList.add('on');
-  const n=document.getElementById('ni-'+nk); if(n) n.classList.add('on');
-  const d=document.getElementById('dm-'+nk); if(d) d.classList.add('on');
-  // Update topbar title to match RePOS icons/labels
-  const titles={
-    catalog:'⏱ Pedido rápido', order:'📋 Resumen de la orden',
-    tables:'🪑 Órdenes de mesa', 'ordenes-mesa':'🍽️ Órdenes activas',
-    pedidos:'📑 Pedidos', kitchen:'👨‍🍳 Cocina',
-    reports:'📊 Informe', inventory:'📦 Inventario',
-    gastos:'💸 Gastos', clientes:'👥 Clientes',
-    reservas:'📅 Reservas', findel:'🏁 Fin del día',
-    productos:'🎁 Productos', usuarios:'👤 Usuarios',
-    admin:'⚙️ Config. cajero', negocio:'🏢 Negocio',
-    mercado:'🌐 Mercado', qr:'📄 QR de mesa',
-  };
-  const tEl=document.getElementById('tb-title');
-  if(tEl){
-    if(nk==='catalog'&&APP._catalogMesa){
-      tEl.innerHTML=`✏️ Órdenes de mesa &gt; ${APP._catalogMesa}`;
+
+  // Mostrar el panel destino
+  const panel = document.getElementById(pid);
+  if(panel){
+    panel.classList.add('on');
+    // Catálogo tiene layout flex especial sin scroll propio
+    if(pid === 'p-catalog'){
+      panel.style.display = 'flex';
+      panel.style.flexDirection = 'column';
+      panel.style.height = '100%';
+      panel.style.overflow = 'hidden';
     } else {
-      tEl.innerHTML=titles[nk]||'DON <span style="color:var(--or2)">CAMARÓN</span>';
-      if(nk!=='catalog') APP._catalogMesa=''; // reset when leaving catalog
+      panel.style.display = 'flex';
+      panel.style.flexDirection = 'column';
+      panel.style.height = '100%';
     }
   }
-  // Reset mesa selection when leaving tables
-  if(nk!=='tables'){ APP._mesaSelId=''; clearTimeout(APP._mesaTapTimer); }
-  if(nk==='reports') APP.renderReports();
-  if(nk==='findel') APP.renderFinDel();
-  if(nk==='inventory') APP.renderInv();
-  if(nk==='usuarios') APP.renderUsers();
-  if(nk==='clientes') APP.renderClientes();
-  if(nk==='gastos') APP.renderGastos();
-  if(nk==='reservas') APP.renderReservaCal();
-  if(nk==='pedidos') APP.renderPedidos();
-  if(nk==='kitchen') APP.renderKitchen();
+
+  // Marcar item activo en drawer
+  const dItem = document.getElementById('dm-'+nk);
+  if(dItem) dItem.classList.add('on');
+
+  // Actualizar título del topbar
+  const titles = {
+    catalog:'⏱ Pedido rápido',      order:'📋 Resumen de la orden',
+    tables:'🪑 Órdenes de mesa',     'ordenes-mesa':'🍽️ Órdenes activas',
+    pedidos:'📑 Pedidos',            kitchen:'👨‍🍳 Órdenes de cocina',
+    reports:'📊 Informe',            inventory:'📦 Estado del inventario',
+    gastos:'💲 Gastos',              clientes:'👥 Gestión de clientes',
+    reservas:'📅 Reserva de mesa',   findel:'🏁 Fin del día',
+    productos:'🎁 Gestión de productos', usuarios:'👥 Gestión de usuarios',
+    config:'⚙️ Configuración del cajero', negocio:'🏢 Información de negocios',
+    mercado:'🏪 Mercado en línea',   ajustes:'⚙️ Ajustes',
+    'gestion-mesa':'🗺️ Gestión de la mesa',
+  };
+  const tEl = document.getElementById('tb-title');
+  if(tEl){
+    if(nk === 'catalog' && APP._catalogMesa){
+      tEl.innerHTML = `✏️ Órdenes de mesa > ${APP._catalogMesa}`;
+    } else {
+      tEl.innerHTML = titles[nk] || 'DON <span style="color:var(--or2)">CAMARÓN</span>';
+      if(nk !== 'catalog') APP._catalogMesa = '';
+    }
+  }
+
+  // Reset mesa al salir
+  if(nk !== 'tables'){ APP._mesaSelId = ''; clearTimeout(APP._mesaTapTimer); }
+
+  // Renderizar contenido de la pantalla
+  if(nk === 'reports')   APP.renderReports();
+  if(nk === 'findel')    APP.renderFinDel();
+  if(nk === 'inventory') APP.renderInv();
+  if(nk === 'usuarios')  APP.renderUsers();
+  if(nk === 'clientes')  APP.renderClientes();
+  if(nk === 'gastos')    APP.renderGastos();
+  if(nk === 'reservas')  APP.renderReservaCal();
+  if(nk === 'pedidos')   APP.renderPedidos();
+  if(nk === 'kitchen')   APP.renderKitchen();
+  if(nk === 'tables')    APP.renderTables?.();
+  if(nk === 'productos') APP.renderProdGrid?.();
 };
 APP.updateBadge = function(key,n){
   [document.getElementById('ni-badge-'+key),
