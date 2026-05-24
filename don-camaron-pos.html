@@ -86,36 +86,33 @@ body{background:var(--bg);color:var(--tx)}
 .dav{width:48px;height:48px;border-radius:50%;border:2px solid #E53935;
   background:rgba(255,255,255,.2);display:flex;align-items:center;
   justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden}
-.dname{font-size:13px;font-weight:700;color:white;line-height:1.3}
-.drole{font-size:10px;color:var(--bll3);margin-top:1px}
-.dpro{font-size:10px;font-weight:700;color:#E53935;margin-top:2px}
-.dbody{flex:1;overflow-y:auto}
-.dmenu-sec{padding:6px 0;border-bottom:1px solid var(--brd)}
-.dsec-head{display:flex;gap:10px;padding:8px 12px;margin:4px 8px;
-  border-radius:8px;border:1.5px solid var(--brd);cursor:pointer;
-  align-items:center;font-size:11px;font-weight:700;color:var(--tx2)}
-.dsec-head .dic{font-size:16px}
-.dsec-head.caja{background:var(--bll2);border-color:var(--bl);color:var(--bl)}
-.di{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;
-  font-size:13px;color:var(--tx);transition:background .12s;position:relative}
-.di:hover{background:var(--sf2)}
-.di.on{color:var(--bl);background:var(--bll2)}
-.di.on::before{content:'';position:absolute;left:0;top:3px;bottom:3px;
-  width:3px;background:var(--bl);border-radius:0 2px 2px 0}
-.di .dic{font-size:20px;width:26px;text-align:center;flex-shrink:0}
-.di .dlabel{flex:1;font-weight:500}
-.di .dbadge{background:var(--bl);color:white;border-radius:10px;
-  font-size:10px;padding:1px 7px;font-weight:700;min-width:20px;text-align:center}
-.dfooter{padding:12px;border-top:1px solid var(--brd);flex-shrink:0}
-.dfootbtn{width:100%;padding:10px;border:1.5px solid var(--brd);border-radius:8px;
-  background:white;color:var(--tx2);font-size:12px;font-weight:600;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px}
+/* ═══ DRAWER ═══ */
+.drawer{position:fixed;top:0;left:-110%;width:82%;max-width:300px;height:100vh;
+  background:white;z-index:200;transition:left .25s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+.drawer.open{left:0}
+.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199;
+  display:none;backdrop-filter:blur(1px)}
+.drawer-bg.on{display:block}
+.dbody{flex:1;overflow-y:auto;padding:8px 0}
+.di{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;
+  font-size:14px;color:var(--tx);transition:background .12s;position:relative;
+  border-radius:0;margin:1px 8px;border-radius:10px}
+.di:active{background:var(--bll2)}
+.di.on{color:var(--bl);background:#E8F0FE;font-weight:700}
+.di .dic{font-size:22px;width:28px;text-align:center;flex-shrink:0;color:var(--bl)}
+.di .dlabel{flex:1;font-weight:500;color:var(--tx)}
+.di.on .dlabel{color:var(--bl);font-weight:700}
+.di .dbadge{background:var(--bl);color:white;border-radius:12px;
+  font-size:11px;padding:2px 8px;font-weight:700;min-width:22px;text-align:center}
 
 /* ═══ MAIN CONTENT ═══ */
 .main{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
-.cnt{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.panel{display:none;min-height:100%}
-.panel.on{display:block}
+.cnt{flex:1;overflow:hidden;position:relative}
+.panel{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel.on{display:flex;flex-direction:column}
+/* El catálogo tiene layout especial */
+#p-catalog.on{display:flex;flex-direction:column}
 
 /* ═══ BOTTOM NAV ═══ */
 .bnav{display:none !important; /* eliminado - navegacion solo por drawer */ position:fixed;bottom:0;left:0;right:0;background:white;
@@ -847,30 +844,22 @@ body{background:var(--bg);color:var(--tx)}
 
   <!-- DRAWER -->
   <div class="drawer" id="drawer">
-    <div class="dhead">
-      <div class="dav" id="dav">🦐</div>
-      <div>
-        <div class="dname" id="dname">Usuario</div>
-        <div class="drole" id="drole">ROL</div>
-        <div class="dpro">(PROFESSIONAL)</div>
+    <!-- Header con usuario -->
+    <div class="dhead" style="display:flex;align-items:center;gap:12px;padding:14px 16px;
+      background:#f0f4f8;border-bottom:1px solid var(--brd)">
+      <div class="dav" id="dav" style="width:48px;height:48px;border-radius:50%;
+        background:var(--bl);color:#fff;display:flex;align-items:center;justify-content:center;
+        font-size:22px;font-weight:800;border:3px solid #C62828;flex-shrink:0">L</div>
+      <div style="flex:1;min-width:0">
+        <div class="drole" id="drole" style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase">CAJA</div>
+        <div class="dname" id="dname" style="font-size:14px;font-weight:800;color:var(--tx)">CAJERO</div>
+        <div class="dpro" style="font-size:11px;font-weight:700;color:#C62828">(PROFESSIONAL)</div>
       </div>
+      <div onclick="APP.doLogout()" style="color:var(--bl);font-size:20px;cursor:pointer;padding:4px">→</div>
     </div>
-    <div class="dbody">
-      <!-- Sección CAJA -->
-      <div class="dmenu-sec">
-        <div class="dsec-head caja" style="justify-content:flex-start;padding:6px 14px;font-size:10px">
-          <span class="dic">🖥️</span>MENÚS DE CAJA</div>
-      </div>
-      <div class="dmenu-sec" id="drawer-caja-items"></div>
-      <!-- Sección ADMIN -->
-      <div class="dmenu-sec" id="drawer-admin-header" style="display:none">
-        <div class="dsec-head" id="drawer-admin-btn" style="justify-content:flex-start;padding:6px 14px;font-size:10px;cursor:default">
-          <span class="dic">⚙️</span>MENÚS DE ADMINISTRACIÓN</div>
-      </div>
-      <div class="dmenu-sec" id="drawer-admin-items"></div>
-    </div>
-    <div class="dfooter">
-      <button class="dfootbtn" onclick="APP.doLogout()">⏻ &nbsp;Cerrar sesión</button>
+    <!-- Lista única de items — igual al RePOS -->
+    <div class="dbody" style="flex:1;overflow-y:auto">
+      <div id="drawer-all-items"></div>
     </div>
   </div>
 
@@ -1027,30 +1016,44 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ PEDIDOS ══ -->
-      <div id="p-pedidos" class="panel">
-        <div class="mod-wrap">
-          <div class="kit-tabs" id="pedidos-tabs">
+      <div id="p-pedidos" class="panel" style="display:none;flex-direction:column;height:100%">
+        <!-- Tabs: TODAS / ÓRDENES DE MESA / ÓRDENES DE MENSAJERÍA -->
+        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0">
+          <div class="kit-tabs" id="pedidos-tabs" style="padding:0 8px">
             <div class="ktab on" onclick="APP.switchPedidosTab('todas',this)">TODAS</div>
             <div class="ktab" onclick="APP.switchPedidosTab('mesa',this)">ÓRDENES DE MESA</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('mensajeria',this)">ÓRDENES DE MENSAJERÍA</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('restaurante',this)">PEDIDOS DE RESTAURANTE</div>
+            <div class="ktab" onclick="APP.switchPedidosTab('mensajeria',this)">ÓRDENES DE MENSAJERÍA ▲▼</div>
           </div>
-          <div id="pedidos-list"></div>
-          <div id="pedidos-total-bar" class="pedidos-total-bar" style="display:none"></div>
-          <div class="seleccion-hint">Seleccione orden relacionada para ver detalles</div>
+        </div>
+        <!-- Lista scrollable -->
+        <div id="pedidos-list" style="flex:1;overflow-y:auto;padding:8px"></div>
+        <!-- Footer fijo igual al RePOS -->
+        <div style="flex-shrink:0;background:var(--bl);padding:10px 14px">
+          <div style="background:white;border-radius:8px;padding:9px 14px;
+            text-align:center;font-size:13px;font-weight:700;color:var(--tx);margin-bottom:6px"
+            id="pedidos-total-bar">Precio total de 0 pedidos: 0,00 $</div>
+          <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.85)">
+            Seleccione orden relacionada para ver detalles</div>
         </div>
       </div>
 
       <!-- ══ ESTADO INVENTARIO ══ -->
-      <div id="p-inventory" class="panel">
-        <div class="mod-wrap">
-          <div class="mod-head">
-            <div class="mod-title">Estado del inventario</div>
-          </div>
-          <div class="inv-summary" id="inv-summary"></div>
-          <div class="inv-cats" id="inv-cats"></div>
-          <div id="ilist"></div>
+      <div id="p-inventory" class="panel" style="display:none;flex-direction:column;height:100%">
+        <!-- Tabs de categorías scrollables -->
+        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">
+          <div class="kit-tabs" id="inv-cats" style="padding:0 6px;flex-wrap:nowrap;display:inline-flex;min-width:100%"></div>
         </div>
+        <!-- Cabecera de tabla fija -->
+        <div style="background:var(--bl);color:white;display:grid;
+          grid-template-columns:1fr 90px 90px 70px;gap:0;padding:10px 14px;
+          font-size:11px;font-weight:700;flex-shrink:0">
+          <span>nombre del producto</span>
+          <span style="text-align:center">Nivel crítico</span>
+          <span style="text-align:center">Cantidad de inventario</span>
+          <span style="text-align:center">Restante</span>
+        </div>
+        <!-- Lista scrollable -->
+        <div id="ilist" style="flex:1;overflow-y:auto"></div>
       </div>
 
       <!-- ══ INFORME ══ -->
@@ -1145,28 +1148,67 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ GASTOS ══ -->
-      <div id="p-gastos" class="panel">
-        <div class="mod-wrap">
-          <div class="mod-head">
-            <div class="mod-title">Gastos</div>
-            <button class="add-btn" onclick="APP.openGastoModal()">+ Agregar</button>
+      <div id="p-gastos" class="panel" style="display:none;flex-direction:column;height:100%">
+        <!-- Cabecera de tabla -->
+        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0">
+          <div style="display:grid;grid-template-columns:1fr 90px 1fr 80px 60px;
+            gap:0;padding:10px 14px;font-size:11px;font-weight:700;color:var(--bl)">
+            <span>Nombre</span>
+            <span style="text-align:center">Monto</span>
+            <span style="text-align:center">Tipo</span>
+            <span style="text-align:center">Fecha de pago</span>
+            <span style="text-align:center">Expresar</span>
           </div>
-          <div id="gastos-total-bar" class="gasto-total-bar" style="display:none"></div>
-          <div id="glist"></div>
-          <div class="seleccion-hint">Toque para agregar un nuevo gasto / seleccionar un gasto de la lista de detalles</div>
+        </div>
+        <!-- Lista scrollable -->
+        <div id="glist" style="flex:1;overflow-y:auto;padding:8px"></div>
+        <!-- Footer con total y botón -->
+        <div style="flex-shrink:0;padding:8px 14px;background:white;border-top:1px solid var(--brd);
+          display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--bl);color:#fff;
+            display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;flex-shrink:0"
+            onclick="APP.openGastoModal()">≡</div>
+          <div id="gastos-total-bar" style="flex:1;font-size:13px;font-weight:700;color:var(--bl);text-align:right">
+            Pago total 0 / 0,00 $</div>
+        </div>
+        <!-- Hint inferior -->
+        <div style="flex-shrink:0;background:var(--bl);padding:10px 14px;
+          color:white;font-size:12px;text-align:center;display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">➕</span>
+          Toque para agregar un nuevo gasto / seleccionar un gasto de la lista de detalles
         </div>
       </div>
 
       <!-- ══ CLIENTES ══ -->
-      <div id="p-clientes" class="panel">
-        <div class="mod-wrap" style="padding-right:28px">
-          <div class="mod-head">
-            <div class="mod-title">Gestión de clientes</div>
-            <button class="add-btn" onclick="APP.openClienteModal()">+ Agregar</button>
+      <div id="p-clientes" class="panel" style="display:none;flex-direction:column;height:100%;position:relative">
+        <!-- Header con columnas -->
+        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0">
+          <div style="display:grid;grid-template-columns:1fr 1fr 32px;
+            gap:0;padding:10px 14px;font-size:11px;font-weight:700;color:var(--bl)">
+            <span>Nombre del cliente:</span>
+            <span>Número de teléfono:</span>
+            <span style="text-align:center">☑</span>
           </div>
-          <div id="clist"></div>
         </div>
-        <div class="alpha-bar" id="alpha-bar"></div>
+        <!-- Lista + índice -->
+        <div style="flex:1;display:flex;overflow:hidden">
+          <div id="clist" style="flex:1;overflow-y:auto;padding:6px 8px;padding-right:28px"></div>
+          <!-- Índice alfabético lateral -->
+          <div id="alpha-bar" style="width:22px;display:flex;flex-direction:column;
+            justify-content:center;padding:4px 0;background:white;flex-shrink:0;
+            border-left:1px solid var(--brd)"></div>
+        </div>
+        <!-- FABs igual al RePOS -->
+        <div style="position:absolute;bottom:14px;left:14px">
+          <div onclick="APP.openClienteModal()" style="width:44px;height:44px;border-radius:50%;
+            background:var(--bl);color:#fff;display:flex;align-items:center;justify-content:center;
+            font-size:20px;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25)">⚙</div>
+        </div>
+        <div style="position:absolute;bottom:14px;right:14px">
+          <div onclick="APP.openClienteModal()" style="width:44px;height:44px;border-radius:50%;
+            background:var(--bl);color:#fff;display:flex;align-items:center;justify-content:center;
+            font-size:24px;font-weight:300;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.25)">+</div>
+        </div>
       </div>
 
       <!-- ══ RESERVAS ══ -->
@@ -2517,30 +2559,37 @@ APP.doLogout = function(){
 
 // ── DRAWER ───────────────────────────────────
 APP.buildDrawer = function(){
-  const p=APP.perms[APP.role];
-  const mkItem=k=>{
-    const c=APP.navCfg[k];
+  const p = APP.perms[APP.role];
+  // Actualizar header del drawer
+  const initial = (APP.user||'U')[0].toUpperCase();
+  const dav = document.getElementById('dav');
+  if(dav) dav.textContent = initial;
+  const dname = document.getElementById('dname');
+  if(dname) dname.textContent = APP.user || 'Usuario';
+  const drole = document.getElementById('drole');
+  if(drole) drole.textContent = ({
+    admin:'ADMINISTRACIÓN', supervisor:'SUPERVISOR', cajero:'CAJA',
+    mesero:'MESERO', cocina:'COCINA', repartidor:'REPARTIDOR'
+  }[APP.role] || APP.role).toUpperCase();
+
+  // Una sola lista — todos los items juntos como en el RePOS
+  const allKeys = [...p.caja, ...p.admin];
+  const mkItem = k => {
+    const c = APP.navCfg[k];
+    if(!c) return '';
     return `<div class="di" id="dm-${k}" onclick="APP.drawerGo('${c.panel}','${k}')">
       <span class="dic">${c.icon}</span>
       <span class="dlabel">${c.label}</span>
-      ${c.badge?`<span class="dbadge" id="dm-badge-${k}" style="display:none">0</span>`:''}
+      ${c.badge ? `<span class="dbadge" id="dm-badge-${k}" style="display:none">0</span>` : ''}
     </div>`;
   };
-  document.getElementById('drawer-caja-items').innerHTML=p.caja.map(mkItem).join('');
-  if(p.admin.length){
-    document.getElementById('drawer-admin-items').innerHTML=p.admin.map(mkItem).join('');
-    document.getElementById('drawer-admin-items').style.display='block';
-    document.getElementById('drawer-admin-header').style.display='block';
-    document.getElementById('drawer-admin-btn').onclick=null;
-  } else {
-    document.getElementById('drawer-admin-header').style.display='none';
-  }
+  const container = document.getElementById('drawer-all-items');
+  if(container) container.innerHTML = allKeys.map(mkItem).join('');
 };
 
 // Navegar desde drawer: cerrar primero, luego ir a la pantalla
 APP.drawerGo = function(panel, key){
   APP.closeDrawer();
-  // Pequeño delay para que la animación del drawer se vea limpia
   setTimeout(()=>APP.showPanel(panel, key), 80);
 };
 
@@ -2582,6 +2631,9 @@ APP.showPanel = function(pid,nk){
   if(nk==='inventory') APP.renderInv();
   if(nk==='usuarios') APP.renderUsers();
   if(nk==='clientes') APP.renderClientes();
+  if(nk==='gastos') APP.renderGastos();
+  if(nk==='reservas') APP.renderReservaCal();
+  if(nk==='pedidos') APP.renderPedidos();
 };
 APP.updateBadge = function(key,n){
   [document.getElementById('ni-badge-'+key),
@@ -3538,82 +3590,103 @@ APP.switchPedidosTab = function(tab,el){
   el.classList.add('on'); APP.renderPedidos();
 };
 APP.renderPedidos = function(){
-  const list=document.getElementById('pedidos-list');
-  if(!list) return;
-  const totBar=document.getElementById('pedidos-total-bar');
-  const orders=[...APP.kitchenOrders].sort((a,b)=>b.timestamp-a.timestamp);
+  const list = document.getElementById('pedidos-list'); if(!list) return;
+  const totBar = document.getElementById('pedidos-total-bar');
+  const tab = APP.pedidosTab || 'todas';
+
+  let orders = [...APP.kitchenOrders].sort((a,b)=>b.timestamp-a.timestamp);
+  if(tab==='mesa') orders = orders.filter(o=>o.mesa&&!o.mesa.toLowerCase().includes('llevar')&&!o.mesa.toLowerCase().includes('delivery'));
+  if(tab==='mensajeria') orders = orders.filter(o=>o.mesa&&(o.mesa.toLowerCase().includes('llevar')||o.mesa.toLowerCase().includes('delivery')));
+
+  const total = orders.reduce((a,o)=>a+(o.total||0),0);
+  if(totBar) totBar.textContent = `Precio total de ${orders.length} pedidos: ${APP.fmtNum(total)} $`;
+
   if(!orders.length){
-    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">📑 Sin pedidos</div>';
-    totBar.style.display='none'; return;
+    list.innerHTML=`<div style="text-align:center;padding:4rem 2rem;color:var(--tx3)">
+      <div style="font-size:60px;opacity:.15;font-weight:900;line-height:1">R</div>
+      <div style="font-size:13px;font-weight:700;margin-top:1rem;max-width:260px;margin-left:auto;margin-right:auto">
+        Aún no ha recibido ningún pedido. Puede ver sus pedidos aquí después de recibir pedidos.</div>
+    </div>`;
+    APP.updateBadge('pedidos',0);
+    return;
   }
-  // Simular datos de pedidos con montos
-  list.innerHTML=orders.map((o,i)=>{
-    const isActive=!o.done;
-    return `<div class="pedido-row${isActive?' active':''}">
-      <div class="pr-icons">
-        <span class="pr-icon">👥</span>
-        <span class="pr-icon">🖥️</span>
-        ${o.done?'<span class="pr-icon">✅</span>':''}
+
+  list.innerHTML = orders.map((o,i)=>{
+    const elapsed = Math.round((Date.now()-(o.timestamp||Date.now()))/60000);
+    const isActive = !o.done;
+    return `<div style="border:1.5px solid ${isActive?'var(--bl)':'var(--brd)'};border-radius:10px;
+        padding:12px 14px;margin-bottom:8px;background:white;cursor:pointer"
+      onclick="APP.verPedidoDetalle('${o.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--bl)">
+            ${o.mesa||'Sin mesa'}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px">
+            ⏱ ${o.time||'--:--'} · ${elapsed} min
+            ${o.mesero?` · 👤 ${o.mesero}`:''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          ${isActive
+            ? `<span style="background:var(--bl);color:#fff;padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700">Activo</span>`
+            : `<span style="background:var(--gr2);color:var(--gr);padding:2px 10px;border-radius:12px;font-size:10px;font-weight:700">✓ Listo</span>`}
+          ${o.total?`<div style="font-size:12px;font-weight:700;color:var(--tx);margin-top:4px">${APP.fmtNum(o.total)} $</div>`:''}
+        </div>
       </div>
-      <div class="pr-info">
-        <div class="pr-tabla">Tabla No: ${o.mesa.replace('Mesa ','')}</div>
-        <div class="pr-time">${o.time||'--:--'}</div>
-        ${o.mesero?`<div style="font-size:10px;color:var(--bl)">👤 ${o.mesero}</div>`:''}
+      <div style="margin-top:8px;font-size:12px;color:var(--tx)">
+        ${(o.items||[]).map(it=>`<span style="display:inline-block;background:#f0f4f8;border-radius:6px;padding:2px 8px;margin:2px;font-size:11px">${it}</span>`).join('')}
       </div>
-      <div class="pr-amount${isActive?' active':''}" style="font-size:11px;max-width:90px;word-break:break-all">
-        ${(o.items||[]).slice(0,1).join(', ')}...</div>
     </div>`;
   }).join('');
-  totBar.style.display='block';
-  totBar.textContent=`Precio total de ${orders.length} pedidos`;
-  APP.updateBadge('pedidos',orders.filter(o=>!o.done).length);
+  APP.updateBadge('pedidos', orders.filter(o=>!o.done).length);
+};
+APP.verPedidoDetalle = function(id){
+  APP.showToast('Pedido: '+id);
 };
 
 // ── INVENTARIO ───────────────────────────────
 APP.renderInv = function(){
-  const cats=['Todos','Cócteles de camarones','Empanizados Crispy','Especialidades de la Casa',
-    'Pizzas a las Crema','Pizzas Tradicionales','Pizzas Volcán','Sushi Tempura','Sushi Frío',
-    'Pescados','Pastas','Ensaladas','Patacones','Hamburguesas','Sandwich','Empanadas',
-    'Desayunos','Bebidas','Cócteles','Adicionales','Delivery','Envases Llevar','Bandejas'];
-  document.getElementById('inv-cats').innerHTML=cats.map(c=>
-    `<div class="ictab${c===APP.activeInvCat?' on':''}" onclick="APP.setInvCat('${c}')">${c}</div>`
+  const allCats = Object.keys(APP.menuData);
+  const cats = ['Todos', ...allCats];
+  const invCatsEl = document.getElementById('inv-cats');
+  if(invCatsEl) invCatsEl.innerHTML = cats.map(c=>
+    `<div class="ktab${c===APP.activeInvCat?' on':''}" onclick="APP.setInvCat('${c.replace(/'/g,"&#39;")}')">${c}</div>`
   ).join('');
-  let items=APP.activeInvCat==='Todos'?APP.inventory:APP.inventory.filter(i=>i.cat===APP.activeInvCat);
-  const ok=items.filter(i=>!i.max||(i.stock/i.max)>0.5).length;
-  const low=items.filter(i=>i.max&&(i.stock/i.max)<=0.5&&(i.stock/i.max)>0.2).length;
-  const crit=items.filter(i=>i.max&&(i.stock/i.max)<=0.2).length;
-  document.getElementById('inv-summary').innerHTML=`
-    <div class="inv-stat"><div class="val">${ok}</div><div class="lbl">OK</div></div>
-    <div class="inv-stat"><div class="val" style="color:var(--or)">${low}</div><div class="lbl">Bajo</div></div>
-    <div class="inv-stat"><div class="val" style="color:var(--rd)">${crit}</div><div class="lbl">Crítico</div></div>`;
+
+  let items = APP.activeInvCat==='Todos'
+    ? APP.inventory
+    : APP.inventory.filter(i=>i.cat===APP.activeInvCat);
+
+  // Si no hay inventario, mostrar todos los productos de la categoría con stock=0
+  if(!items.length && APP.activeInvCat !== 'Todos'){
+    const prods = APP.menuData[APP.activeInvCat] || [];
+    items = prods.map(p=>({name:p.n, stock:0, max:50, cat:APP.activeInvCat, id:'new_'+p.n}));
+  }
+
+  const ilist = document.getElementById('ilist'); if(!ilist) return;
+
   if(!items.length){
-    document.getElementById('ilist').innerHTML=`
-      <div style="text-align:center;padding:2rem;color:var(--tx3)">
-        Sin productos en inventario.<br>
-        <button class="add-btn" style="margin-top:8px;display:inline-flex" onclick="APP.openModal('inv-modal')">+ Agregar</button>
-      </div>`;
+    ilist.innerHTML=`<div style="text-align:center;padding:3rem;color:var(--tx3)">
+      Sin productos registrados en inventario</div>`;
     return;
   }
-  document.getElementById('ilist').innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:12px;color:var(--tx2);font-weight:600">
-        ${items.length} productos · ${APP.activeInvCat}</span>
-      <button class="add-btn" onclick="APP.openModal('inv-modal')">+ Agregar</button>
-    </div>`+
-  items.map(it=>{
-    const pct=it.max?Math.min(100,Math.round(it.stock/it.max*100)):100;
-    const cls=pct>50?'ok':pct>20?'low':'crit';
-    const tl=pct>50?'OK':pct>20?'Bajo':'Crítico';
-    return `<div class="inv-row" onclick="APP.editInvStock('${it.id}','${it.name}',${it.stock})">
-      <div class="inv-ico">📦</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px">
-          <div class="inv-name">${it.name}</div>
-          <span class="inv-tag it${cls}">${tl}</span>
-        </div>
-        <div class="inv-detail">Nivel crítico: ${it.max||50} · Cantidad de inventario: ${it.stock} · Restante: ${it.stock>0?it.stock:'-'}</div>
-        <div class="inv-bar"><div class="inv-bar-f ${cls}" style="width:${pct}%"></div></div>
-      </div>
+
+  ilist.innerHTML = items.map((it,i)=>{
+    const stock = it.stock ?? 0;
+    const max = it.max || 50;
+    const pct = Math.min(100, Math.round(stock/max*100));
+    const restante = stock > 0 ? stock : '-';
+    const even = i%2===0;
+    return `<div onclick="APP.editInvStock('${it.id}','${it.name}',${stock})"
+      style="display:grid;grid-template-columns:1fr 90px 90px 70px;gap:0;
+        padding:11px 14px;cursor:pointer;
+        background:${even?'#f8faff':'white'};
+        border-bottom:1px solid var(--brd)">
+      <div style="font-size:12px;font-weight:600;color:var(--tx)">${it.name}</div>
+      <div style="text-align:center;font-size:12px;color:var(--tx3)">${max}</div>
+      <div style="text-align:center;font-size:12px;color:var(--tx)">${stock}</div>
+      <div style="text-align:center;font-size:13px;font-weight:700;
+        color:${stock<=0?'var(--rd)':stock<=max*0.2?'var(--or)':'var(--gr)'}">${restante}</div>
     </div>`;
   }).join('');
 };
@@ -3835,30 +3908,30 @@ APP.saveGasto = async function(){
   APP.showToast('✅ Gasto registrado');
 };
 APP.renderGastos = function(){
-  const list=document.getElementById('glist'); if(!list) return;
-  const totBar=document.getElementById('gastos-total-bar');
+  const list = document.getElementById('glist'); if(!list) return;
+  const totBar = document.getElementById('gastos-total-bar');
   if(!APP.gastos.length){
-    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">💸 Sin gastos registrados</div>';
-    totBar.style.display='none'; return;
+    list.innerHTML='<div style="text-align:center;padding:3rem;color:var(--tx3)">💸 Sin gastos registrados</div>';
+    if(totBar) totBar.textContent = 'Pago total 0 / 0,00 $';
+    return;
   }
-  const total=APP.gastos.reduce((a,g)=>a+(g.amount||0),0);
-  totBar.style.display='block';
-  totBar.textContent=`Pago total ${APP.gastos.length} / ${APP.fmt(total)}`;
-  const icons={Sueldo:'💼','Alquiler de lugar de trabajo':'🏠',Insumos:'📦',Servicios:'🔧',Otro:'📋'};
-  list.innerHTML=APP.gastos.slice().reverse().map(g=>
-    `<div class="gasto-row">
-      <div class="gasto-ico">${icons[g.type]||'💸'}</div>
-      <div style="flex:1;min-width:0">
-        <div class="gasto-name">${g.name||'Gasto'}</div>
-        <div class="gasto-type">${g.type||'Otro'}</div>
-        <div class="gasto-date">${g.date||''} ${g.time||''}</div>
-      </div>
-      <div class="gasto-right">
-        <div class="gasto-amount">${APP.fmt(g.amount)}</div>
-        <span class="gasto-status">Pagado</span>
-      </div>
-    </div>`
-  ).join('');
+  const total = APP.gastos.reduce((a,g)=>a+(g.amount||0),0);
+  if(totBar) totBar.textContent = `Pago total ${APP.gastos.length} / ${APP.fmtNum(total)} $`;
+
+  list.innerHTML = APP.gastos.slice().reverse().map((g,i)=>{
+    const even = i%2===0;
+    const dt = (g.date||'').replace(/\d{4}-/,'') + ' ' + (g.time||'').substring(0,5);
+    return `<div style="display:grid;grid-template-columns:1fr 90px 1fr 80px 60px;
+        gap:0;padding:12px 14px;border:1.5px solid var(--bl);border-radius:10px;
+        margin-bottom:8px;background:${even?'var(--bl)':'white'};
+        color:${even?'white':'var(--tx)'}">
+      <div style="font-size:12px;font-weight:700;line-height:1.3">${g.name||'Gasto'}</div>
+      <div style="text-align:center;font-size:13px;font-weight:800">${APP.fmtNum(g.amount||0)} $</div>
+      <div style="text-align:center;font-size:12px">${g.type||'Otro'}</div>
+      <div style="text-align:center;font-size:11px;line-height:1.4">${dt}</div>
+      <div style="text-align:center;font-size:11px;font-weight:700;color:${even?'#90EE90':'#27AE60'}">Pagado</div>
+    </div>`;
+  }).join('');
 };
 
 // ── CLIENTES ─────────────────────────────────
@@ -3875,30 +3948,47 @@ APP.saveCliente = async function(){
   APP.showToast('✅ Cliente agregado');
 };
 APP.renderClientes = function(){
-  const list=document.getElementById('clist'); if(!list) return;
-  const letters=[...new Set(APP.clientes.map(c=>c.name?.[0]?.toUpperCase()).filter(Boolean))].sort();
-  const ab=document.getElementById('alpha-bar');
-  if(ab) ab.innerHTML=['A','C','D','E','F','G','H','J','L','M','N','O','P','R','S','V','Y'].map(l=>
-    `<div class="alpha-key${APP.activeAlpha===l?' on':''}" onclick="APP.filterAlpha('${l}')">${l}</div>`
+  const list = document.getElementById('clist'); if(!list) return;
+  const ab = document.getElementById('alpha-bar');
+  const alphaLetters = 'ABCDEFGHIJLMNOPRSVY'.split('');
+  if(ab) ab.innerHTML = alphaLetters.map(l=>
+    `<div style="font-size:11px;font-weight:700;color:${APP.activeAlpha===l?'var(--bl)':'var(--tx3)'};
+      padding:2px 4px;cursor:pointer;text-align:center;line-height:1.6"
+      onclick="APP.filterAlpha('${l}')">${l}</div>`
   ).join('');
-  let items=APP.activeAlpha?APP.clientes.filter(c=>c.name?.[0]?.toUpperCase()===APP.activeAlpha):APP.clientes;
-  items=[...items].sort((a,b)=>a.name.localeCompare(b.name));
+
+  let items = APP.activeAlpha
+    ? APP.clientes.filter(c=>(c.name||c.nombre||'')[0]?.toUpperCase()===APP.activeAlpha)
+    : APP.clientes;
+  items = [...items].sort((a,b)=>(a.name||a.nombre||'').localeCompare(b.name||b.nombre||''));
+
   if(!items.length){
-    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">👥 Sin clientes</div>';
+    list.innerHTML='<div style="text-align:center;padding:3rem;color:var(--tx3)">👥 Sin clientes</div>';
     return;
   }
-  list.innerHTML=items.map((c,i)=>
-    `<div class="cliente-row ${i%2===0?'even':'odd'}">
-      <div class="cli-av" style="${i%2===0?'background:rgba(255,255,255,.2);color:white':'background:var(--bl);color:white'}">${c.name?.[0]?.toUpperCase()||'?'}</div>
-      <div style="flex:1;min-width:0">
-        <div class="cli-name" style="${i%2===0?'color:white':'color:var(--tx)'}">${c.name}</div>
-        <div class="cli-phone" style="${i%2===0?'color:rgba(255,255,255,.7)':'color:var(--tx3)'}">${c.phone||'Sin teléfono'}</div>
-      </div>
-      <div class="cli-check" style="${i%2===0?'border-color:rgba(255,255,255,.4)':'border-color:var(--brd)'}"></div>
-    </div>`
-  ).join('');
+  list.innerHTML = items.map((c,i)=>{
+    const name = c.name||c.nombre||'Sin nombre';
+    const phone = c.phone||c.telefono||'';
+    const even = i%2===0;
+    return `<div onclick="APP.selClienteDelivery('${name.replace(/'/g,"\\'")}','${phone}')"
+      style="display:grid;grid-template-columns:1fr 1fr 32px;gap:0;
+        padding:14px;border-radius:10px;margin-bottom:6px;cursor:pointer;
+        background:${even?'var(--bl)':'white'};
+        border:${even?'none':'1.5px solid var(--brd)'}">
+      <div style="font-size:13px;font-weight:700;color:${even?'white':'var(--tx)'}">${name}</div>
+      <div style="font-size:13px;color:${even?'rgba(255,255,255,.85)':'var(--tx3)'}">${phone}</div>
+      <div style="width:22px;height:22px;border-radius:4px;border:2px solid ${even?'rgba(255,255,255,.5)':'var(--brd)'};
+        background:${even?'rgba(255,255,255,.15)':'white'};margin:auto"></div>
+    </div>`;
+  }).join('');
 };
 APP.filterAlpha = function(l){ APP.activeAlpha=APP.activeAlpha===l?'':l; APP.renderClientes(); };
+APP.selClienteDelivery = function(name, phone){
+  // Seleccionar cliente para delivery
+  const inp = document.getElementById('o-cliente');
+  if(inp){ inp.value = name; }
+  APP.showToast('Cliente: '+name);
+};
 
 // ── RESERVAS ─────────────────────────────────
 APP.activeResDay='';
