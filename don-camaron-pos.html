@@ -20,6 +20,7 @@ html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-sy
 body{background:var(--bg);color:var(--tx)}
 .scr{display:none;height:100vh;flex-direction:column;overflow:hidden}
 .scr.on{display:flex}
+.scr.on{display:flex}
 
 /* ═══ LOGIN ═══ */
 #login{background:linear-gradient(150deg,#0A1F5C 0%,var(--bld) 55%,var(--bll) 100%);
@@ -55,6 +56,7 @@ body{background:var(--bg);color:var(--tx)}
 
 /* ═══ APP SHELL ═══ */
 #app{overflow:hidden}
+#app.on{display:flex}
 .topbar{background:var(--bl);color:white;height:var(--topbar);display:flex;
   align-items:center;padding:0 10px;gap:8px;flex-shrink:0;
   box-shadow:0 1px 4px rgba(0,0,0,.3);z-index:50;position:relative}
@@ -108,8 +110,9 @@ body{background:var(--bg);color:var(--tx)}
 
 /* ═══ MAIN CONTENT ═══ */
 .main{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-height:0}
-.cnt{flex:1;overflow:hidden;position:relative;min-height:0;display:flex;flex-direction:column}
-.panel{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;flex-direction:column}
+.cnt{flex:1;position:relative;min-height:0;overflow:hidden}
+.panel{display:none;position:absolute;inset:0;overflow-y:auto;
+  -webkit-overflow-scrolling:touch;flex-direction:column}
 #p-catalog{overflow:hidden !important}
 
 /* ═══ BOTTOM NAV ═══ */
@@ -128,7 +131,7 @@ body{background:var(--bg);color:var(--tx)}
   font-weight:700;min-width:16px;text-align:center;display:none}
 
 /* ═══ PEDIDO RÁPIDO ═══ */
-#p-catalog{display:flex;flex-direction:column;height:calc(100vh - var(--topbar));padding:0}
+#p-catalog{overflow:hidden}
 .cat-tabs{display:flex;gap:0;border-bottom:2px solid var(--brd);
   overflow-x:auto;flex-shrink:0;scrollbar-width:none;background:white;
   padding:0 6px}
@@ -2751,53 +2754,42 @@ APP.switchDrawerTab = function(tab){
 
 APP.drawerGo = function(panel, key){
   APP.closeDrawer();
-  // Sin delay — navega inmediatamente
   APP.showPanel(panel, key);
 };
 
-// ── NAV ──────────────────────────────────────
-APP.buildNav = function(){ /* sin bottom nav */ };
+APP.buildNav = function(){};
 
 APP.showPanel = function(pid, nk){
-  // Ocultar TODOS los paneles
-  document.querySelectorAll('.panel').forEach(p=>{
-    p.classList.remove('on');
-    p.style.display = 'none';
-  });
-  document.querySelectorAll('.di').forEach(d=>d.classList.remove('on'));
+  // Ocultar todos los paneles
+  document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.di').forEach(d => d.classList.remove('on'));
 
-  // Mostrar el panel destino
+  // Mostrar panel destino
   const panel = document.getElementById(pid);
   if(panel){
-    panel.classList.add('on');
-    // Catálogo tiene layout flex especial sin scroll propio
-    if(pid === 'p-catalog'){
-      panel.style.display = 'flex';
-      panel.style.flexDirection = 'column';
-      panel.style.height = '100%';
-      panel.style.overflow = 'hidden';
-    } else {
-      panel.style.display = 'flex';
-      panel.style.flexDirection = 'column';
-      panel.style.height = '100%';
-    }
+    // Catálogo usa flex para su layout interno (grilla + numpad)
+    panel.style.display = (pid === 'p-catalog') ? 'flex' : 'flex';
+    panel.style.flexDirection = 'column';
+  } else {
+    console.warn('Panel no encontrado:', pid);
+    return;
   }
 
-  // Marcar item activo en drawer
+  // Marcar activo en drawer
   const dItem = document.getElementById('dm-'+nk);
   if(dItem) dItem.classList.add('on');
 
-  // Actualizar título del topbar
+  // Título del topbar
   const titles = {
-    catalog:'⏱ Pedido rápido',      order:'📋 Resumen de la orden',
-    tables:'🪑 Órdenes de mesa',     'ordenes-mesa':'🍽️ Órdenes activas',
-    pedidos:'📑 Pedidos',            kitchen:'👨‍🍳 Órdenes de cocina',
-    reports:'📊 Informe',            inventory:'📦 Estado del inventario',
-    gastos:'💲 Gastos',              clientes:'👥 Gestión de clientes',
-    reservas:'📅 Reserva de mesa',   findel:'🏁 Fin del día',
+    catalog:'⏱ Pedido rápido', order:'📋 Resumen de la orden',
+    tables:'🪑 Órdenes de mesa', 'ordenes-mesa':'🍽️ Órdenes activas',
+    pedidos:'📑 Pedidos', kitchen:'👨‍🍳 Órdenes de cocina',
+    reports:'📊 Informe', inventory:'📦 Estado del inventario',
+    gastos:'💲 Gastos', clientes:'👥 Gestión de clientes',
+    reservas:'📅 Reserva de mesa', findel:'🏁 Fin del día',
     productos:'🎁 Gestión de productos', usuarios:'👥 Gestión de usuarios',
     config:'⚙️ Configuración del cajero', negocio:'🏢 Información de negocios',
-    mercado:'🏪 Mercado en línea',   ajustes:'⚙️ Ajustes',
+    mercado:'🏪 Mercado en línea', ajustes:'⚙️ Ajustes',
     'gestion-mesa':'🗺️ Gestión de la mesa',
   };
   const tEl = document.getElementById('tb-title');
@@ -2810,21 +2802,21 @@ APP.showPanel = function(pid, nk){
     }
   }
 
-  // Reset mesa al salir
   if(nk !== 'tables'){ APP._mesaSelId = ''; clearTimeout(APP._mesaTapTimer); }
 
-  // Renderizar contenido de la pantalla
-  if(nk === 'reports')   APP.renderReports();
-  if(nk === 'findel')    APP.renderFinDel();
-  if(nk === 'inventory') APP.renderInv();
-  if(nk === 'usuarios')  APP.renderUsers();
-  if(nk === 'clientes')  APP.renderClientes();
-  if(nk === 'gastos')    APP.renderGastos();
-  if(nk === 'reservas')  APP.renderReservaCal();
-  if(nk === 'pedidos')   APP.renderPedidos();
-  if(nk === 'kitchen')   APP.renderKitchen();
-  if(nk === 'tables')    APP.renderTables?.();
-  if(nk === 'productos') APP.renderProdGrid?.();
+  // Renderizar datos según pantalla
+  if(nk === 'reports')   { try{ APP.renderReports(); }catch(e){} }
+  if(nk === 'findel')    { try{ APP.renderFinDel(); }catch(e){} }
+  if(nk === 'inventory') { try{ APP.renderInv(); }catch(e){} }
+  if(nk === 'usuarios')  { try{ APP.renderUsers(); }catch(e){} }
+  if(nk === 'clientes')  { try{ APP.renderClientes(); }catch(e){} }
+  if(nk === 'gastos')    { try{ APP.renderGastos(); }catch(e){} }
+  if(nk === 'reservas')  { try{ APP.renderReservaCal(); }catch(e){} }
+  if(nk === 'pedidos')   { try{ APP.renderPedidos(); }catch(e){} }
+  if(nk === 'kitchen')   { try{ APP.renderKitchen(); }catch(e){} }
+  if(nk === 'tables')    { try{ APP.renderTables?.(); }catch(e){} }
+  if(nk === 'productos') { try{ APP.renderProdGrid?.(); }catch(e){} }
+  if(nk === 'order')     { try{ APP.renderOrder(); }catch(e){} }
 };
 APP.updateBadge = function(key,n){
   [document.getElementById('ni-badge-'+key),
