@@ -113,6 +113,7 @@ body{background:var(--bg);color:var(--tx)}
 .cnt{flex:1;position:relative;min-height:0;overflow:hidden}
 .panel{display:none;position:absolute;inset:0;overflow-y:auto;
   -webkit-overflow-scrolling:touch;flex-direction:column}
+.panel.on{display:flex}
 #p-catalog{overflow:hidden !important}
 
 /* ═══ BOTTOM NAV ═══ */
@@ -2761,15 +2762,16 @@ APP.buildNav = function(){};
 
 APP.showPanel = function(pid, nk){
   // Ocultar todos los paneles
-  document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.remove('on');
+    p.style.display = '';
+  });
   document.querySelectorAll('.di').forEach(d => d.classList.remove('on'));
 
   // Mostrar panel destino
   const panel = document.getElementById(pid);
   if(panel){
-    // Catálogo usa flex para su layout interno (grilla + numpad)
-    panel.style.display = (pid === 'p-catalog') ? 'flex' : 'flex';
-    panel.style.flexDirection = 'column';
+    panel.classList.add('on');
   } else {
     console.warn('Panel no encontrado:', pid);
     return;
