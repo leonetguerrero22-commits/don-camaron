@@ -14,7 +14,7 @@
   --bg:#F5F5F5;--sf:#fff;--sf2:#FAFAFA;--brd:#E0E0E0;
   --tx:#212121;--tx2:#616161;--tx3:#9E9E9E;
   --r:10px;--r2:18px;
-  --topbar:52px;--bnav:62px;
+  --topbar:52px;--bnav:0px;
 }
 html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
 body{background:var(--bg);color:var(--tx)}
@@ -118,7 +118,7 @@ body{background:var(--bg);color:var(--tx)}
 .panel.on{display:block}
 
 /* ═══ BOTTOM NAV ═══ */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:white;
+.bnav{display:none !important; /* eliminado - navegacion solo por drawer */ position:fixed;bottom:0;left:0;right:0;background:white;
   border-top:1px solid var(--brd);display:flex;z-index:50;
   box-shadow:0 -1px 8px rgba(0,0,0,.08);height:var(--bnav)}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;
@@ -133,7 +133,7 @@ body{background:var(--bg);color:var(--tx)}
   font-weight:700;min-width:16px;text-align:center;display:none}
 
 /* ═══ PEDIDO RÁPIDO ═══ */
-#p-catalog{display:flex;flex-direction:column;height:calc(100vh - var(--topbar) - var(--bnav));padding:0}
+#p-catalog{display:flex;flex-direction:column;height:calc(100vh - var(--topbar));padding:0}
 .cat-tabs{display:flex;gap:0;border-bottom:2px solid var(--brd);
   overflow-x:auto;flex-shrink:0;scrollbar-width:none;background:white;
   padding:0 6px}
@@ -148,15 +148,17 @@ body{background:var(--bg);color:var(--tx)}
   -webkit-overflow-scrolling:touch}
 .pc{background:white;border-radius:var(--r);overflow:hidden;cursor:pointer;
   box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid var(--brd);
-  transition:transform .1s}
+  transition:transform .1s;display:flex;flex-direction:column}
 .pc:active{transform:scale(.97)}
-.pimg{width:100%;height:80px;object-fit:cover;display:flex;align-items:center;
-  justify-content:center;font-size:28px;background:linear-gradient(135deg,#E3F2FD,#BBDEFB)}
-.pimg img{width:100%;height:100%;object-fit:cover}
-.pinfo{padding:6px 8px 8px}
-.pname{font-size:11px;font-weight:600;color:var(--bl);line-height:1.3;
-  margin-bottom:4px;min-height:28px}
-.pprice{font-size:12px;font-weight:700;color:var(--tx2)}
+.pimg{width:100%;height:90px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:28px;background:linear-gradient(135deg,#E3F2FD,#BBDEFB);
+  overflow:hidden;position:relative}
+.pimg img{width:100%;height:100%;object-fit:cover;display:block}
+.pinfo{padding:5px 7px 7px;flex:1;display:flex;flex-direction:column;
+  background:white;min-height:42px}
+.pname{font-size:10px;font-weight:700;color:var(--bl);line-height:1.3;
+  margin-bottom:3px;flex:1}
+.pprice{font-size:11px;font-weight:800;color:var(--tx2);flex-shrink:0}
 /* Teclado numérico lateral */
 .numpad{width:44px;flex-shrink:0;display:flex;flex-direction:column;
   background:white;border-left:1px solid var(--brd);overflow:hidden}
@@ -168,9 +170,11 @@ body{background:var(--bg);color:var(--tx)}
 .npkey:active{background:var(--bll2)}
 .npkey.on{background:var(--bl);color:#fff;font-size:17px}
 /* Producto activo (seleccionado) en grilla */
-.pc.active{background:var(--bl);border-color:var(--bl)}
+.pc.active{border-color:var(--bl);border-width:2px}
+.pc.active .pimg{filter:brightness(.85)}
+.pc.active .pinfo{background:var(--bl)}
 .pc.active .pname{color:#fff}
-.pc.active .pprice{color:rgba(255,255,255,.85)}
+.pc.active .pprice{color:rgba(255,255,255,.9)}
 .pc-qty-badge{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);
   color:#fff;border-radius:6px;font-size:10px;font-weight:700;padding:2px 6px}
 .pc-stock-badge{position:absolute;top:4px;left:4px;background:#C62828;
@@ -278,7 +282,7 @@ body{background:var(--bg);color:var(--tx)}
 
 
 /* ═══ ORDEN ═══ */
-.order-wrap{padding:10px;padding-bottom:calc(var(--bnav) + 10px)}
+.order-wrap{padding:10px;padding-bottom:10px}
 .order-top{display:flex;justify-content:space-between;align-items:center;
   margin-bottom:8px;gap:8px;flex-wrap:wrap}
 .order-title{font-size:16px;font-weight:800;color:var(--tx)}
@@ -359,7 +363,14 @@ body{background:var(--bg);color:var(--tx)}
 .pay-tot-val{font-size:13px;font-weight:800;color:var(--bl)}
 .pay-footer{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:.7rem;background:#fff;border-top:1px solid var(--brd);flex-shrink:0}
 .pay-foot-btn{padding:13px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
-.otras-sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center}
+.mext-item{padding:16px 8px;font-size:15px;color:var(--tx);border-bottom:1px solid var(--brd);cursor:pointer;}
+.mext-item:hover{background:var(--bll2);color:var(--bl);}
+.mext-item:last-child{border-bottom:none;}
+.mext-item.selected{color:var(--bl);font-weight:700;background:var(--bll2);}
+/* Botón reloj de arena en resumen */
+.espera-fab{position:absolute;bottom:14px;left:10px;width:44px;height:44px;border-radius:50%;
+  background:var(--bl);color:#fff;border:none;font-size:20px;cursor:pointer;
+  box-shadow:0 3px 8px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;z-index:100}
 .otras-sheet.on{display:flex}
 .otras-body{background:#fff;border-radius:20px 20px 0 0;padding:1.2rem;width:100%;max-width:480px}
 .otras-title{font-size:15px;font-weight:800;text-align:center;color:var(--bl);margin-bottom:.9rem}
@@ -421,7 +432,7 @@ body{background:var(--bg);color:var(--tx)}
 .partial-bg{position:fixed;inset:0;background:#F0F4F8;z-index:450;display:none;flex-direction:column}
 .partial-bg.on{display:flex}
 
-.tables-wrap{padding:10px;padding-bottom:calc(var(--bnav)+10px)}
+.tables-wrap{padding:10px;padding-bottom:10px}
 .floor-tabs{display:flex;background:#fff;border-bottom:2px solid var(--brd);
   overflow-x:auto;scrollbar-width:none;margin-bottom:10px}
 .floor-tabs::-webkit-scrollbar{display:none}
@@ -462,7 +473,7 @@ body{background:var(--bg);color:var(--tx)}
   border-radius:0;margin:0 -10px -10px;letter-spacing:.3px}
 
 /* ═══ MÓDULOS GENERALES ═══ */
-.mod-wrap{padding:10px;padding-bottom:calc(var(--bnav)+10px)}
+.mod-wrap{padding:10px;padding-bottom:10px}
 .mod-head{display:flex;justify-content:space-between;align-items:center;
   margin-bottom:10px}
 .mod-title{font-size:17px;font-weight:800;color:var(--tx)}
@@ -720,7 +731,7 @@ body{background:var(--bg);color:var(--tx)}
 
 /* ═══ FIN DEL DÍA ═══ */
 /* ═══ TOAST / MODALS ═══ */
-.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
   background:#212121;color:white;padding:10px 20px;border-radius:20px;
   font-size:13px;font-weight:600;z-index:999;opacity:0;
   transition:opacity .3s;pointer-events:none;white-space:nowrap;
@@ -759,7 +770,7 @@ body{background:var(--bg);color:var(--tx)}
 .sheet-btn.cancel{background:var(--sf2);color:var(--tx2)}
 /* Barra de info usuario */
 .user-info-page{padding:2rem 1.2rem;display:flex;flex-direction:column;
-  align-items:center;gap:12px;padding-bottom:calc(var(--bnav)+1rem)}
+  align-items:center;gap:12px;padding-bottom:1rem}
 .user-av-big{width:90px;height:90px;border-radius:50%;border:3px solid var(--bl);
   background:var(--bll2);display:flex;align-items:center;justify-content:center;
   font-size:42px;overflow:hidden}
@@ -845,16 +856,18 @@ body{background:var(--bg);color:var(--tx)}
       </div>
     </div>
     <div class="dbody">
+      <!-- Sección CAJA -->
       <div class="dmenu-sec">
-        <div style="display:flex;gap:8px;padding:8px;margin:0 2px">
-          <div class="dsec-head caja" style="flex:1;justify-content:center">
-            <span class="dic">🖥️</span>MENÚS DE CAJA</div>
-          <div class="dsec-head" style="flex:1;justify-content:center" id="drawer-admin-btn">
-            <span class="dic">⚙️</span>MENÚS ADMIN</div>
-        </div>
+        <div class="dsec-head caja" style="justify-content:flex-start;padding:6px 14px;font-size:10px">
+          <span class="dic">🖥️</span>MENÚS DE CAJA</div>
       </div>
       <div class="dmenu-sec" id="drawer-caja-items"></div>
-      <div class="dmenu-sec" id="drawer-admin-items" style="display:none"></div>
+      <!-- Sección ADMIN -->
+      <div class="dmenu-sec" id="drawer-admin-header" style="display:none">
+        <div class="dsec-head" id="drawer-admin-btn" style="justify-content:flex-start;padding:6px 14px;font-size:10px;cursor:default">
+          <span class="dic">⚙️</span>MENÚS DE ADMINISTRACIÓN</div>
+      </div>
+      <div class="dmenu-sec" id="drawer-admin-items"></div>
     </div>
     <div class="dfooter">
       <button class="dfootbtn" onclick="APP.doLogout()">⏻ &nbsp;Cerrar sesión</button>
@@ -956,6 +969,8 @@ body{background:var(--bg);color:var(--tx)}
             <button class="otp-btn on" id="otp-mesa" onclick="APP.setOrderType('mesa',this)">🪑<br><span>Mesa</span></button>
             <button class="otp-btn" id="otp-llevar" onclick="APP.setOrderType('llevar',this)">🛍️<br><span>Llevar</span></button>
             <button class="otp-btn" id="otp-delivery" onclick="APP.setOrderType('delivery',this)">🛵<br><span>Delivery</span></button>
+            <button class="otp-btn" style="background:var(--or2);color:var(--or);border-color:var(--or)"
+              onclick="APP.openEspera()">⏳<br><span style="font-size:8px">Espera</span></button>
           </div>
 
           <!-- Botones inferiores: VOLVER / PAGO RÁPIDO / PAGO -->
@@ -994,14 +1009,14 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ MESAS ══ -->
       <div id="p-tables" class="panel">
-        <div class="tables-wrap" style="padding-bottom:calc(var(--bnav)+60px)">
+        <div class="tables-wrap" style="padding-bottom:10px">
           <div class="floor-tabs" id="floor-tabs"></div>
           <div class="tgrid" id="tgrid"></div>
           <!-- Barra inferior fija -->
           <div class="tables-footer" id="tables-footer">Seleccione una tabla para realizar acciones ...</div>
         </div>
         <!-- Botón QR flotante -->
-        <div style="position:fixed;bottom:calc(var(--bnav)+70px);left:12px;z-index:50">
+        <div style="position:fixed;bottom:14px;left:12px;z-index:50">
           <button onclick="APP.showPanel('p-qr','qr')"
             style="width:52px;height:52px;border-radius:50%;background:var(--bl);
             border:none;color:#fff;font-size:22px;cursor:pointer;
@@ -1412,7 +1427,7 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
     </div><!-- end cnt -->
-    <nav class="bnav" id="bnav"></nav>
+    
   </div>
 </div>
 
@@ -1653,9 +1668,16 @@ body{background:var(--bg);color:var(--tx)}
         <input class="pm-card-inp" id="pmi-tarjeta" type="number" placeholder=". , ."
           oninput="APP.updatePayTotals()">
       </div>
-      <div class="pm-card" onclick="APP.selectPayMethod('boleto',this)" id="pmc-boleto">
-        <span class="pm-card-ico">🎫</span>
-        <div class="pm-card-lbl">Boleto de la comida</div>
+      <div class="pm-card" id="pmc-boleto"
+        onclick="APP.selectPayMethod('boleto',this)"
+        oncontextmenu="APP.openMetodosExt();return false"
+        ontouchstart="APP.startBoletoHold()" ontouchend="APP.clearBoletoHold()"
+        style="position:relative">
+        <span class="pm-card-ico" id="boleto-ico">🎫</span>
+        <div class="pm-card-lbl" id="boleto-lbl">Boleto de la comida</div>
+        <div style="font-size:8px;color:var(--tx3);text-align:center;margin-top:2px">
+          Mant. pres. para más opciones
+        </div>
         <input class="pm-card-inp" id="pmi-boleto" type="number" placeholder=". , ."
           oninput="APP.updatePayTotals()">
       </div>
@@ -1853,30 +1875,130 @@ body{background:var(--bg);color:var(--tx)}
 <!-- ══ MODAL DELIVERY ══ -->
 <div class="delivery-bg" id="delivery-bg">
   <div class="delivery-modal">
-    <div class="delivery-title">Información al cliente</div>
+    <div class="delivery-title">🛵 Pedido Delivery</div>
+
+    <!-- Cliente seleccionado -->
     <div class="delivery-section">
-      <div class="delivery-info" id="delivery-cli-info">Sin cliente seleccionado</div>
+      <div class="delivery-sec-title">Cliente</div>
+      <div class="delivery-info" id="delivery-cli-info"
+        onclick="APP.openDeliveryDirecciones()"
+        style="cursor:pointer;min-height:52px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:20px">👤</span>
+        <span id="delivery-cli-text">Toca para seleccionar cliente y dirección →</span>
+      </div>
     </div>
+
+    <!-- Dirección seleccionada -->
+    <div class="delivery-section" id="delivery-dir-section" style="display:none">
+      <div class="delivery-sec-title">Dirección de entrega</div>
+      <div class="delivery-info" id="delivery-dir-display"
+        onclick="APP.openDeliveryDirecciones()"
+        style="cursor:pointer;border-left:3px solid var(--bl)">
+        <div id="delivery-dir-nombre" style="font-weight:700;color:var(--bl)"></div>
+        <div id="delivery-dir-calle" style="font-size:12px;margin-top:2px"></div>
+        <div id="delivery-dir-tel" style="font-size:11px;color:var(--tx3);margin-top:2px"></div>
+      </div>
+    </div>
+
+    <!-- Repartidor -->
     <div class="delivery-section">
       <div class="delivery-sec-title">Repartidor</div>
-      <input class="delivery-repartidor-inp" id="delivery-rep" placeholder="Nombre del repartidor" value="Mensajero I">
+      <input class="delivery-repartidor-inp" id="delivery-rep"
+        placeholder="Nombre del repartidor" value="Mensajero I">
     </div>
+
+    <!-- Nota delivery -->
     <div class="delivery-section">
-      <div style="font-size:11px;font-weight:700;color:var(--bl);text-align:center;margin-bottom:.5rem">
-        Seleccionar estado del pedido de mensajería</div>
-      <div class="delivery-status-grid">
-        <button class="delivery-st-btn" style="background:var(--gr);color:#fff"
-          onclick="APP.deliverySend()">ENVIAR A COCINA</button>
-        <button class="delivery-st-btn" style="background:#9E9E9E;color:#fff"
-          onclick="APP.deliveryRepartidor()">ENTREGAR AL<br>REPARTIDO</button>
-      </div>
-      <div style="text-align:center;padding:.3rem">
-        <span style="font-size:11px;color:var(--bl);cursor:pointer" onclick="APP.openOtras()">Otras opciones</span>
-      </div>
+      <div class="delivery-sec-title">Nota (opcional)</div>
+      <textarea id="delivery-nota" placeholder="Indicaciones especiales..."
+        style="width:100%;padding:8px 10px;border:1.5px solid var(--brd);border-radius:9px;
+        font-size:12px;resize:none;outline:none;box-sizing:border-box" rows="2"></textarea>
     </div>
+
     <div class="delivery-footer">
-      <button style="flex:1;padding:11px;background:#C62828;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer" onclick="APP.closeDelivery()">REGRESAR</button>
-      <button style="flex:1;padding:11px;background:var(--bl);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer" onclick="APP.deliveryContinuar()">CONTINUAR</button>
+      <button style="flex:1;padding:11px;background:#C62828;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer"
+        onclick="APP.closeDelivery()">REGRESAR</button>
+      <button style="flex:1;padding:11px;background:var(--gr);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer"
+        onclick="APP.deliverySend()">ENVIAR A COCINA</button>
+      <button style="flex:1;padding:11px;background:var(--bl);color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer"
+        onclick="APP.deliveryContinuar()">PAGO</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL SELECCIONAR DIRECCIÓN DEL CLIENTE ══ -->
+<div class="delivery-bg" id="delivery-dir-bg" style="z-index:520">
+  <div class="delivery-modal" style="max-height:80vh;overflow-y:auto">
+    <div style="background:var(--bl);padding:14px 16px;border-radius:12px 12px 0 0;
+      color:#fff;font-size:15px;font-weight:800;margin:-1rem -1rem .8rem">
+      Seleccionar Dirección del Cliente
+    </div>
+    <div style="margin-bottom:10px">
+      <span style="cursor:pointer;color:var(--bl);font-size:20px;font-weight:700"
+        onclick="APP.closeDeliveryDir()">←</span>
+    </div>
+    <div id="delivery-dir-list"></div>
+    <!-- Nueva dirección manual -->
+    <div style="margin-top:12px;border-top:1px solid var(--brd);padding-top:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--tx);margin-bottom:6px">
+        ➕ Dirección manual
+      </div>
+      <input id="dir-manual-nombre" placeholder="Nombre (ej: Dirección de casa)"
+        style="width:100%;padding:8px 10px;border:1.5px solid var(--brd);border-radius:8px;
+        font-size:12px;margin-bottom:6px;outline:none;box-sizing:border-box">
+      <input id="dir-manual-calle" placeholder="Calle, entre carrera..."
+        style="width:100%;padding:8px 10px;border:1.5px solid var(--brd);border-radius:8px;
+        font-size:12px;margin-bottom:6px;outline:none;box-sizing:border-box">
+      <input id="dir-manual-tel" placeholder="Teléfono (+58...)"
+        style="width:100%;padding:8px 10px;border:1.5px solid var(--brd);border-radius:8px;
+        font-size:12px;margin-bottom:8px;outline:none;box-sizing:border-box">
+      <button onclick="APP.usarDirManual()"
+        style="width:100%;padding:10px;background:var(--bl);color:#fff;border:none;
+        border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">
+        USAR ESTA DIRECCIÓN
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL MÉTODOS DE PAGO EXTERNOS ══ -->
+<div class="delivery-bg" id="metodos-ext-bg" style="z-index:520">
+  <div style="background:#fff;border-radius:14px;padding:1.2rem 1rem;width:92%;max-width:360px">
+    <div style="color:var(--bl);font-size:16px;font-weight:700;margin-bottom:1rem">
+      Seleccione el tipo de pago
+    </div>
+    <div id="metodos-ext-list">
+      <div class="mext-item" onclick="APP.selectMetodoExt('Préstamo')">Préstamo</div>
+      <div class="mext-item" onclick="APP.selectMetodoExt('Dólares')">Dólares</div>
+      <div class="mext-item" onclick="APP.selectMetodoExt('Transferencias en Bs.')">Transferencias en Bs.</div>
+      <div class="mext-item" onclick="APP.selectMetodoExt('Crédito por pagar')">Crédito por pagar</div>
+      <div class="mext-item" onclick="APP.selectMetodoExt('Bancolombia')">Bancolombia</div>
+    </div>
+    <button onclick="document.getElementById('metodos-ext-bg').style.display='none'"
+      style="width:100%;margin-top:12px;padding:10px;background:#f0f0f0;border:none;
+      border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;color:var(--tx)">
+      CANCELAR
+    </button>
+  </div>
+</div>
+
+<!-- ══ MODAL PEDIDOS EN ESPERA ══ -->
+<div class="delivery-bg" id="espera-bg" style="z-index:520">
+  <div style="background:#fff;border-radius:14px;padding:0;width:95%;max-width:400px;
+    max-height:80vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="background:var(--bl);padding:14px 16px;color:#fff;
+      font-size:15px;font-weight:800;display:flex;justify-content:space-between;align-items:center">
+      <span>⏳ Pedidos en espera</span>
+      <span onclick="APP.closeEspera()"
+        style="cursor:pointer;font-size:20px;opacity:.8">✕</span>
+    </div>
+    <div id="espera-list" style="flex:1;overflow-y:auto;padding:.8rem"></div>
+    <div style="padding:.8rem;border-top:1px solid var(--brd)">
+      <button onclick="APP.guardarEnEspera()"
+        style="width:100%;padding:12px;background:var(--or);color:#fff;border:none;
+        border-radius:9px;font-size:13px;font-weight:800;cursor:pointer">
+        ⏸ GUARDAR ORDEN ACTUAL EN ESPERA
+      </button>
     </div>
   </div>
 </div>
@@ -1917,6 +2039,7 @@ APP.db = null;
 APP.fb = {};
 APP.ventasChartObj = null;
 APP.invChartObj = null;
+APP.pedidosEspera = []; // pedidos guardados en espera (reloj de arena)
 
 // ── PERMISOS ─────────────────────────────────
 APP.perms = {
@@ -2397,7 +2520,7 @@ APP.buildDrawer = function(){
   const p=APP.perms[APP.role];
   const mkItem=k=>{
     const c=APP.navCfg[k];
-    return `<div class="di" id="dm-${k}" onclick="APP.showPanel('${c.panel}','${k}');APP.closeDrawer()">
+    return `<div class="di" id="dm-${k}" onclick="APP.drawerGo('${c.panel}','${k}')">
       <span class="dic">${c.icon}</span>
       <span class="dlabel">${c.label}</span>
       ${c.badge?`<span class="dbadge" id="dm-badge-${k}" style="display:none">0</span>`:''}
@@ -2406,27 +2529,24 @@ APP.buildDrawer = function(){
   document.getElementById('drawer-caja-items').innerHTML=p.caja.map(mkItem).join('');
   if(p.admin.length){
     document.getElementById('drawer-admin-items').innerHTML=p.admin.map(mkItem).join('');
-    document.getElementById('drawer-admin-btn').onclick=function(){
-      const el=document.getElementById('drawer-admin-items');
-      el.style.display=el.style.display==='none'?'block':'none';
-    };
+    document.getElementById('drawer-admin-items').style.display='block';
+    document.getElementById('drawer-admin-header').style.display='block';
+    document.getElementById('drawer-admin-btn').onclick=null;
   } else {
-    document.getElementById('drawer-admin-btn').style.opacity='0.4';
+    document.getElementById('drawer-admin-header').style.display='none';
   }
 };
 
-// ── NAV ──────────────────────────────────────
-APP.buildNav = function(){
-  const p=APP.perms[APP.role];
-  document.getElementById('bnav').innerHTML=p.nav.map(k=>{
-    const c=APP.navCfg[k];
-    return `<button class="ni" id="ni-${k}" onclick="APP.showPanel('${c.panel}','${k}')">
-      <span class="nic">${c.icon}</span>
-      <span>${c.label.split(' ')[0]}</span>
-      ${c.badge?`<span class="nbadge" id="ni-badge-${k}">0</span>`:''}
-    </button>`;
-  }).join('');
+// Navegar desde drawer: cerrar primero, luego ir a la pantalla
+APP.drawerGo = function(panel, key){
+  APP.closeDrawer();
+  // Pequeño delay para que la animación del drawer se vea limpia
+  setTimeout(()=>APP.showPanel(panel, key), 80);
 };
+
+// ── NAV ──────────────────────────────────────
+// buildNav eliminado — navegación solo por drawer como en RePOS
+APP.buildNav = function(){ /* sin bottom nav */ };
 APP.showPanel = function(pid,nk){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
@@ -2855,8 +2975,16 @@ APP.selPago = function(m,btn){
   if(btn)btn.classList.add('sel');APP.selMetodo=m;
 };
 APP.pagoRapidoEfectivo = async function(){
-  if(!APP.order.length){APP.showToast('Orden vacc\xeda');return;}
-  APP.selMetodo='Efectivo';
+  if(!APP.order.length){APP.showToast('Orden vacía');return;}
+  // Calcular total y asignar directamente al campo efectivo
+  const sub = APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const iva = !APP.payState?.noIva ? Math.round(sub*0.05) : 0;
+  const tot = sub + iva;
+  // Poner el total en el campo efectivo automáticamente
+  const ef = document.getElementById('pmi-efectivo');
+  if(ef) ef.value = tot;
+  APP.selMetodo = 'Efectivo';
+  APP.showToast('💵 Pago rápido en efectivo — procesando...');
   await APP.completePay();
 };
 APP.openOtras = function(){document.getElementById('otras-sheet').classList.add('on');};
@@ -2872,7 +3000,7 @@ APP.applyDiscount = function(){
 };
 APP.otraImpuesto = function(){APP.closeOtras();APP.togglePayIva();APP.showToast(APP.payState.noIva?'Impuesto quitado':'Impuesto agregado');};
 APP.otraCliente = function(){APP.closeOtras();APP.openClienteSelector();};
-APP.otraMantenerOrden = function(){APP.closeOtras();APP.closePayScreen();APP.showToast('Orden mantenida');};
+APP.otraMantenerOrden = function(){APP.closeOtras();APP.closePayScreen();APP.guardarEnEspera();};
 APP.completePay = async function(){
   if(!APP.db){APP.showToast('Sin conexi\xf3n Firebase');return;}
   const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
@@ -3037,10 +3165,181 @@ APP.selectCliente = function(nameEnc,phone,addrEnc){
     document.getElementById('delivery-bg').classList.add('on');
   }
 };
-APP.closeDelivery = function(){document.getElementById('delivery-bg').classList.remove('on');};
-APP.deliverySend = async function(){document.getElementById('delivery-bg').classList.remove('on');await APP.sendToCocina();};
-APP.deliveryRepartidor = function(){document.getElementById('delivery-bg').classList.remove('on');APP.showToast('Asignado al repartidor: '+document.getElementById('delivery-rep').value);};
-APP.deliveryContinuar = function(){document.getElementById('delivery-bg').classList.remove('on');APP.openPayScreen();};
+APP.orderType = 'mesa'; // 'mesa' | 'llevar' | 'delivery'
+APP.setOrderType = function(tipo, btn){
+  APP.orderType = tipo;
+  document.querySelectorAll('.otp-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  if(tipo === 'delivery'){
+    // Pre-cargar info del cliente si hay uno seleccionado
+    const cliName = document.getElementById('o-cliente')?.value?.trim();
+    const cliText = document.getElementById('delivery-cli-text');
+    if(cliText) cliText.textContent = cliName || 'Toca para seleccionar cliente y dirección →';
+    document.getElementById('delivery-bg').classList.add('on');
+  }
+};
+APP.closeDelivery = function(){document.getElementById('delivery-bg').style.display='';document.getElementById('delivery-bg').classList.remove('on');};
+APP.deliverySend = async function(){APP.closeDelivery();await APP.sendToCocina();};
+APP.deliveryRepartidor = function(){APP.closeDelivery();APP.showToast('Asignado al repartidor: '+document.getElementById('delivery-rep').value);};
+APP.deliveryContinuar = function(){APP.closeDelivery();APP.openPayScreen();};
+
+// ── MODAL DIRECCIÓN DEL CLIENTE ──────────────
+APP.openDeliveryDirecciones = function(){
+  const bg = document.getElementById('delivery-dir-bg');
+  const list = document.getElementById('delivery-dir-list');
+  // Buscar cliente activo y sus direcciones
+  const cliName = document.getElementById('o-cliente')?.value?.trim() || '';
+  const cli = APP.clientes.find(c => c.nombre === cliName || c.n === cliName);
+  const dirs = cli?.direcciones || cli?.addresses || [];
+  if(!dirs.length){
+    list.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--tx3);font-size:13px">
+      Sin direcciones guardadas para este cliente.<br>Usa la dirección manual abajo.</div>`;
+  } else {
+    list.innerHTML = dirs.map((d,i) => `
+      <div onclick="APP.selectDireccion(${i},'${(d.nombre||d.name||'Dirección '+(i+1)).replace(/'/g,"\\'")}','${(d.calle||d.address||'').replace(/'/g,"\\'")}','${(d.tel||d.phone||'').replace(/'/g,"\\'")}')}"
+        style="border:1.5px solid var(--brd);border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;background:#fff">
+        <div style="font-weight:700;color:var(--bl)">${d.nombre||d.name||'Dirección '+(i+1)}</div>
+        <div style="font-size:12px;margin-top:3px">${d.calle||d.address||''}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:2px">${d.tel||d.phone||''}</div>
+      </div>`).join('');
+  }
+  bg.classList.add('on');
+};
+APP.closeDeliveryDir = function(){document.getElementById('delivery-dir-bg').classList.remove('on');};
+APP.selectDireccion = function(i, nombre, calle, tel){
+  APP.closeDeliveryDir();
+  document.getElementById('delivery-dir-nombre').textContent = nombre;
+  document.getElementById('delivery-dir-calle').textContent = calle;
+  document.getElementById('delivery-dir-tel').textContent = tel;
+  document.getElementById('delivery-dir-section').style.display = '';
+  APP.deliveryDirSeleccionada = {nombre, calle, tel};
+  APP.showToast('Dirección seleccionada');
+};
+APP.usarDirManual = function(){
+  const nombre = document.getElementById('dir-manual-nombre').value.trim() || 'Dirección manual';
+  const calle  = document.getElementById('dir-manual-calle').value.trim();
+  const tel    = document.getElementById('dir-manual-tel').value.trim();
+  if(!calle){APP.showToast('Escribe la calle/dirección');return;}
+  APP.selectDireccion(-1, nombre, calle, tel);
+};
+
+// ── MÉTODOS DE PAGO EXTERNOS ──────────────────
+APP.extMetodoActual = null; // método externo actualmente seleccionado
+APP._boletoHoldTimer = null;
+APP.startBoletoHold = function(){
+  APP._boletoHoldTimer = setTimeout(()=>APP.openMetodosExt(), 600);
+};
+APP.clearBoletoHold = function(){
+  clearTimeout(APP._boletoHoldTimer);
+};
+APP.openMetodosExt = function(){
+  // Marcar método actual como seleccionado en la lista
+  document.querySelectorAll('.mext-item').forEach(el=>{
+    el.classList.toggle('selected', el.textContent === APP.extMetodoActual);
+  });
+  document.getElementById('metodos-ext-bg').style.display='flex';
+};
+APP.selectMetodoExt = function(metodo){
+  APP.extMetodoActual = metodo;
+  document.getElementById('metodos-ext-bg').style.display='none';
+  // Actualizar la tarjeta de boleto para mostrar el método elegido
+  const icons = {
+    'Préstamo':'💰','Dólares':'💵','Transferencias en Bs.':'🏦',
+    'Crédito por pagar':'📋','Bancolombia':'🏛️'
+  };
+  document.getElementById('boleto-ico').textContent = icons[metodo]||'💳';
+  document.getElementById('boleto-lbl').textContent = metodo;
+  APP.selectPayMethod('boleto', document.getElementById('pmc-boleto'));
+  APP.showToast('Método: '+metodo);
+};
+
+// ── PEDIDOS EN ESPERA ─────────────────────────
+APP.openEspera = function(){
+  APP.renderEsperaList();
+  document.getElementById('espera-bg').classList.add('on');
+};
+APP.closeEspera = function(){document.getElementById('espera-bg').classList.remove('on');};
+APP.guardarEnEspera = function(){
+  if(!APP.order.length){APP.showToast('La orden está vacía');return;}
+  const mesa = document.getElementById('mesa-sel')?.value || 'Sin mesa';
+  const notas = document.getElementById('o-notas')?.value?.trim() || '';
+  const espera = {
+    id: Date.now(),
+    mesa,
+    notas,
+    items: JSON.parse(JSON.stringify(APP.order)),
+    time: APP.timeNow(),
+    total: APP.order.reduce((a,i)=>a+i.p*i.q,0)
+  };
+  APP.pedidosEspera.push(espera);
+  // Limpiar orden actual
+  APP.order = [];
+  APP.renderOrder();
+  APP.updateOrderCount();
+  APP.renderEsperaList();
+  APP.showToast(`⏸ Orden guardada en espera — ${mesa}`);
+};
+APP.retormarEspera = function(id){
+  if(APP.order.length){
+    if(!confirm('¿Reemplazar la orden actual con esta?')) return;
+  }
+  const idx = APP.pedidosEspera.findIndex(e=>e.id===id);
+  if(idx===-1){APP.showToast('Pedido no encontrado');return;}
+  const espera = APP.pedidosEspera.splice(idx,1)[0];
+  APP.order = espera.items;
+  const msel = document.getElementById('mesa-sel');
+  if(msel) msel.value = espera.mesa;
+  const notas = document.getElementById('o-notas');
+  if(notas) notas.value = espera.notas;
+  APP.renderOrder();
+  APP.updateOrderCount();
+  APP.renderEsperaList();
+  APP.closeEspera();
+  APP.showToast(`▶ Orden retomada — ${espera.mesa}`);
+};
+APP.eliminarEspera = function(id){
+  APP.pedidosEspera = APP.pedidosEspera.filter(e=>e.id!==id);
+  APP.renderEsperaList();
+  APP.showToast('Pedido eliminado');
+};
+APP.renderEsperaList = function(){
+  const list = document.getElementById('espera-list');
+  if(!list) return;
+  if(!APP.pedidosEspera.length){
+    list.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--tx3)">
+      <div style="font-size:40px">⏳</div>
+      <div style="margin-top:.5rem;font-size:13px">No hay pedidos en espera</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = APP.pedidosEspera.map(e=>`
+    <div style="border:1.5px solid var(--brd);border-radius:10px;padding:12px;margin-bottom:8px;background:#fff">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div>
+          <div style="font-weight:800;color:var(--bl);font-size:14px">🪑 ${e.mesa}</div>
+          <div style="font-size:11px;color:var(--tx3)">⏱ ${e.time} · ${e.items.length} ítem(s)</div>
+        </div>
+        <div style="font-weight:700;color:var(--tx);font-size:13px">
+          $${Math.round(e.total).toLocaleString('es')}
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--tx);margin-bottom:8px">
+        ${e.items.slice(0,3).map(i=>`${i.q}x ${i.n}`).join(', ')}${e.items.length>3?'…':''}
+      </div>
+      ${e.notas?`<div style="font-size:11px;color:#5D4037;background:#FFFDE7;padding:4px 8px;border-radius:6px;margin-bottom:8px">📝 ${e.notas}</div>`:''}
+      <div style="display:flex;gap:6px">
+        <button onclick="APP.retormarEspera(${e.id})"
+          style="flex:2;padding:9px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+          ▶ Retomar
+        </button>
+        <button onclick="APP.eliminarEspera(${e.id})"
+          style="flex:1;padding:9px;background:#FFEBEE;color:var(--rd);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+          🗑
+        </button>
+      </div>
+    </div>
+  `).join('');
+};
 
 // ── MESAS ────────────────────────────────────
 APP.renderFloorTabs = function(prefix=''){
