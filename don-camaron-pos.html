@@ -165,7 +165,7 @@ body{background:var(--bg);color:var(--tx)}
 .pprice{font-size:11px;font-weight:800;color:var(--tx2);flex-shrink:0;
   white-space:nowrap}
 /* Teclado numérico lateral */
-.numpad{width:44px;flex-shrink:0;display:flex;flex-direction:column;
+.numpad{width:40px;flex-shrink:0;display:flex;flex-direction:column;
   background:white;border-left:1px solid var(--brd);overflow:hidden}
 .npkey{flex:1;display:flex;align-items:center;justify-content:center;
   font-size:15px;font-weight:700;color:var(--bl);cursor:pointer;
@@ -175,13 +175,14 @@ body{background:var(--bg);color:var(--tx)}
 .npkey:active{background:var(--bll2)}
 .npkey.on{background:var(--bl);color:#fff;font-size:17px}
 /* Producto activo (seleccionado) en grilla */
-.pc.active{border-color:var(--bl);border-width:2px}
-.pc.active .pimg{filter:brightness(.85)}
-.pc.active .pinfo{background:var(--bl)}
-.pc.active .pname{color:#fff}
-.pc.active .pprice{color:rgba(255,255,255,.9)}
-.pc-qty-badge{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);
-  color:#fff;border-radius:6px;font-size:10px;font-weight:700;padding:2px 6px}
+.pc.active{border-color:var(--bl);border-width:3px;box-shadow:0 0 0 2px rgba(21,101,192,.2)}
+.pc.active .pimg{filter:none}
+.pc.active .pinfo{background:white}
+.pc.active .pname{color:var(--bl)}
+.pc.active .pprice{color:var(--tx2)}
+.pc-qty-badge{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);
+  color:#fff;border-radius:8px;font-size:11px;font-weight:800;padding:3px 8px;
+  letter-spacing:.3px;min-width:22px;text-align:center}
 .pc-stock-badge{position:absolute;top:4px;left:4px;background:#C62828;
   color:#fff;border-radius:6px;font-size:9px;font-weight:700;padding:2px 5px;line-height:1.4;text-align:center}
 
@@ -202,13 +203,14 @@ body{background:var(--bg);color:var(--tx)}
 .order-footer-count{font-size:12px;opacity:.8}
 /* Footer doble nuevo estilo RePOS */
 .cat-footer{flex-shrink:0;background:var(--bl);color:#fff}
-.cat-footer-product{padding:6px 14px;font-size:11px;font-weight:600;
-  border-bottom:1px solid rgba(255,255,255,.2);min-height:28px;
-  display:flex;align-items:center;gap:4px;opacity:.92;white-space:nowrap;overflow:hidden}
-.cat-footer-summary{padding:10px 14px;display:flex;align-items:center;
+.cat-footer-product{padding:5px 12px;font-size:11px;font-weight:600;
+  display:flex;align-items:center;gap:4px;opacity:.9;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border-bottom:1px solid rgba(255,255,255,.15);min-height:26px}
+.cat-footer-summary{padding:12px 16px;display:flex;align-items:center;
   justify-content:space-between;cursor:pointer}
-.cat-footer-label{font-size:13px;font-weight:700}
-.cat-footer-arrow{font-size:20px;transition:transform .2s}
+.cat-footer-label{font-size:15px;font-weight:800}
+.cat-footer-arrow{font-size:24px;font-weight:700;transition:transform .2s;flex-shrink:0}
 .cat-footer-arrow.open{transform:rotate(180deg)}
 /* Panel slide-up de resumen */
 .order-slide-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:290;display:none}
@@ -947,7 +949,7 @@ body{background:var(--bg);color:var(--tx)}
               Resumen de la orden (<span id="order-count">0</span>) : 
               <span id="order-footer-total">0.00 $</span>
             </span>
-            <span class="cat-footer-arrow" id="slide-arrow">∨</span>
+            <span class="cat-footer-arrow" id="slide-arrow" style="font-size:24px">↑</span>
           </div>
         </div>
       </div>
@@ -1792,6 +1794,7 @@ body{background:var(--bg);color:var(--tx)}
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="toast-dark" id="toast-dark"></div>
 
 <!-- ══ OVERLAY ORDEN COMPLETADA ══ -->
 <div class="order-done-overlay" id="order-done-overlay" style="display:none" onclick="APP.closeOrderDoneOverlay()">
@@ -2688,6 +2691,10 @@ APP.fmtShort = n => '$'+(Math.round(n)||0).toLocaleString('es');
 APP.today = () => new Date().toISOString().split('T')[0];
 APP.timeNow = () => new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
 
+APP.showDarkToast = function(msg){
+  // Toast tipo Android (breve, oscuro, centrado)
+  APP.showToast(msg, 1600);
+};
 APP.showToast = function(msg,dur=3200){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
@@ -2986,6 +2993,9 @@ APP.selectProduct = function(en, price, em, img){
   APP.updateActiveLine();
   APP.renderOrder();
   APP.renderProducts(document.getElementById('search-inp')?.value||'');
+  // Toast oscuro estilo Android
+  const _qn2 = APP.order.find(x=>x.n===name)?.q||useQty||1;
+  APP.showDarkToast(`${_qn2}x ${name}`);
 };
 
 APP.highlightNumpad = function(k){
@@ -2998,14 +3008,23 @@ APP.highlightNumpad = function(k){
 APP.updateActiveLine = function(){
   const lbl = document.getElementById('cat-active-product');
   if(!lbl) return;
-  if(!APP.numpadLast){lbl.textContent='Selecciona un producto del menú...';return;}
+  if(!APP.numpadLast){
+    lbl.textContent = 'Selecciona un producto del menú...';
+    return;
+  }
   const inOrder = APP.order.find(o=>o.n===APP.numpadLast.n);
-  const qty = inOrder?.q||APP._lastQty||1;
+  const qty = inOrder?.q || APP._lastQty || 1;
   const showPrice = APP.perms[APP.role]?.verPrecios;
   if(showPrice){
     lbl.textContent = `${APP.numpadLast.n} (${APP.fmtNum(APP.numpadLast.p)} $) X ${qty}`;
   } else {
-    lbl.textContent = `${APP.numpadLast.n} — X ${qty}`;
+    lbl.textContent = `${APP.numpadLast.n}  ×${qty}`;
+  }
+  // También actualizar el resumen de orden en la línea grande
+  const sumEl = document.getElementById('order-footer-total');
+  if(sumEl && showPrice){
+    const sub = APP.order.reduce((a,i)=>a+i.p*i.q, 0);
+    sumEl.textContent = APP.fmtNum(sub) + ' $';
   }
 };
 
@@ -3601,7 +3620,7 @@ APP.pdAgregar = function(){
   // Re-render catálogo y barra inferior
   APP.renderProducts(document.getElementById('search-inp')?.value||'');
   APP.updateActiveLine();
-  APP.showToast(qty+'x '+p.n);
+  APP.showDarkToast(qty+'x '+p.n);
 };
 APP.openClienteSelector = function(){
   APP.filterCliSel('');
