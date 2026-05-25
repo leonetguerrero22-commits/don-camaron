@@ -175,11 +175,14 @@ body{background:var(--bg);color:var(--tx)}
 .npkey:active{background:var(--bll2)}
 .npkey.on{background:var(--bl);color:#fff;font-size:17px}
 /* Producto activo (seleccionado) en grilla */
-.pc.active{border-color:var(--bl);border-width:2px}
-.pc.active .pimg{filter:brightness(.85)}
+.pc.active{border-color:var(--bl);border-width:3px}
+.pc.active .pimg{filter:brightness(.75)}
 .pc.active .pinfo{background:var(--bl)}
 .pc.active .pname{color:#fff}
 .pc.active .pprice{color:rgba(255,255,255,.9)}
+.pc-active-badge{position:absolute;top:4px;right:4px;background:var(--bl);color:#fff;
+  border-radius:12px;font-size:11px;font-weight:800;padding:2px 7px;z-index:2;
+  border:2px solid #fff}
 .pc-qty-badge{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);
   color:#fff;border-radius:6px;font-size:10px;font-weight:700;padding:2px 6px}
 .pc-stock-badge{position:absolute;top:4px;left:4px;background:#C62828;
@@ -202,13 +205,13 @@ body{background:var(--bg);color:var(--tx)}
 .order-footer-count{font-size:12px;opacity:.8}
 /* Footer doble nuevo estilo RePOS */
 .cat-footer{flex-shrink:0;background:var(--bl);color:#fff}
-.cat-footer-product{padding:6px 14px;font-size:11px;font-weight:600;
+.cat-footer-product{padding:6px 14px;font-size:12px;font-weight:700;
   border-bottom:1px solid rgba(255,255,255,.2);min-height:28px;
   display:flex;align-items:center;gap:4px;opacity:.92;white-space:nowrap;overflow:hidden}
 .cat-footer-summary{padding:10px 14px;display:flex;align-items:center;
   justify-content:space-between;cursor:pointer}
 .cat-footer-label{font-size:13px;font-weight:700}
-.cat-footer-arrow{font-size:20px;transition:transform .2s}
+.cat-footer-arrow{font-size:22px;transition:transform .2s}
 .cat-footer-arrow.open{transform:rotate(180deg)}
 /* Panel slide-up de resumen */
 .order-slide-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:290;display:none}
@@ -247,7 +250,9 @@ body{background:var(--bg);color:var(--tx)}
   display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .osb-pnum{font-size:14px;font-weight:800;color:var(--bl);min-width:28px;
   text-align:center;border-bottom:2px solid var(--bl);padding-bottom:1px}
-.osb-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.osb-actions{display:flex;flex-direction:column;gap:6px}
+.osb-actions .osb-btn{width:100%;font-size:12px;padding:11px}
+.osb-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .osb-btn{padding:13px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
 /* Mesa ocupada - pantalla detalle */
 .mesa-order-screen{position:fixed;inset:0;background:#F0F4F8;z-index:400;
@@ -466,6 +471,13 @@ body{background:var(--bg);color:var(--tx)}
 .tc.reservada .tc-stat{display:block;color:#6A1B9A}
 .tc-cap{font-size:10px;color:var(--tx3);margin-top:2px}
 .tc-total{font-size:10px;font-weight:700;color:var(--or);margin-top:2px}
+.tc.ocupada{background:var(--bl);border-color:var(--bll);color:#fff}
+.tc.ocupada .tc-num{color:#fff}
+.tc-ocupada-top{font-size:9px;font-weight:700;color:rgba(255,255,255,.85);display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1px}
+.tc-personas-cnt{font-size:8px;text-align:right;line-height:1.1}
+.tc-hora{font-size:9px;color:rgba(255,255,255,.75);margin-top:2px}
+.tc.ocupada .tc-total{color:rgba(255,255,255,.9);font-size:10px}
+.tc.ocupada .tc-stat{color:rgba(255,255,255,.7)}
 .tables-legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .tleg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .tleg.l{background:#E8F5E9;color:#2E7D32}
@@ -930,7 +942,7 @@ body{background:var(--bg);color:var(--tx)}
               Resumen de la orden (<span id="order-count">0</span>) : 
               <span id="order-footer-total">0.00 $</span>
             </span>
-            <span class="cat-footer-arrow" id="slide-arrow">∨</span>
+            <span class="cat-footer-arrow" id="slide-arrow" style="font-size:22px">↑</span>
           </div>
         </div>
       </div>
@@ -1721,7 +1733,7 @@ body{background:var(--bg);color:var(--tx)}
       Resumen de la orden (<span id="slide-count">0</span>) : 
       <span id="slide-total">0.00 $</span>
     </div>
-    <div onclick="APP.closeOrderSlide()" style="cursor:pointer;font-size:20px">∨</div>
+    <div onclick="APP.closeOrderSlide()" style="cursor:pointer;font-size:22px;font-weight:700">✓</div>
   </div>
   <div class="order-slide-body" id="slide-items"></div>
   <div class="order-slide-bottom">
@@ -1735,8 +1747,16 @@ body{background:var(--bg);color:var(--tx)}
     <div class="osb-actions">
       <button class="osb-btn" style="background:#9E9E9E;color:#fff"
         onclick="APP.closeOrderSlide()">VOLVER</button>
-      <button class="osb-btn" style="background:var(--bl);color:#fff"
+      <!-- Modo mesa: solo botón PEDIDO (envía a cocina) -->
+      <button id="slide-btn-pedido" class="osb-btn" style="background:var(--bl);color:#fff;display:none"
         onclick="APP.slideGoPedido()">PEDIDO</button>
+      <!-- Modo rápido: fila PAGO RÁPIDO EN EFECTIVO + PAGO -->
+      <div class="osb-actions-row">
+        <button id="slide-btn-pago-rap" class="osb-btn" style="background:#2E7D32;color:#fff;font-size:11px"
+          onclick="APP.pagoRapidoEfectivo()">PAGO RÁPIDO<br>EN EFECTIVO</button>
+        <button id="slide-btn-pago" class="osb-btn" style="background:#fff;color:var(--bl);border:2px solid var(--bl)"
+          onclick="APP.slideGoPagoCompleto()">PAGO</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2867,7 +2887,8 @@ APP.renderProducts = function(filter=''){
       onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
       <div class="pimg">
         ${imgHtml}
-        ${qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
+        ${isActive?`<div class="pc-active-badge">x${qty||1}.0</div>`:
+           qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
         ${showLow?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">-${Math.abs(stock)}<br>Rest.</div>`:''}
         ${showStock?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">${stock}<br>Rest.</div>`:''}
       </div>
@@ -2915,17 +2936,24 @@ document.getElementById('search-inp').addEventListener('input',e=>APP.renderProd
 APP._lastQty = 1;
 APP.numpadPress = function(k){
   if(k==='.') return; // decimal not used for qty
-  APP._lastQty = k;
+  const qty = parseInt(k)||0;
+  APP._lastQty = qty||1;
   // Highlight key
   APP.highlightNumpad(k);
   // Update qty on current product
   if(!APP.numpadLast) return;
   const ex = APP.order.find(x=>x.n===APP.numpadLast.n);
-  if(ex){ ex.q=k; }
-  else if(k>0){ APP.order.push({...APP.numpadLast,q:k}); }
+  if(qty===0){
+    // Tecla 0 → eliminar el producto de la orden
+    if(ex){ APP.order.splice(APP.order.indexOf(ex),1); }
+  } else if(ex){
+    ex.q=qty;
+  } else {
+    APP.order.push({...APP.numpadLast,q:qty});
+  }
   APP.renderOrder(); APP.updateOrderCount();
   APP.updateActiveLine();
-  APP.renderProducts(document.getElementById('search-inp').value);
+  APP.renderProducts(document.getElementById('search-inp')?.value||'');
 };
 
 // ── ORDEN ─────────────────────────────────────
@@ -2959,6 +2987,14 @@ APP.openOrderSlide = function(){
   document.getElementById('order-slide-bg').classList.add('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.classList.add('open');
   APP.renderSlideItems();
+  // Adaptar botones según contexto: mesa → PEDIDO, rápido → PAGO RÁPIDO + PAGO
+  const btnPedido = document.getElementById('slide-btn-pedido');
+  const btnPagoRap = document.getElementById('slide-btn-pago-rap');
+  const btnPago = document.getElementById('slide-btn-pago');
+  const isMesa = !!APP._catalogMesa;
+  if(btnPedido) btnPedido.style.display = isMesa ? 'block' : 'none';
+  if(btnPagoRap) btnPagoRap.style.display = isMesa ? 'none' : 'block';
+  if(btnPago) btnPago.style.display = isMesa ? 'none' : 'block';
 };
 APP.closeOrderSlide = function(){
   APP._slideOpen = false;
@@ -3001,7 +3037,14 @@ APP.slideGoPedido = function(){
   const nota=document.getElementById('slide-nota');
   const onota=document.getElementById('o-notas');
   if(nota&&onota&&nota.value)onota.value=nota.value;
-  APP.openPayScreen();
+  // Modo mesa → enviar a cocina (PEDIDO = enviar, no cobrar)
+  if(APP._catalogMesa){
+    APP._personas = APP._personas||1;
+    APP.sendToCocina();
+  } else {
+    // Pedido rápido → ir a cobro
+    APP.openPayScreen();
+  }
 };
 
 // ── MESA OCUPADA - ORDEN EXISTENTE ────────────────
@@ -3013,11 +3056,11 @@ APP.openMesaOrder = function(mesaId){
   // Info card
   const now=new Date();
   const timeStr=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const dateStr=now.toISOString().split('T')[0];
+  const pedidoEn=td.pedidoEn||(now.toISOString().replace('T',' ').substring(0,19));
   document.getElementById('mos-info').innerHTML=`
     <div class="mesa-info-row"><span class="mesa-info-lbl">Nombre de la tabla:</span><span class="mesa-info-val">${mesaId}</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Ordenado por :</span><span class="mesa-info-val">${APP.user||'CAJA'}</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Pedido en:</span><span class="mesa-info-val">${dateStr} ${timeStr}</span></div>
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Ordenado por :</span><span class="mesa-info-val">${td.mesero||APP.user||'CAJA'}</span></div>
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Pedido en:</span><span class="mesa-info-val">${pedidoEn}</span></div>
     <div class="mesa-info-row"><span class="mesa-info-lbl">Tipo de orden :</span><span class="mesa-info-val">Mesa</span></div>
     <div class="mesa-info-row"><span class="mesa-info-lbl">Número de personas</span><span class="mesa-info-val">${td.guests||APP._personas||1}</span></div>`;
   // Items
@@ -3033,7 +3076,12 @@ APP.openMesaOrder = function(mesaId){
       ${p.verPrecios?`<span class="mesa-item-total">${APP.fmtNum(it.p*it.q)} $</span>`:''}
     </div>`;
   }).join(''):'<div style="color:var(--tx3);font-size:11px">Sin items</div>';
-  document.getElementById('mos-total').textContent=APP.fmtNum(sub)+' $';
+  const srv13=Math.round(sub*0.05);
+  const tot13=sub+srv13;
+  document.getElementById('mos-total').innerHTML=
+    `<span style="font-size:10px;color:var(--tx2)">Total parcial: ${APP.fmtNum(sub)} $<br>` +
+    `Servicio(5.0): ${APP.fmtNum(srv13)} $<br></span>` +
+    `<strong>Total: ${APP.fmtNum(tot13)} $</strong>`;
   // Log
   document.getElementById('mos-log').textContent=`${timeStr} (Hoy)* Orden creada ( ${APP.user||'CAJA'} )`;
   document.getElementById('mesa-order-screen').classList.add('on');
@@ -3046,6 +3094,15 @@ APP.mosAgregar = function(){
   APP.showCatalogForMesa(APP._mosData.mesaId);
 };
 APP.mosOrdenCompleta = function(){
+  const mesaId = APP._mosData?.mesaId;
+  // Cargar los ítems de la mesa en la orden activa para cobrar
+  if(mesaId){
+    const items = (APP._mesaOrders&&APP._mesaOrders[`mesa${mesaId}`])||APP.order||[];
+    if(items.length) APP.order = [...items];
+    APP._catalogMesa = mesaId;
+    // Liberar la mesa al completar pago
+    APP._completingMesa = mesaId;
+  }
   APP.closeMesaOrder();
   APP.openPayScreen();
 };
@@ -3175,11 +3232,23 @@ APP.sendToCocina = async function(){
       rol: APP.role
     });
     APP.showToast(`✅ Pedido enviado a cocina — ${mesa}`);
+    // Actualizar total en la mesa Firebase
+    if(APP._catalogMesa && APP.db){
+      const sub = APP.order.reduce((a,i)=>a+i.p*i.q,0);
+      const srv = Math.round(sub*0.05);
+      const tot = sub+srv;
+      const{update,ref}=APP.fb;
+      const mk = `mesa${APP._catalogMesa}`;
+      const existing = APP.tables[mk]||{};
+      await update(ref(APP.db,`mesas/${mk}`),{total:(existing.total||0)+tot});
+    }
     // Limpiar orden del mesero
     APP.order = [];
+    APP._catalogMesa = '';
     APP.renderOrder();
     APP.updateOrderCount();
-    APP.showPanel('p-catalog', 'catalog');
+    // Volver a la vista de mesas si era mesa, o catálogo si era pedido rápido
+    APP.showPanel('p-tables','tables');
   } catch(e) {
     APP.showToast('❌ Error: ' + e.message);
   }
@@ -3388,9 +3457,14 @@ APP.pdAgregar = function(){
   const ex=APP.order.find(x=>x.n===p.n&&x._tipo===APP._pdTipo);
   if(ex)ex.q+=qty;else APP.order.push({...p,p:price,q:qty,_tipo:APP._pdTipo});
   APP.closePdModal();
-  APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
+  APP.numpadLast={n:p.n,p:price,e:p.e,img:p.img||'',q:qty};
+  APP.highlightNumpad(qty<=9?qty:9);
+  APP.renderOrder();
+  APP.renderProducts(document.getElementById('search-inp')?.value||'');
+  if(APP.updateOrderCount)APP.updateOrderCount();
+  APP.updateActiveLine();
   APP.showToast(qty+'x '+p.n);
-  APP.showPanel('p-order','order');
+  // Quedarse en catálogo (como RePOS), no ir a p-order
 };
 APP.openClienteSelector = function(){
   APP.filterCliSel('');
@@ -3610,16 +3684,32 @@ APP.renderTables = function(){
   const grid=document.getElementById('tgrid');
   if(!grid) return;
   const selId = APP._mesaSelId||'';
+  // Contar mesas ocupadas para badge del drawer
+  const ocupadas = Object.values(APP.tables).filter(t=>t&&t.status==='ocupada').length;
+  APP.updateBadge('tables', ocupadas);
+  APP.updateBadge('ordenes-mesa', ocupadas);
   grid.innerHTML=fl.map(t=>{
     const td=APP.tables[`mesa${t.id}`]||{status:'libre',guests:0,total:0};
     const isSel = t.id===selId;
     const statClass = isSel?'sel':td.status;
+    // Mesa ocupada: mostrar mesero, personas, hora, monto
+    let extraInfo = '';
+    if(td.status==='ocupada'){
+      const mesero = td.mesero||td.user||'';
+      const guests = td.guests||1;
+      const total = td.total||0;
+      const hora = td.hora||'';
+      extraInfo = `
+        <div class="tc-ocupada-top">${mesero?mesero.substring(0,8):'Administ'} <span class="tc-personas-cnt">${guests}/${t.cap}<br>Persona</span></div>
+        ${hora?`<div class="tc-hora">${hora}</div>`:''}
+        ${total?`<div class="tc-total">${APP.fmtShort(total)} $</div>`:''}`;
+    } else if(td.status==='reservada'){
+      extraInfo = `<div class="tc-stat">Reservada</div>`;
+    }
     return `<div class="tc ${statClass}" id="tc-${t.id}" onclick="APP.tapMesa('${t.id}',${t.cap})">
-      <div class="tc-personas">${t.cap} Persona</div>
+      ${td.status!=='ocupada'?`<div class="tc-personas">${t.cap} Persona</div>`:''}
       <div class="tc-num">${t.num}</div>
-      ${td.status==='ocupada'?`<div class="tc-stat">Ordenado</div>`:''}
-      ${td.status==='reservada'?`<div class="tc-stat">Reservada</div>`:''}
-      ${td.total?`<div class="tc-total">${APP.fmtShort(td.total)}</div>`:''}
+      ${extraInfo}
     </div>`;
   }).join('');
 };
@@ -3677,7 +3767,16 @@ APP.openMesaDirectly = async function(id, cap){
   // Mesa libre o reservada → marcar como ocupada e ir al catálogo
   if(APP.db){
     const{update,ref}=APP.fb;
-    await update(ref(APP.db,`mesas/mesa${id}`),{status:'ocupada',guests:cap||APP._personas||1});
+    const now=new Date();
+    const hora=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+    await update(ref(APP.db,`mesas/mesa${id}`),{
+      status:'ocupada',
+      guests:cap||APP._personas||1,
+      mesero:APP.user||'CAJA',
+      hora,
+      total:0,
+      pedidoEn:now.toISOString().replace('T',' ').substring(0,19)
+    });
   }
   document.getElementById('mesa-sel').value=`Mesa ${id}`;
   APP._catalogMesa = id;
@@ -4670,6 +4769,10 @@ onValue(ref(db,'mesas'), snap => {
   else APP.initAllTables();
   APP.renderTables();
   APP.renderGMTables();
+  // Badge con número de mesas ocupadas
+  const ocupadas17 = Object.values(APP.tables||{}).filter(t=>t&&t.status==='ocupada').length;
+  APP.updateBadge('tables', ocupadas17);
+  APP.updateBadge('ordenes-mesa', ocupadas17);
 });
 
 onValue(ref(db,'inventario'), snap => {
@@ -4685,8 +4788,9 @@ onValue(ref(db,'pedidos_cocina'), snap => {
   APP.renderKitchen();
   APP.renderOrdenesMesa();
   APP.renderPedidos();
-  APP.updateBadge('kitchen', APP.kitchenOrders.filter(o=>!o.done).length);
-  APP.updateBadge('pedidos', APP.kitchenOrders.filter(o=>!o.done).length);
+  const pendientes = APP.kitchenOrders.filter(o=>!o.done).length;
+  APP.updateBadge('kitchen', pendientes);
+  APP.updateBadge('pedidos', APP.kitchenOrders.length); // total del día
 });
 
 onValue(ref(db,'clientes'), snap => {
