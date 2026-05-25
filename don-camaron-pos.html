@@ -175,14 +175,11 @@ body{background:var(--bg);color:var(--tx)}
 .npkey:active{background:var(--bll2)}
 .npkey.on{background:var(--bl);color:#fff;font-size:17px}
 /* Producto activo (seleccionado) en grilla */
-.pc.active{border-color:var(--bl);border-width:3px}
-.pc.active .pimg{filter:brightness(.75)}
+.pc.active{border-color:var(--bl);border-width:2px}
+.pc.active .pimg{filter:brightness(.85)}
 .pc.active .pinfo{background:var(--bl)}
 .pc.active .pname{color:#fff}
 .pc.active .pprice{color:rgba(255,255,255,.9)}
-.pc-active-badge{position:absolute;top:4px;right:4px;background:var(--bl);color:#fff;
-  border-radius:12px;font-size:11px;font-weight:800;padding:2px 7px;z-index:2;
-  border:2px solid #fff}
 .pc-qty-badge{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);
   color:#fff;border-radius:6px;font-size:10px;font-weight:700;padding:2px 6px}
 .pc-stock-badge{position:absolute;top:4px;left:4px;background:#C62828;
@@ -205,13 +202,13 @@ body{background:var(--bg);color:var(--tx)}
 .order-footer-count{font-size:12px;opacity:.8}
 /* Footer doble nuevo estilo RePOS */
 .cat-footer{flex-shrink:0;background:var(--bl);color:#fff}
-.cat-footer-product{padding:6px 14px;font-size:12px;font-weight:700;
+.cat-footer-product{padding:6px 14px;font-size:11px;font-weight:600;
   border-bottom:1px solid rgba(255,255,255,.2);min-height:28px;
   display:flex;align-items:center;gap:4px;opacity:.92;white-space:nowrap;overflow:hidden}
 .cat-footer-summary{padding:10px 14px;display:flex;align-items:center;
   justify-content:space-between;cursor:pointer}
 .cat-footer-label{font-size:13px;font-weight:700}
-.cat-footer-arrow{font-size:22px;transition:transform .2s}
+.cat-footer-arrow{font-size:20px;transition:transform .2s}
 .cat-footer-arrow.open{transform:rotate(180deg)}
 /* Panel slide-up de resumen */
 .order-slide-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:290;display:none}
@@ -250,9 +247,8 @@ body{background:var(--bg);color:var(--tx)}
   display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .osb-pnum{font-size:14px;font-weight:800;color:var(--bl);min-width:28px;
   text-align:center;border-bottom:2px solid var(--bl);padding-bottom:1px}
-.osb-actions{display:flex;flex-direction:column;gap:6px}
-.osb-actions .osb-btn{width:100%;font-size:12px;padding:11px}
-.osb-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.osb-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.osb-btn.gray{background:#9E9E9E;color:#fff}
 .osb-btn{padding:13px;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer}
 /* Mesa ocupada - pantalla detalle */
 .mesa-order-screen{position:fixed;inset:0;background:#F0F4F8;z-index:400;
@@ -461,7 +457,24 @@ body{background:var(--bg);color:var(--tx)}
   display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
 .tc:active{transform:scale(.93)}
 .tc.libre{background:#fff;border-color:var(--bl)}
-.tc.ocupada{background:#FFF3E0;border-color:#FFCC80}
+.tc.ocupada{background:var(--bl);border-color:var(--bll);color:#fff}
+.tc.ocupada .tc-num{color:#fff;font-size:26px}
+.tc-top-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:9px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:2px}
+.tc-mesero{font-size:9px;font-weight:700}
+.tc.ocupada .tc-personas{font-size:8px;text-align:right;line-height:1.2;color:rgba(255,255,255,.8)}
+.tc-hora{font-size:9px;color:rgba(255,255,255,.75);margin-top:1px}
+.tc-total-ocu{font-size:10px;font-weight:700;color:rgba(255,255,255,.95);margin-top:2px}
+/* Overlay "orden completada" post-pedido */
+.order-done-overlay{position:fixed;inset:0;z-index:450;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.3)}
+.order-done-card{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:380px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25)}
+.order-done-check{width:72px;height:72px;border-radius:50%;border:4px solid var(--bl);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 1rem;color:var(--bl)}
+.order-done-title{font-size:18px;font-weight:800;color:var(--bl);margin-bottom:.3rem}
+.order-done-total{font-size:20px;font-weight:800;color:var(--tx);margin-bottom:1.2rem}
+.order-done-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.2rem}
+.order-done-stat{background:var(--bll2);border-radius:10px;padding:.8rem .5rem;text-align:center}
+.order-done-stat-val{font-size:22px;font-weight:800;color:var(--bl);display:block}
+.order-done-stat-lbl{font-size:9px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px}
+.order-done-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tc.reservada{background:#EDE7F6;border-color:#CE93D8}
 .tc.sel{background:var(--bll3);border-color:var(--bl);box-shadow:0 0 0 3px rgba(21,101,192,.18)}
 .tc-personas{font-size:10px;color:var(--tx2);font-weight:600;margin-bottom:4px;align-self:flex-end;width:100%;text-align:right}
@@ -471,13 +484,6 @@ body{background:var(--bg);color:var(--tx)}
 .tc.reservada .tc-stat{display:block;color:#6A1B9A}
 .tc-cap{font-size:10px;color:var(--tx3);margin-top:2px}
 .tc-total{font-size:10px;font-weight:700;color:var(--or);margin-top:2px}
-.tc.ocupada{background:var(--bl);border-color:var(--bll);color:#fff}
-.tc.ocupada .tc-num{color:#fff}
-.tc-ocupada-top{font-size:9px;font-weight:700;color:rgba(255,255,255,.85);display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1px}
-.tc-personas-cnt{font-size:8px;text-align:right;line-height:1.1}
-.tc-hora{font-size:9px;color:rgba(255,255,255,.75);margin-top:2px}
-.tc.ocupada .tc-total{color:rgba(255,255,255,.9);font-size:10px}
-.tc.ocupada .tc-stat{color:rgba(255,255,255,.7)}
 .tables-legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .tleg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
 .tleg.l{background:#E8F5E9;color:#2E7D32}
@@ -942,7 +948,7 @@ body{background:var(--bg);color:var(--tx)}
               Resumen de la orden (<span id="order-count">0</span>) : 
               <span id="order-footer-total">0.00 $</span>
             </span>
-            <span class="cat-footer-arrow" id="slide-arrow" style="font-size:22px">↑</span>
+            <span class="cat-footer-arrow" id="slide-arrow">∨</span>
           </div>
         </div>
       </div>
@@ -1733,7 +1739,7 @@ body{background:var(--bg);color:var(--tx)}
       Resumen de la orden (<span id="slide-count">0</span>) : 
       <span id="slide-total">0.00 $</span>
     </div>
-    <div onclick="APP.closeOrderSlide()" style="cursor:pointer;font-size:22px;font-weight:700">✓</div>
+    <div onclick="APP.closeOrderSlide()" style="cursor:pointer;font-size:20px">∨</div>
   </div>
   <div class="order-slide-body" id="slide-items"></div>
   <div class="order-slide-bottom">
@@ -1745,18 +1751,15 @@ body{background:var(--bg);color:var(--tx)}
       <button class="osb-pbtn" onclick="APP.chgPersonas(1)">👤+</button>
     </div>
     <div class="osb-actions">
-      <button class="osb-btn" style="background:#9E9E9E;color:#fff"
-        onclick="APP.closeOrderSlide()">VOLVER</button>
-      <!-- Modo mesa: solo botón PEDIDO (envía a cocina) -->
+      <button class="osb-btn gray" onclick="APP.closeOrderSlide()">VOLVER</button>
+      <!-- Modo mesa: PEDIDO → envía a cocina -->
       <button id="slide-btn-pedido" class="osb-btn" style="background:var(--bl);color:#fff;display:none"
-        onclick="APP.slideGoPedido()">PEDIDO</button>
-      <!-- Modo rápido: fila PAGO RÁPIDO EN EFECTIVO + PAGO -->
-      <div class="osb-actions-row">
-        <button id="slide-btn-pago-rap" class="osb-btn" style="background:#2E7D32;color:#fff;font-size:11px"
-          onclick="APP.pagoRapidoEfectivo()">PAGO RÁPIDO<br>EN EFECTIVO</button>
-        <button id="slide-btn-pago" class="osb-btn" style="background:#fff;color:var(--bl);border:2px solid var(--bl)"
-          onclick="APP.slideGoPagoCompleto()">PAGO</button>
-      </div>
+        onclick="APP.slideEnviarCocina()">PEDIDO</button>
+      <!-- Modo rápido: PAGO RÁPIDO + PAGO -->
+      <button id="slide-btn-pago-rap" class="osb-btn" style="background:#2E7D32;color:#fff"
+        onclick="APP.slidePagoRapido()">PAGO RÁPIDO EN EFECTIVO</button>
+      <button id="slide-btn-pago" class="osb-btn" style="background:#fff;color:var(--bl);border:2px solid var(--bl)"
+        onclick="APP.slideGoPago()">PAGO</button>
     </div>
   </div>
 </div>
@@ -1790,6 +1793,42 @@ body{background:var(--bg);color:var(--tx)}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══ OVERLAY ORDEN COMPLETADA ══ -->
+<div class="order-done-overlay" id="order-done-overlay" style="display:none" onclick="APP.closeOrderDoneOverlay()">
+  <div class="order-done-card" onclick="event.stopPropagation()">
+    <div class="order-done-check">✓</div>
+    <div class="order-done-title" id="od-mesa-label">orden completada</div>
+    <div class="order-done-total" id="od-total">TOTAL: 0 $</div>
+    <div class="order-done-stats">
+      <div class="order-done-stat">
+        <span class="order-done-stat-val" id="od-items">0</span>
+        <span class="order-done-stat-lbl">Núm. de artículos pedidos</span>
+      </div>
+      <div class="order-done-stat">
+        <span class="order-done-stat-val" id="od-pedidos-total">0</span>
+        <span class="order-done-stat-lbl">Total de pedidos realizados</span>
+      </div>
+      <div class="order-done-stat">
+        <span class="order-done-stat-val" id="od-tiempo">–</span>
+        <span class="order-done-stat-lbl">Hora de ordenar</span>
+      </div>
+      <div class="order-done-stat">
+        <span class="order-done-stat-val">–</span>
+        <span class="order-done-stat-lbl">Tiempo promedio para ordenar</span>
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--tx2);margin-bottom:1rem;cursor:pointer;justify-content:center">
+      <input type="checkbox" id="od-never" style="width:15px;height:15px"> Nunca mostrarlo de nuevo
+    </label>
+    <div class="order-done-actions">
+      <button style="padding:12px;border:none;border-radius:10px;background:var(--bl);color:#fff;font-weight:800;font-size:13px;cursor:pointer"
+        onclick="APP.closeOrderDoneOverlay()">CONGELAR</button>
+      <button style="padding:12px;border:none;border-radius:10px;background:var(--bl);color:#fff;font-weight:800;font-size:13px;cursor:pointer"
+        onclick="APP.closeOrderDoneOverlay()">CUOTA</button>
+    </div>
+  </div>
+</div>
 
 
 <!-- ══ PANTALLA COBRO ══ -->
@@ -2851,9 +2890,14 @@ APP.updateBadge = function(key,n){
 // ── CATÁLOGO ─────────────────────────────────
 APP.renderCats = function(){
   const cats=Object.keys(APP.menuData);
+  const esperaN = (APP.pedidosEspera||[]).length;
+  // Badge ⏳ al final si hay pedidos en espera (igual que el RePOS)
+  const esperaBtn = esperaN>0
+    ? `<div class="ctab" style="color:var(--or);border-color:transparent;position:relative" onclick="APP.openEspera()">⏳<span style="position:absolute;top:4px;right:2px;background:#C62828;color:#fff;border-radius:8px;font-size:9px;padding:0 4px;font-weight:800;min-width:14px;text-align:center">${esperaN}</span></div>`
+    : '';
   document.getElementById('cat-tabs').innerHTML=cats.map(c=>
     `<div class="ctab${c===APP.activeCat?' on':''}" onclick="APP.setCat('${c.replace(/'/g,"&#39;")}')">${c}</div>`
-  ).join('');
+  ).join('') + esperaBtn;
 };
 APP.setCat = function(c){
   APP.activeCat=c; APP.numpadQty=null;
@@ -2887,8 +2931,7 @@ APP.renderProducts = function(filter=''){
       onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
       <div class="pimg">
         ${imgHtml}
-        ${isActive?`<div class="pc-active-badge">x${qty||1}.0</div>`:
-           qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
+        ${qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
         ${showLow?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">-${Math.abs(stock)}<br>Rest.</div>`:''}
         ${showStock?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">${stock}<br>Rest.</div>`:''}
       </div>
@@ -2904,15 +2947,36 @@ APP.renderProducts = function(filter=''){
 
 APP.selectProduct = function(en, price, em, img){
   const name = decodeURIComponent(en);
+  const isAlreadyActive = APP.numpadLast?.n === name;
+
+  if(isAlreadyActive){
+    // Segunda pulsación en el mismo producto → abrir modal
+    APP.openPdModal({n:name,p:price,e:em,img:img||''});
+    return;
+  }
+
+  // Primera pulsación → seleccionar + agregar 1 directamente (SIN modal)
   APP.numpadLast = {n:name,p:price,e:em,img:img||'',q:1};
-  // Highlight numpad key 1 by default
-  APP.highlightNumpad(1);
-  // Update active product footer line
+  const ex = APP.order.find(x=>x.n===name);
+  if(ex){
+    ex.q += 1;
+    APP.numpadLast.q = ex.q;
+    APP.highlightNumpad(ex.q<=9?ex.q:9);
+  } else {
+    APP.order.push({n:name,p:price,e:em,img:img||'',q:1,_tipo:'servido'});
+    APP.highlightNumpad(1);
+  }
+
+  // Actualizar contadores inmediatamente
+  const _total=APP.order.reduce((a,i)=>a+i.q,0);
+  const _sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const _oc=document.getElementById('order-count'); if(_oc)_oc.textContent=_total;
+  const _ft=document.getElementById('order-footer-total');
+  if(_ft&&APP.perms[APP.role]?.verPrecios)_ft.textContent=APP.fmtNum(_sub)+' $';
+
   APP.updateActiveLine();
-  // Re-render to show blue card
-  APP.renderProducts(document.getElementById('search-inp').value);
-  // Also open product detail modal
-  APP.openPdModal({n:name,p:price,e:em,img:img||''});
+  APP.renderOrder();
+  APP.renderProducts(document.getElementById('search-inp')?.value||'');
 };
 
 APP.highlightNumpad = function(k){
@@ -2926,8 +2990,14 @@ APP.updateActiveLine = function(){
   const lbl = document.getElementById('cat-active-product');
   if(!lbl) return;
   if(!APP.numpadLast){lbl.textContent='Selecciona un producto del menú...';return;}
-  const qty = APP.order.find(o=>o.n===APP.numpadLast.n)?.q||APP._lastQty||1;
-  lbl.textContent = `${APP.numpadLast.n} (${APP.fmtNum(APP.numpadLast.p)} $) X ${qty}`;
+  const inOrder = APP.order.find(o=>o.n===APP.numpadLast.n);
+  const qty = inOrder?.q||APP._lastQty||1;
+  const showPrice = APP.perms[APP.role]?.verPrecios;
+  if(showPrice){
+    lbl.textContent = `${APP.numpadLast.n} (${APP.fmtNum(APP.numpadLast.p)} $) X ${qty}`;
+  } else {
+    lbl.textContent = `${APP.numpadLast.n} — X ${qty}`;
+  }
 };
 
 document.getElementById('search-inp').addEventListener('input',e=>APP.renderProducts(e.target.value));
@@ -2935,21 +3005,21 @@ document.getElementById('search-inp').addEventListener('input',e=>APP.renderProd
 // Teclado numérico
 APP._lastQty = 1;
 APP.numpadPress = function(k){
-  if(k==='.') return; // decimal not used for qty
+  if(k==='.') return;
   const qty = parseInt(k)||0;
-  APP._lastQty = qty||1;
-  // Highlight key
   APP.highlightNumpad(k);
-  // Update qty on current product
   if(!APP.numpadLast) return;
+  APP._lastQty = qty||1;
   const ex = APP.order.find(x=>x.n===APP.numpadLast.n);
   if(qty===0){
-    // Tecla 0 → eliminar el producto de la orden
-    if(ex){ APP.order.splice(APP.order.indexOf(ex),1); }
+    // Tecla 0 → eliminar producto de la orden
+    if(ex) APP.order.splice(APP.order.indexOf(ex),1);
   } else if(ex){
-    ex.q=qty;
+    ex.q = qty;
+    APP.numpadLast.q = qty;
   } else {
-    APP.order.push({...APP.numpadLast,q:qty});
+    APP.order.push({...APP.numpadLast, q:qty});
+    APP.numpadLast.q = qty;
   }
   APP.renderOrder(); APP.updateOrderCount();
   APP.updateActiveLine();
@@ -2987,14 +3057,14 @@ APP.openOrderSlide = function(){
   document.getElementById('order-slide-bg').classList.add('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.classList.add('open');
   APP.renderSlideItems();
-  // Adaptar botones según contexto: mesa → PEDIDO, rápido → PAGO RÁPIDO + PAGO
-  const btnPedido = document.getElementById('slide-btn-pedido');
-  const btnPagoRap = document.getElementById('slide-btn-pago-rap');
-  const btnPago = document.getElementById('slide-btn-pago');
+  // Adaptar botones según contexto
   const isMesa = !!APP._catalogMesa;
-  if(btnPedido) btnPedido.style.display = isMesa ? 'block' : 'none';
-  if(btnPagoRap) btnPagoRap.style.display = isMesa ? 'none' : 'block';
-  if(btnPago) btnPago.style.display = isMesa ? 'none' : 'block';
+  const btnP=document.getElementById('slide-btn-pedido');
+  const btnRap=document.getElementById('slide-btn-pago-rap');
+  const btnPag=document.getElementById('slide-btn-pago');
+  if(btnP) btnP.style.display=isMesa?'block':'none';
+  if(btnRap) btnRap.style.display=isMesa?'none':'block';
+  if(btnPag) btnPag.style.display=isMesa?'none':'block';
 };
 APP.closeOrderSlide = function(){
   APP._slideOpen = false;
@@ -3031,20 +3101,56 @@ APP.chgPersonas = function(d){
   APP._personas=Math.max(1,(APP._personas||1)+d);
   const el=document.getElementById('slide-personas');if(el)el.textContent=APP._personas;
 };
+APP.slideEnviarCocina = function(){
+  APP.closeOrderSlide();
+  APP.sendToCocina();
+};
+APP.slidePagoRapido = function(){
+  APP.closeOrderSlide();
+  if(!APP.order.length){APP.showToast('Orden vacía');return;}
+  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const srv=Math.round(sub*0.05);
+  const tot=sub+srv;
+  APP.showToast(`✅ Pago rápido en efectivo: ${APP.fmtNum(tot)} $`);
+  if(APP.completeSale)APP.completeSale('efectivo',tot);
+  APP.order=[];APP.numpadLast=null;
+  APP.renderOrder();APP.updateOrderCount();
+  APP.renderProducts('');
+  APP.updateActiveLine();
+};
+APP.slideGoPago = function(){
+  APP.closeOrderSlide();
+  APP.openPayScreen();
+};
+APP._showOrderDoneOverlay = function(mesa, items, sub){
+  const srv = Math.round(sub*0.05);
+  const tot = sub+srv;
+  const el = document.getElementById('order-done-overlay');
+  if(!el) return;
+  if(document.getElementById('od-never')?.checked) return; // "nunca mostrarlo"
+  document.getElementById('od-mesa-label').textContent = `Nombre de la tabla: ${mesa}  orden completada`;
+  document.getElementById('od-total').textContent = `TOTAL:${APP.fmtNum(tot)} $`;
+  document.getElementById('od-items').textContent = items;
+  document.getElementById('od-pedidos-total').textContent = (APP.kitchenOrders||[]).length;
+  document.getElementById('od-tiempo').textContent = APP.timeNow();
+  el.style.display = 'flex';
+  // Auto-cerrar en 4 segundos
+  clearTimeout(APP._odTimer);
+  APP._odTimer = setTimeout(()=>APP.closeOrderDoneOverlay(), 4000);
+};
+APP.closeOrderDoneOverlay = function(){
+  clearTimeout(APP._odTimer);
+  const el = document.getElementById('order-done-overlay');
+  if(el) el.style.display = 'none';
+};
+
 APP.slideGoPedido = function(){
   APP.closeOrderSlide();
   // Copy nota from slide to order
   const nota=document.getElementById('slide-nota');
   const onota=document.getElementById('o-notas');
   if(nota&&onota&&nota.value)onota.value=nota.value;
-  // Modo mesa → enviar a cocina (PEDIDO = enviar, no cobrar)
-  if(APP._catalogMesa){
-    APP._personas = APP._personas||1;
-    APP.sendToCocina();
-  } else {
-    // Pedido rápido → ir a cobro
-    APP.openPayScreen();
-  }
+  APP.openPayScreen();
 };
 
 // ── MESA OCUPADA - ORDEN EXISTENTE ────────────────
@@ -3056,11 +3162,11 @@ APP.openMesaOrder = function(mesaId){
   // Info card
   const now=new Date();
   const timeStr=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const pedidoEn=td.pedidoEn||(now.toISOString().replace('T',' ').substring(0,19));
+  const dateStr=now.toISOString().split('T')[0];
   document.getElementById('mos-info').innerHTML=`
     <div class="mesa-info-row"><span class="mesa-info-lbl">Nombre de la tabla:</span><span class="mesa-info-val">${mesaId}</span></div>
     <div class="mesa-info-row"><span class="mesa-info-lbl">Ordenado por :</span><span class="mesa-info-val">${td.mesero||APP.user||'CAJA'}</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Pedido en:</span><span class="mesa-info-val">${pedidoEn}</span></div>
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Pedido en:</span><span class="mesa-info-val">${td.pedidoEn||dateStr+' '+timeStr}</span></div>
     <div class="mesa-info-row"><span class="mesa-info-lbl">Tipo de orden :</span><span class="mesa-info-val">Mesa</span></div>
     <div class="mesa-info-row"><span class="mesa-info-lbl">Número de personas</span><span class="mesa-info-val">${td.guests||APP._personas||1}</span></div>`;
   // Items
@@ -3076,12 +3182,9 @@ APP.openMesaOrder = function(mesaId){
       ${p.verPrecios?`<span class="mesa-item-total">${APP.fmtNum(it.p*it.q)} $</span>`:''}
     </div>`;
   }).join(''):'<div style="color:var(--tx3);font-size:11px">Sin items</div>';
-  const srv13=Math.round(sub*0.05);
-  const tot13=sub+srv13;
-  document.getElementById('mos-total').innerHTML=
-    `<span style="font-size:10px;color:var(--tx2)">Total parcial: ${APP.fmtNum(sub)} $<br>` +
-    `Servicio(5.0): ${APP.fmtNum(srv13)} $<br></span>` +
-    `<strong>Total: ${APP.fmtNum(tot13)} $</strong>`;
+  const srv16=Math.round(sub*0.05);
+  const tot16=sub+srv16;
+  document.getElementById('mos-total').innerHTML=`<span style="font-size:10px;opacity:.7">Total parcial: ${APP.fmtNum(sub)} $<br>Servicio(5.0): ${APP.fmtNum(srv16)} $<br></span><strong>Total: ${APP.fmtNum(tot16)} $</strong>`;
   // Log
   document.getElementById('mos-log').textContent=`${timeStr} (Hoy)* Orden creada ( ${APP.user||'CAJA'} )`;
   document.getElementById('mesa-order-screen').classList.add('on');
@@ -3094,15 +3197,6 @@ APP.mosAgregar = function(){
   APP.showCatalogForMesa(APP._mosData.mesaId);
 };
 APP.mosOrdenCompleta = function(){
-  const mesaId = APP._mosData?.mesaId;
-  // Cargar los ítems de la mesa en la orden activa para cobrar
-  if(mesaId){
-    const items = (APP._mesaOrders&&APP._mesaOrders[`mesa${mesaId}`])||APP.order||[];
-    if(items.length) APP.order = [...items];
-    APP._catalogMesa = mesaId;
-    // Liberar la mesa al completar pago
-    APP._completingMesa = mesaId;
-  }
   APP.closeMesaOrder();
   APP.openPayScreen();
 };
@@ -3232,23 +3326,25 @@ APP.sendToCocina = async function(){
       rol: APP.role
     });
     APP.showToast(`✅ Pedido enviado a cocina — ${mesa}`);
-    // Actualizar total en la mesa Firebase
+    // Mostrar pantalla confirmación "orden completada" como en RePOS
+    APP._showOrderDoneOverlay(mesa, APP.order.reduce((a,i)=>a+i.q,0), APP.order.reduce((a,i)=>a+i.p*i.q,0));
+    // Actualizar total acumulado en la mesa
     if(APP._catalogMesa && APP.db){
-      const sub = APP.order.reduce((a,i)=>a+i.p*i.q,0);
-      const srv = Math.round(sub*0.05);
-      const tot = sub+srv;
+      const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+      const tot=sub+Math.round(sub*0.05);
       const{update,ref}=APP.fb;
-      const mk = `mesa${APP._catalogMesa}`;
-      const existing = APP.tables[mk]||{};
-      await update(ref(APP.db,`mesas/${mk}`),{total:(existing.total||0)+tot});
+      const mk=`mesa${APP._catalogMesa}`;
+      const prev=(APP.tables[mk]||{}).total||0;
+      await update(ref(APP.db,`mesas/${mk}`),{total:prev+tot});
+      APP._catalogMesa='';
+      APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
+      APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
+      APP.showPanel('p-tables','tables');
+    } else {
+      APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
+      APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
+      APP.showPanel('p-catalog','catalog');
     }
-    // Limpiar orden del mesero
-    APP.order = [];
-    APP._catalogMesa = '';
-    APP.renderOrder();
-    APP.updateOrderCount();
-    // Volver a la vista de mesas si era mesa, o catálogo si era pedido rápido
-    APP.showPanel('p-tables','tables');
   } catch(e) {
     APP.showToast('❌ Error: ' + e.message);
   }
@@ -3377,14 +3473,22 @@ APP.showDoneScreen = function(tot,method,elapsed){
   const el4=document.getElementById('done-total-orders');if(el4)el4.textContent=13498+APP.payState.totalOrders;
   const el5=document.getElementById('done-time');if(el5)el5.textContent=(elapsed||0)+' SEGUNDOS';
   document.getElementById('done-screen').classList.add('on');
-  APP.order=[];APP.selMetodo=null;APP.payState.discVal=0;APP.payState.orderStartTime=Date.now();
+  APP.order=[];APP.numpadLast=null;APP.selMetodo=null;APP.payState.discVal=0;APP.payState.orderStartTime=Date.now();
   const on=document.getElementById('o-notas');if(on)on.value='';
   const oc=document.getElementById('o-cliente');if(oc)oc.value='';
   const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent='Toca para seleccionar...';
   APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
 };
-APP.doneFreezeOrder = function(){document.getElementById('done-screen').classList.remove('on');APP.showPanel('p-catalog','catalog');APP.showToast('Orden congelada');};
-APP.doneQuota = function(){document.getElementById('done-screen').classList.remove('on');APP.showPanel('p-catalog','catalog');APP.showToast('Cuota registrada');};
+APP.doneFreezeOrder = function(){
+  document.getElementById('done-screen').classList.remove('on');
+  APP.renderProducts(''); APP.updateActiveLine(); APP.updateOrderCount(); APP.renderCats();
+  APP.showPanel('p-catalog','catalog'); APP.showToast('Orden congelada');
+};
+APP.doneQuota = function(){
+  document.getElementById('done-screen').classList.remove('on');
+  APP.renderProducts(''); APP.updateActiveLine(); APP.updateOrderCount(); APP.renderCats();
+  APP.showPanel('p-catalog','catalog'); APP.showToast('Cuota registrada');
+};
 APP.cobrar = async function(){await APP.completePay();};
 APP.openPartialPay = function(){
   APP.order.forEach(it=>it._partialQty=0);
@@ -3455,16 +3559,25 @@ APP.pdAgregar = function(){
   let price=p.p;
   if(APP._pdTipo==='llevar')price=Math.round(price*1.1);
   const ex=APP.order.find(x=>x.n===p.n&&x._tipo===APP._pdTipo);
-  if(ex)ex.q+=qty;else APP.order.push({...p,p:price,q:qty,_tipo:APP._pdTipo});
-  APP.closePdModal();
+  if(ex){ ex.q=qty; ex.p=price; }
+  else APP.order.push({...p,p:price,q:qty,_tipo:APP._pdTipo});
+  // Actualizar numpadLast para badge
   APP.numpadLast={n:p.n,p:price,e:p.e,img:p.img||'',q:qty};
   APP.highlightNumpad(qty<=9?qty:9);
-  APP.renderOrder();
+  APP.closePdModal();
+  // Actualizar contadores INMEDIATAMENTE
+  const _total=APP.order.reduce((a,i)=>a+i.q,0);
+  const _sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const _oc=document.getElementById('order-count'); if(_oc)_oc.textContent=_total;
+  const _ft=document.getElementById('order-footer-total');
+  if(_ft&&APP.perms[APP.role]?.verPrecios)_ft.textContent=APP.fmtNum(_sub)+' $';
+  const _sc=document.getElementById('slide-count'); if(_sc)_sc.textContent=_total;
+  const _st=document.getElementById('slide-total');
+  if(_st&&APP.perms[APP.role]?.verPrecios)_st.textContent=APP.fmtNum(_sub)+' $';
+  // Re-render catálogo y barra inferior
   APP.renderProducts(document.getElementById('search-inp')?.value||'');
-  if(APP.updateOrderCount)APP.updateOrderCount();
   APP.updateActiveLine();
   APP.showToast(qty+'x '+p.n);
-  // Quedarse en catálogo (como RePOS), no ir a p-order
 };
 APP.openClienteSelector = function(){
   APP.filterCliSel('');
@@ -3602,9 +3715,11 @@ APP.guardarEnEspera = function(){
   APP.pedidosEspera.push(espera);
   // Limpiar orden actual
   APP.order = [];
+  APP.numpadLast = null;
   APP.renderOrder();
   APP.updateOrderCount();
   APP.renderEsperaList();
+  APP.renderCats(); // actualizar badge ⏳
   APP.showToast(`⏸ Orden guardada en espera — ${mesa}`);
 };
 APP.retormarEspera = function(id){
@@ -3622,6 +3737,7 @@ APP.retormarEspera = function(id){
   APP.renderOrder();
   APP.updateOrderCount();
   APP.renderEsperaList();
+  APP.renderCats(); // actualizar badge ⏳
   APP.closeEspera();
   APP.showToast(`▶ Orden retomada — ${espera.mesa}`);
 };
@@ -3684,32 +3800,25 @@ APP.renderTables = function(){
   const grid=document.getElementById('tgrid');
   if(!grid) return;
   const selId = APP._mesaSelId||'';
-  // Contar mesas ocupadas para badge del drawer
-  const ocupadas = Object.values(APP.tables).filter(t=>t&&t.status==='ocupada').length;
-  APP.updateBadge('tables', ocupadas);
-  APP.updateBadge('ordenes-mesa', ocupadas);
   grid.innerHTML=fl.map(t=>{
     const td=APP.tables[`mesa${t.id}`]||{status:'libre',guests:0,total:0};
     const isSel = t.id===selId;
     const statClass = isSel?'sel':td.status;
-    // Mesa ocupada: mostrar mesero, personas, hora, monto
-    let extraInfo = '';
-    if(td.status==='ocupada'){
-      const mesero = td.mesero||td.user||'';
-      const guests = td.guests||1;
-      const total = td.total||0;
-      const hora = td.hora||'';
-      extraInfo = `
-        <div class="tc-ocupada-top">${mesero?mesero.substring(0,8):'Administ'} <span class="tc-personas-cnt">${guests}/${t.cap}<br>Persona</span></div>
-        ${hora?`<div class="tc-hora">${hora}</div>`:''}
-        ${total?`<div class="tc-total">${APP.fmtShort(total)} $</div>`:''}`;
-    } else if(td.status==='reservada'){
-      extraInfo = `<div class="tc-stat">Reservada</div>`;
-    }
+    const ocupada = td.status==='ocupada';
+    const mesero = td.mesero||td.user||'';
+    const hora = td.hora||'';
+    const total = td.total||0;
+    const guests = td.guests||t.cap;
     return `<div class="tc ${statClass}" id="tc-${t.id}" onclick="APP.tapMesa('${t.id}',${t.cap})">
-      ${td.status!=='ocupada'?`<div class="tc-personas">${t.cap} Persona</div>`:''}
-      <div class="tc-num">${t.num}</div>
-      ${extraInfo}
+      ${ocupada
+        ? `<div class="tc-top-row"><span class="tc-mesero">${mesero?mesero.substring(0,7):'Administ'}</span><span class="tc-personas">${guests}/${t.cap}<br>Persona</span></div>
+           <div class="tc-num">${t.num}</div>
+           ${hora?`<div class="tc-hora">${hora}</div>`:''}
+           ${total?`<div class="tc-total-ocu">${APP.fmtShort(total)} $</div>`:''}`
+        : `<div class="tc-personas">${t.cap} Persona</div>
+           <div class="tc-num">${t.num}</div>
+           ${td.status==='reservada'?`<div class="tc-stat">Reservada</div>`:''}`
+      }
     </div>`;
   }).join('');
 };
@@ -3718,41 +3827,10 @@ APP._mesaSelId = '';
 APP._mesaTapTimer = null;
 
 APP.tapMesa = function(id, cap){
-  // Si ya estaba seleccionada → ir al catálogo directo
-  if(APP._mesaSelId===id){
-    APP.openMesaDirectly(id,cap);
-    return;
-  }
-  // Primera pulsación → seleccionar (azul) y mostrar footer
-  APP._mesaSelId = id;
-  // Quitar sel de todas
-  document.querySelectorAll('.tc').forEach(el=>{
-    el.classList.remove('sel');
-    // restaurar color original
-    const tid = el.id.replace('tc-','');
-    const td = APP.tables[`mesa${tid}`]||{status:'libre'};
-    el.className = `tc ${td.status}`;
-  });
-  // Poner azul la seleccionada
-  const card = document.getElementById('tc-'+id);
-  if(card) card.classList.add('sel');
-  // Actualizar footer
-  const footer = document.getElementById('tables-footer');
-  if(footer){
-    const td = APP.tables[`mesa${id}`]||{status:'libre'};
-    if(td.status==='libre'){
-      footer.innerHTML = `<span style="opacity:.8;font-size:11px">Mesa ${id} seleccionada — </span><strong>Toca de nuevo para abrir orden</strong>`;
-    } else if(td.status==='ocupada'){
-      footer.innerHTML = `<span style="opacity:.8;font-size:11px">Mesa ${id} ocupada — </span><strong>Toca de nuevo para ver/editar</strong>`;
-    } else {
-      footer.innerHTML = `<span style="opacity:.8;font-size:11px">Mesa ${id} reservada — </span><strong>Toca de nuevo para iniciar</strong>`;
-    }
-  }
-  // Auto-abrir tras 600ms si no hay segunda pulsación
+  // 1 solo tap → abrir directo (igual que el RePOS original)
   clearTimeout(APP._mesaTapTimer);
-  APP._mesaTapTimer = setTimeout(()=>{
-    APP.openMesaDirectly(id,cap);
-  },700);
+  APP._mesaSelId = id;
+  APP.openMesaDirectly(id,cap);
 };
 
 APP.openMesaDirectly = async function(id, cap){
@@ -4769,10 +4847,9 @@ onValue(ref(db,'mesas'), snap => {
   else APP.initAllTables();
   APP.renderTables();
   APP.renderGMTables();
-  // Badge con número de mesas ocupadas
-  const ocupadas17 = Object.values(APP.tables||{}).filter(t=>t&&t.status==='ocupada').length;
-  APP.updateBadge('tables', ocupadas17);
-  APP.updateBadge('ordenes-mesa', ocupadas17);
+  const ocu=Object.values(APP.tables||{}).filter(t=>t&&t.status==='ocupada').length;
+  APP.updateBadge('tables',ocu);
+  APP.updateBadge('ordenes-mesa',ocu);
 });
 
 onValue(ref(db,'inventario'), snap => {
@@ -4788,9 +4865,9 @@ onValue(ref(db,'pedidos_cocina'), snap => {
   APP.renderKitchen();
   APP.renderOrdenesMesa();
   APP.renderPedidos();
-  const pendientes = APP.kitchenOrders.filter(o=>!o.done).length;
-  APP.updateBadge('kitchen', pendientes);
-  APP.updateBadge('pedidos', APP.kitchenOrders.length); // total del día
+  const pendientes=APP.kitchenOrders.filter(o=>!o.done).length;
+  APP.updateBadge('kitchen',pendientes);
+  APP.updateBadge('pedidos',APP.kitchenOrders.length);
 });
 
 onValue(ref(db,'clientes'), snap => {
