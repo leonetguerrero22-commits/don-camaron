@@ -88,14 +88,6 @@ body{background:var(--bg);color:var(--tx)}
 .dav{width:48px;height:48px;border-radius:50%;border:2px solid #E53935;
   background:rgba(255,255,255,.2);display:flex;align-items:center;
   justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden}
-/* ═══ DRAWER ═══ */
-.drawer{position:fixed;top:0;left:-110%;width:82%;max-width:300px;height:100vh;
-  background:white;z-index:200;transition:left .25s cubic-bezier(.4,0,.2,1);
-  display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,.15)}
-.drawer.open{left:0}
-.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:199;
-  display:none;backdrop-filter:blur(1px)}
-.drawer-bg.on{display:block}
 .dbody{flex:1;overflow-y:auto;padding:8px 0}
 .di{display:flex;align-items:center;gap:14px;padding:12px 16px;cursor:pointer;
   font-size:14px;color:var(--tx);transition:background .12s;position:relative;
@@ -2312,7 +2304,7 @@ APP.perms = {
 APP.navCfg = {
   'catalog':      {icon:'⏱️', label:'Pedido rápido',           panel:'p-catalog'},
   'order':        {icon:'📋', label:'Orden',                    panel:'p-order'},
-  'ordenes-mesa': {icon:'🍽️', label:'Órdenes de mesa',         panel:'p-tables', badge:true},
+  'ordenes-mesa': {icon:'🍽️', label:'Órdenes de mesa',         panel:'p-ordenes-mesa', badge:true},
   'pedidos':      {icon:'📑', label:'Pedidos',                  panel:'p-pedidos',      badge:true},
   'tables':       {icon:'🪑', label:'Gestión de mesa',          panel:'p-tables'},
   'mercado':      {icon:'🏪', label:'Mercado en línea',         panel:'p-mercado'},
@@ -2802,10 +2794,12 @@ APP.switchDrawerTab = function(tab){
   APP._drawerTab = tab;
   const btnCaja  = document.getElementById('dtab-caja');
   const btnAdmin = document.getElementById('dtab-admin');
-  const activeStyle  = 'background:var(--bl);color:#fff;border-color:var(--bl)';
-  const inactiveStyle = 'background:white;color:var(--tx2);border-color:var(--brd)';
-  if(btnCaja)  btnCaja.style.cssText  += (tab==='caja'  ? ';background:var(--bl);color:#fff;border-color:var(--bl)' : ';background:white;color:var(--tx2);border-color:var(--brd)');
-  if(btnAdmin) btnAdmin.style.cssText += (tab==='admin' ? ';background:var(--bl);color:#fff;border-color:var(--bl)' : ';background:white;color:var(--tx2);border-color:var(--brd)');
+
+  // Estilos base fijos para cada botón — no acumular con +=
+  const activeCSS  = 'flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--bl);background:var(--bl);color:#fff;font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.3';
+  const inactiveCSS = 'flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--brd);background:white;color:var(--tx2);font-size:10px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;line-height:1.3';
+  if(btnCaja)  btnCaja.style.cssText  = tab==='caja'  ? activeCSS : inactiveCSS;
+  if(btnAdmin) btnAdmin.style.cssText = tab==='admin' ? activeCSS : inactiveCSS;
 
   const keys = tab==='admin' ? (APP._drawerAdminKeys||[]) : (APP._drawerCajaKeys||[]);
   const mkItem = k => {
@@ -2884,7 +2878,8 @@ APP.showPanel = function(pid, nk){
   if(nk === 'reservas')  { try{ APP.renderReservaCal(); }catch(e){} }
   if(nk === 'pedidos')   { try{ APP.renderPedidos(); }catch(e){} }
   if(nk === 'kitchen')   { try{ APP.renderKitchen(); }catch(e){} }
-  if(nk === 'tables' || nk === 'ordenes-mesa') { try{ APP.renderTables?.(); }catch(e){} }
+  if(nk === 'tables')       { try{ APP.renderTables?.(); }catch(e){} }
+  if(nk === 'ordenes-mesa') { try{ APP.renderOrdenesMesa?.(); }catch(e){} }
   if(nk === 'productos') { try{ APP.renderProdGrid?.(); }catch(e){} }
   if(nk === 'order')     { try{ APP.renderOrder(); }catch(e){} }
 };
@@ -3933,23 +3928,6 @@ APP.showCatalogForMesa = function(mesaId){
   APP.showToast(`Mesa ${mesaId} — selecciona productos`);
 };
 
-APP.openMesaSheet = function(id,status,cap){
-  // Ahora no se usa — reemplazado por tapMesa
-  APP.tapMesa(id,cap);
-};
-APP.mesaA1 = async function(){
-  APP.closeSheet('mesa-sheet');
-  const {id,cap}=APP.mesaData||{};
-  await APP.openMesaDirectly(id,cap);
-};
-APP.mesaA2 = function(){ APP.closeSheet('mesa-sheet'); APP.showPanel('p-ordenes-mesa','ordenes-mesa'); };
-APP.mesaA3 = async function(){
-  APP.closeSheet('mesa-sheet');
-  const {id}=APP.mesaData||{};
-  if(APP.db){const {update,ref}=APP.fb;await update(ref(APP.db,`mesas/mesa${id}`),{status:'libre',guests:0,total:0});}
-  APP.showToast(`Mesa ${id} liberada`);
-};
-
 APP.renderGMTables = function(){
   const el=document.getElementById('gm-floor-tabs');
   if(!el) return;
@@ -4255,17 +4233,48 @@ APP.renderVentasChart = function(resumen){
   const ctx=document.getElementById('ventasChart');
   if(!ctx) return;
   if(APP.ventasChartObj){APP.ventasChartObj.destroy();}
-  const labels=['02:32','04:29','06:24','09:20','10:17'];
-  const totals=[0,0,0,(resumen.total||0)*0.2,(resumen.total||0)*0.8];
-  const counts=[0,0,0,Math.floor((resumen.ordenes||0)*0.3),Math.floor((resumen.ordenes||0)*0.7)];
-  APP.ventasChartObj=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[
-      {label:'Total de pagos',data:totals,backgroundColor:'#1565C0',yAxisID:'y'},
-      {label:'Numero de pagos',data:counts,backgroundColor:'#90CAF9',yAxisID:'y1'},
-    ]},
-    options:{responsive:true,plugins:{legend:{labels:{font:{size:10}}}},
-      scales:{y:{display:true,ticks:{font:{size:9}}},y1:{display:true,position:'right',ticks:{font:{size:9}}}}}
+  // Si hay datos reales del día, construir gráfica real por hora
+  if(!APP.db){ return; }
+  const {get,ref}=APP.fb;
+  const today=APP.today();
+  get(ref(APP.db,`ventas/${today}/ordenes`)).then(snap=>{
+    const d=snap.val();
+    const hourMap={};
+    const countMap={};
+    if(d){
+      Object.values(d).forEach(o=>{
+        const hr = o.time ? o.time.substring(0,2)+'h' : '?';
+        hourMap[hr]=(hourMap[hr]||0)+(o.total||0);
+        countMap[hr]=(countMap[hr]||0)+1;
+      });
+    }
+    const labels=Object.keys(hourMap).sort();
+    const totals=labels.map(h=>hourMap[h]);
+    const counts=labels.map(h=>countMap[h]);
+    // Si no hay datos del día, mostrar resumen total en una sola barra
+    const finalLabels = labels.length ? labels : ['Hoy'];
+    const finalTotals = totals.length ? totals : [resumen.total||0];
+    const finalCounts = counts.length ? counts : [resumen.ordenes||0];
+    APP.ventasChartObj=new Chart(ctx,{
+      type:'bar',
+      data:{labels:finalLabels,datasets:[
+        {label:'Total de pagos ($)',data:finalTotals,backgroundColor:'#1565C0',yAxisID:'y'},
+        {label:'Número de pagos',data:finalCounts,backgroundColor:'#90CAF9',yAxisID:'y1'},
+      ]},
+      options:{responsive:true,plugins:{legend:{labels:{font:{size:10}}}},
+        scales:{y:{display:true,ticks:{font:{size:9}}},y1:{display:true,position:'right',ticks:{font:{size:9}}}}}
+    });
+  }).catch(()=>{
+    // Fallback con datos del resumen
+    APP.ventasChartObj=new Chart(ctx,{
+      type:'bar',
+      data:{labels:['Hoy'],datasets:[
+        {label:'Total de pagos ($)',data:[resumen.total||0],backgroundColor:'#1565C0',yAxisID:'y'},
+        {label:'Número de pagos',data:[resumen.ordenes||0],backgroundColor:'#90CAF9',yAxisID:'y1'},
+      ]},
+      options:{responsive:true,plugins:{legend:{labels:{font:{size:10}}}},
+        scales:{y:{display:true,ticks:{font:{size:9}}},y1:{display:true,position:'right',ticks:{font:{size:9}}}}}
+    });
   });
 };
 APP.renderInvChart = function(){
@@ -4287,10 +4296,10 @@ APP.renderInvChart = function(){
 };
 APP.exportExcel = function(){
   if(typeof XLSX==='undefined'){APP.showToast('Cargando librería Excel...');return;}
+  if(!APP.db){APP.showToast('Sin conexión a Firebase');return;}
   const today=new Date().toISOString().split('T')[0];
-  if(!APP.state||!APP.state.db){APP.showToast('Sin conexión a Firebase');return;}
-  const{get,ref}=APP.state.fbFns;
-  get(ref(APP.state.db,`ventas/${today}/ordenes`)).then(snap=>{
+  const{get,ref}=APP.fb;
+  get(ref(APP.db,`ventas/${today}/ordenes`)).then(snap=>{
     const d=snap.val();
     if(!d){APP.showToast('Sin ventas para exportar hoy');return;}
     const rows=[['#Orden','Mesa','Cliente','Método de pago','Subtotal','IVA/Servicio','Total','Hora','Cajero','Items']];
@@ -4301,18 +4310,17 @@ APP.exportExcel = function(){
     });
     const wb=XLSX.utils.book_new();
     const ws=XLSX.utils.aoa_to_sheet(rows);
-    // Anchos de columna
     ws['!cols']=[{wch:8},{wch:10},{wch:18},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:40}];
     XLSX.utils.book_append_sheet(wb,ws,'Ventas '+today);
-    // Hoja resumen
-    if(APP.state.salesData){
-      const d2=APP.state.salesData;
+    // Hoja resumen — usar salesData guardado en completePay
+    const d2 = (APP.state||{}).salesData;
+    if(d2){
       const rs=[['Concepto','Monto'],
         ['Total ventas',d2.total||0],['N° pedidos',d2.ordenes||0],
         ['Efectivo',d2.efectivo||0],['Tarjeta',d2.tarjeta||0],
         ['Transferencia',d2.transf||0],['Dólares',d2.dolares||0],
         ['Bancolombia',d2.bancolombia||0],['Crédito',d2.credito||0],
-        ['Lucro (2%)',d2.lucro||0]];
+        ['Lucro servicio (5%)',d2.lucro||0]];
       const ws2=XLSX.utils.aoa_to_sheet(rs);
       ws2['!cols']=[{wch:20},{wch:15}];
       XLSX.utils.book_append_sheet(wb,ws2,'Resumen');
