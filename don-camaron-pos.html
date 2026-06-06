@@ -931,8 +931,8 @@ body{background:var(--bg);color:var(--tx)}
           <div class="sb-icon" onclick="document.getElementById('search-inp').value='';APP.renderProducts()">✕</div>
           <div class="sb-icon">⚖️</div>
         </div>
-        <!-- Footer doble RePOS -->
-        <div class="cat-footer">
+        <!-- Footer doble RePOS — cambia según modo -->
+        <div class="cat-footer" id="cat-footer-normal">
           <div class="cat-footer-product" id="cat-active-product">
             Selecciona un producto del menú...
           </div>
@@ -942,6 +942,34 @@ body{background:var(--bg);color:var(--tx)}
               <span id="order-footer-total">0.00 $</span>
             </span>
             <span class="cat-footer-arrow" id="slide-arrow" style="font-size:24px">↑</span>
+          </div>
+        </div>
+        <!-- Footer modo MESA: REGRESAR + PEDIDO -->
+        <div id="cat-footer-mesa" style="display:none;flex-shrink:0;background:var(--bl);color:#fff">
+          <div class="cat-footer-product" id="cat-active-product-mesa">
+            Selecciona un producto del menú...
+          </div>
+          <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="font-size:13px;font-weight:700;flex:1">
+              Resumen (<span id="order-count-mesa">0</span>) : <span id="order-footer-total-mesa">0.00 $</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-shrink:0">
+              <button onclick="APP.mesaCatalogRegresar()"
+                style="padding:10px 16px;background:#9E9E9E;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer">
+                REGRESAR
+              </button>
+              <button onclick="APP.mesaCatalogPedido()"
+                style="padding:10px 16px;background:#27AE60;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer">
+                PEDIDO
+              </button>
+            </div>
+          </div>
+          <!-- personas -->
+          <div style="padding:4px 12px 8px;display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,.2)">
+            <span style="font-size:10px;opacity:.8;flex:1">Número de personas</span>
+            <button onclick="APP.chgPersonas(-1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-size:16px;cursor:pointer">−</button>
+            <span id="mesa-personas-count" style="font-size:13px;font-weight:800;min-width:24px;text-align:center">1</span>
+            <button onclick="APP.chgPersonas(1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-size:16px;cursor:pointer">+</button>
           </div>
         </div>
       </div>
@@ -1054,29 +1082,64 @@ body{background:var(--bg);color:var(--tx)}
       </div>
 
       <!-- ══ PEDIDOS ══ -->
-      <div id="p-pedidos" class="panel">
-        <!-- Tabs scrollables -->
-        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;white-space:nowrap">
-          <div style="display:inline-flex;padding:0 6px;min-width:100%">
-            <div class="ktab on" onclick="APP.switchPedidosTab('todas',this)" style="flex-shrink:0">TODAS</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('mesa',this)" style="flex-shrink:0">ÓRDENES DE MESA</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('llevar',this)" style="flex-shrink:0">ÓRDENES PARA LLEVAR</div>
-            <div class="ktab" onclick="APP.switchPedidosTab('credito',this)" style="flex-shrink:0">PEDIDOS A CRÉDITO</div>
-            <div style="display:flex;align-items:center;padding:0 8px;gap:4px;flex-shrink:0">
-              <span style="font-size:18px;color:var(--bl);cursor:pointer">▲</span>
-              <span style="font-size:18px;color:var(--bl);cursor:pointer">▼</span>
+      <div id="p-pedidos" class="panel" style="flex-direction:column">
+        <!-- Tabs -->
+        <div style="background:white;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;scrollbar-width:none">
+          <div style="display:inline-flex;padding:0 4px;min-width:100%">
+            <div class="ktab on" id="ptab-todas"     onclick="APP.switchPedidosTab('todas',this)"     style="flex-shrink:0;font-size:10px">TODAS</div>
+            <div class="ktab"    id="ptab-mesa"      onclick="APP.switchPedidosTab('mesa',this)"      style="flex-shrink:0;font-size:10px">ÓRDENES DE MESA</div>
+            <div class="ktab"    id="ptab-mensajeria" onclick="APP.switchPedidosTab('mensajeria',this)" style="flex-shrink:0;font-size:10px">ÓRDENES DE MENSAJERÍA</div>
+            <div class="ktab"    id="ptab-restaurante" onclick="APP.switchPedidosTab('restaurante',this)" style="flex-shrink:0;font-size:10px">PEDIDOS DE RESTAURANTE</div>
+            <div class="ktab"    id="ptab-credito"   onclick="APP.switchPedidosTab('credito',this)"   style="flex-shrink:0;font-size:10px">ÓRD</div>
+            <div style="display:flex;align-items:center;padding:0 6px;gap:3px;flex-shrink:0">
+              <span style="font-size:16px;color:var(--bl);cursor:pointer" onclick="APP.sortPedidos('asc')">▲</span>
+              <span style="font-size:16px;color:var(--bl);cursor:pointer" onclick="APP.sortPedidos('desc')">▼</span>
             </div>
           </div>
         </div>
-        <!-- Lista azul/blanco alterna scrollable -->
-        <div id="pedidos-list" style="flex:1;overflow-y:auto;background:#f5f5f5"></div>
-        <!-- Footer fijo -->
-        <div style="flex-shrink:0;background:var(--bl);padding:8px 14px">
-          <div style="background:white;border-radius:8px;padding:10px 14px;
-            text-align:center;font-size:13px;font-weight:700;color:var(--tx);margin-bottom:6px"
-            id="pedidos-total-bar">Precio total de 0 pedidos: 0,00 $</div>
-          <div style="text-align:center;font-size:12px;color:rgba(255,255,255,.85)">
-            Seleccione orden relacionada para ver detalles</div>
+        <!-- Cuerpo: lista + detalle -->
+        <div style="flex:1;display:flex;overflow:hidden;min-height:0">
+          <!-- Lista -->
+          <div id="pedidos-list" style="flex:1;overflow-y:auto;min-width:0"></div>
+          <!-- Panel detalle (oculto hasta seleccionar) -->
+          <div id="pedido-detalle-panel" style="display:none;width:52%;max-width:340px;flex-shrink:0;
+            border-left:1px solid var(--brd);background:white;overflow-y:auto;flex-direction:column">
+            <!-- Header -->
+            <div style="background:white;padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0">
+              <div style="font-size:12px;font-weight:800;color:var(--bl)" id="pd-titulo">Pedido —</div>
+              <div style="font-size:10px;font-weight:700;color:var(--gr)" id="pd-estado">( — )</div>
+            </div>
+            <!-- Info -->
+            <div style="padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0" id="pd-info"></div>
+            <!-- Items -->
+            <div style="padding:0 12px;flex:1" id="pd-items"></div>
+            <!-- Totales -->
+            <div style="padding:8px 12px;border-top:1px solid var(--brd);flex-shrink:0" id="pd-totales"></div>
+            <!-- Log -->
+            <div style="padding:6px 12px;border-top:1px solid var(--brd);flex-shrink:0;font-size:10px;color:var(--tx3)" id="pd-log"></div>
+            <!-- Botones -->
+            <div style="padding:8px 12px;border-top:1px solid var(--brd);display:grid;grid-template-columns:1fr 1fr;gap:6px;flex-shrink:0">
+              <button onclick="APP.cancelarPedido()"
+                style="padding:11px 4px;background:#FFEBEE;color:#C62828;border:none;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer">
+                CANCELAR ORDEN</button>
+              <button onclick="APP.editarPedido()"
+                style="padding:11px 4px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer">
+                EDITAR ORDEN</button>
+              <button onclick="APP.imprimirPedido()"
+                style="padding:11px 4px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer">
+                IMPRESIÓN</button>
+              <button onclick="APP.cerrarDetallePedido()"
+                style="padding:11px 4px;background:#9E9E9E;color:#fff;border:none;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer">
+                VOLVER</button>
+            </div>
+          </div>
+        </div>
+        <!-- Footer total -->
+        <div style="flex-shrink:0;background:var(--bl);padding:6px 12px;display:flex;align-items:center;gap:10px">
+          <div id="pedidos-total-bar"
+            style="flex:1;background:white;border-radius:7px;padding:8px 12px;
+            font-size:12px;font-weight:700;color:var(--tx);text-align:center">
+            Precio total de 0 pedidos: 0,00 $</div>
         </div>
       </div>
 
@@ -2862,7 +2925,14 @@ APP.showPanel = function(pid, nk){
       tEl.innerHTML = `✏️ Órdenes de mesa > ${APP._catalogMesa}`;
     } else {
       tEl.innerHTML = titles[nk] || 'DON <span style="color:var(--or2)">CAMARÓN</span>';
-      if(nk !== 'catalog') APP._catalogMesa = '';
+      if(nk !== 'catalog'){
+        APP._catalogMesa = '';
+        // Restaurar footer normal si salimos del catálogo
+        const fn=document.getElementById('cat-footer-normal');
+        const fm=document.getElementById('cat-footer-mesa');
+        if(fn)fn.style.display='';
+        if(fm)fm.style.display='none';
+      }
     }
   }
 
@@ -3072,13 +3142,22 @@ APP.addItem = function(en,price,em,imgData){
 APP.updateOrderCount = function(){
   const total=APP.order.reduce((a,i)=>a+i.q,0);
   const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
-  document.getElementById('order-count').textContent=total;
+  const p=APP.perms[APP.role];
+  // Footer normal (pedido rápido)
+  const oc=document.getElementById('order-count');if(oc)oc.textContent=total;
   const ft=document.getElementById('order-footer-total');
-  if(ft&&APP.perms[APP.role]?.verPrecios) ft.textContent=APP.fmtNum(sub)+' $';
-  // Update slide panel counts too
+  if(ft&&p?.verPrecios) ft.textContent=APP.fmtNum(sub)+' $';
+  // Footer mesa
+  const ocm=document.getElementById('order-count-mesa');if(ocm)ocm.textContent=total;
+  const ftm=document.getElementById('order-footer-total-mesa');
+  if(ftm&&p?.verPrecios) ftm.textContent=APP.fmtNum(sub)+' $';
+  // Active product en footer de mesa
+  const apm=document.getElementById('cat-active-product-mesa');
+  if(apm&&APP.numpadLast?.n) apm.textContent=`🪑 ${APP.numpadLast.n}`;
+  // Slide panel
   const sc=document.getElementById('slide-count');if(sc)sc.textContent=total;
   const st=document.getElementById('slide-total');
-  if(st&&APP.perms[APP.role]?.verPrecios)st.textContent=APP.fmtNum(sub)+' $';
+  if(st&&p?.verPrecios)st.textContent=APP.fmtNum(sub)+' $';
 };
 
 // ── SLIDE PANEL ────────────────────────────────
@@ -3194,50 +3273,141 @@ APP.slideGoPedido = function(){
 // ── MESA OCUPADA - ORDEN EXISTENTE ────────────────
 APP._mosData = {};
 APP.openMesaOrder = function(mesaId){
-  const td=APP.tables[`mesa${mesaId}`]||{};
-  APP._mosData={mesaId};
-  document.getElementById('mos-title').textContent=`${mesaId} Actualizar`;
-  // Info card
-  const now=new Date();
-  const timeStr=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const dateStr=now.toISOString().split('T')[0];
-  document.getElementById('mos-info').innerHTML=`
+  const td = APP.tables[`mesa${mesaId}`] || {};
+  APP._mosData = { mesaId };
+
+  // Título
+  document.getElementById('mos-title').textContent = `${mesaId} Actualizar`;
+
+  // Info card — datos reales de Firebase
+  const pedidoEn = td.pedidoEn || '—';
+  const mesero   = td.mesero   || APP.user || 'CAJA';
+  const guests   = td.guests   || 1;
+  document.getElementById('mos-info').innerHTML = `
     <div class="mesa-info-row"><span class="mesa-info-lbl">Nombre de la tabla:</span><span class="mesa-info-val">${mesaId}</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Ordenado por :</span><span class="mesa-info-val">${td.mesero||APP.user||'CAJA'}</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Pedido en:</span><span class="mesa-info-val">${td.pedidoEn||dateStr+' '+timeStr}</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Tipo de orden :</span><span class="mesa-info-val">Mesa</span></div>
-    <div class="mesa-info-row"><span class="mesa-info-lbl">Número de personas</span><span class="mesa-info-val">${td.guests||APP._personas||1}</span></div>`;
-  // Items
-  const p=APP.perms[APP.role];
-  const items=APP._mesaOrders&&APP._mesaOrders[`mesa${mesaId}`]||APP.order||[];
-  let sub=0;
-  document.getElementById('mos-items').innerHTML=items.length?items.map(it=>{
-    sub+=it.p*it.q;
-    return `<div class="mesa-item-row">
-      <span class="mesa-item-name">${it.n}</span>
-      ${p.verPrecios?`<span class="mesa-item-price">${APP.fmtNum(it.p)} $</span>`:''}
-      <span class="mesa-item-qty">x ${it.q}.0</span>
-      ${p.verPrecios?`<span class="mesa-item-total">${APP.fmtNum(it.p*it.q)} $</span>`:''}
-    </div>`;
-  }).join(''):'<div style="color:var(--tx3);font-size:11px">Sin items</div>';
-  const srv16=Math.round(sub*0.05);
-  const tot16=sub+srv16;
-  document.getElementById('mos-total').innerHTML=`<span style="font-size:10px;opacity:.7">Total parcial: ${APP.fmtNum(sub)} $<br>Servicio(5.0): ${APP.fmtNum(srv16)} $<br></span><strong>Total: ${APP.fmtNum(tot16)} $</strong>`;
-  // Log
-  document.getElementById('mos-log').textContent=`${timeStr} (Hoy)* Orden creada ( ${APP.user||'CAJA'} )`;
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Ordenado por:</span><span class="mesa-info-val">${mesero}</span></div>
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Pedido en:</span><span class="mesa-info-val">${pedidoEn}</span></div>
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Tipo de orden:</span><span class="mesa-info-val">Mesa</span></div>
+    <div class="mesa-info-row"><span class="mesa-info-lbl">Número de personas:</span><span class="mesa-info-val">${guests}</span></div>`;
+
+  // Items reales — leer de pedidos_cocina de esta mesa (todos los no cancelados)
+  const p = APP.perms[APP.role];
+  const mesaLabel = `Mesa ${mesaId}`;
+  const pedidos = (APP.kitchenOrders || []).filter(o =>
+    (o.mesa === mesaLabel || o.mesa === mesaId) && !o.cancelled
+  );
+
+  // Consolidar todos los items de todos los pedidos de esta mesa
+  const itemMap = {}; // n → {n, p, q}
+  pedidos.forEach(ped => {
+    (ped.items || []).forEach(it => {
+      // items en cocina son strings "2x Nombre" o objetos {n,p,q}
+      if(typeof it === 'string'){
+        const m = it.match(/^(\d+)x\s+(.+)$/);
+        if(m){
+          const qty = parseInt(m[1]);
+          const name = m[2];
+          // buscar precio en menuData
+          let precio = 0;
+          Object.values(APP.menuData).forEach(cat => {
+            const prod = cat.find(x => x.n === name);
+            if(prod) precio = prod.p;
+          });
+          if(itemMap[name]) itemMap[name].q += qty;
+          else itemMap[name] = {n:name, p:precio, q:qty};
+        }
+      } else if(it && it.n){
+        if(itemMap[it.n]) itemMap[it.n].q += (it.q||1);
+        else itemMap[it.n] = {n:it.n, p:it.p||0, q:it.q||1};
+      }
+    });
+  });
+  const items = Object.values(itemMap);
+
+  let sub = 0;
+  if(items.length){
+    document.getElementById('mos-items').innerHTML = items.map(it => {
+      sub += it.p * it.q;
+      return `<div class="mesa-item-row">
+        <span class="mesa-item-name">${it.n}</span>
+        ${p.verPrecios ? `<span class="mesa-item-price">${APP.fmtNum(it.p)} $</span>` : ''}
+        <span class="mesa-item-qty">x ${it.q}.0</span>
+        ${p.verPrecios ? `<span class="mesa-item-total">${APP.fmtNum(it.p * it.q)} $</span>` : ''}
+      </div>`;
+    }).join('');
+  } else {
+    // Si no hay items en cocina, usar el total acumulado de la mesa
+    sub = td.total || 0;
+    document.getElementById('mos-items').innerHTML =
+      `<div style="color:var(--tx3);font-size:11px;padding:8px 0">Sin items registrados en cocina</div>`;
+  }
+
+  // Totales
+  const srv = Math.round(sub * 0.05);
+  const tot = sub + srv;
+  document.getElementById('mos-total').innerHTML =
+    `<span style="font-size:10px;opacity:.7">Total parcial: ${APP.fmtNum(sub)} $<br>Servicio(5.0%): ${APP.fmtNum(srv)} $<br></span>` +
+    `<strong>Total: ${APP.fmtNum(tot)} $</strong>`;
+
+  // Log — historial real de pedidos de esta mesa
+  const logLines = [];
+  if(td.pedidoEn) logLines.push(`${td.pedidoEn} (Hoy) * Orden creada ( ${td.mesero||'CAJA'} )`);
+  pedidos.forEach(ped => {
+    if(ped.time) logLines.push(`${ped.time} (Hoy) * Pedido agregado ( ${ped.mesero||'CAJA'} )`);
+  });
+  document.getElementById('mos-log').innerHTML =
+    logLines.length
+      ? logLines.map(l => `<div style="margin-bottom:2px">• ${l}</div>`).join('')
+      : `<div style="color:var(--tx3)">Sin historial</div>`;
+
+  // Guardar contexto para ORDEN COMPLETA
+  APP._mosItems = items;
+  APP._mosSub   = sub;
+  APP._mosTot   = tot;
+
   document.getElementById('mesa-order-screen').classList.add('on');
 };
+
 APP.closeMesaOrder = function(){
   document.getElementById('mesa-order-screen').classList.remove('on');
 };
+
 APP.mosAgregar = function(){
   APP.closeMesaOrder();
+  // Limpiar orden actual antes de agregar más a la mesa
+  APP.order = [];
+  APP.numpadLast = null;
+  APP.renderOrder();
+  APP.updateOrderCount();
   APP.showCatalogForMesa(APP._mosData.mesaId);
 };
+
 APP.mosOrdenCompleta = function(){
+  const mesaId = APP._mosData.mesaId;
+  const td = APP.tables[`mesa${mesaId}`] || {};
+
+  // Reconstruir APP.order desde los items consolidados para el pago
+  if(APP._mosItems && APP._mosItems.length){
+    APP.order = APP._mosItems.map(it => ({...it, e:'🍽️', img:'', _tipo:'servido'}));
+  }
+  // Si no hay items con precio, poner el total de la mesa como una línea
+  if(!APP.order.length || APP._mosSub === 0){
+    const totalMesa = td.total || APP._mosTot || 0;
+    if(totalMesa > 0){
+      APP.order = [{n:`Mesa ${mesaId} — Consumo`, p:totalMesa, q:1, e:'🪑', img:'', _tipo:'servido'}];
+    }
+  }
+
+  // Actualizar selector de mesa
+  const msel = document.getElementById('mesa-sel');
+  if(msel) msel.value = `Mesa ${mesaId}`;
+
+  APP.renderOrder();
+  APP.updateOrderCount();
   APP.closeMesaOrder();
   APP.openPayScreen();
 };
+
 APP.mosAskBill = function(){APP.showToast('Enviando cuenta al cliente...');};
 APP.mosMesaFusion = function(){APP.showToast('Selecciona la mesa para fusionar');};
 APP.mosMesaCambio = function(){APP.showToast('Selecciona la mesa destino');};
@@ -3374,10 +3544,14 @@ APP.sendToCocina = async function(){
       const mk=`mesa${APP._catalogMesa}`;
       const prev=(APP.tables[mk]||{}).total||0;
       await update(ref(APP.db,`mesas/${mk}`),{total:prev+tot});
+      const mesaIdParaVolver = APP._catalogMesa;
       APP._catalogMesa='';
       APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
       APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
+      // Volver al detalle de la mesa, no a la grilla
       APP.showPanel('p-tables','tables');
+      // Pequeño delay para que Firebase actualice antes de abrir el detalle
+      setTimeout(()=>APP.openMesaOrder(mesaIdParaVolver), 400);
     } else {
       APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
       APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
@@ -3478,6 +3652,8 @@ APP.completePay = async function(){
   const {push,ref,get,set,update}=APP.fb;
   const today=APP.today();const t=APP.timeNow();
   const elapsed=Math.round((Date.now()-APP.payState.orderStartTime)/1000);
+  // ¿viene de una orden de mesa? (desde mosOrdenCompleta)
+  const esMesa = APP._mosData?.mesaId && mesa.includes(APP._mosData.mesaId);
   try{
     await push(ref(APP.db,'ventas/'+today+'/ordenes'),{
       mesa,cliente,notas,method,
@@ -3486,11 +3662,22 @@ APP.completePay = async function(){
       efectivo:ef,tarjeta:tj,boleto:bl,
       timestamp:Date.now(),time:t,rol:APP.role,cajero:APP.user,paid:true
     });
-    await push(ref(APP.db,'pedidos_cocina'),{
-      mesa,cliente,notas,mesero:APP.user,
-      items:APP.order.map(i=>i.q+'x '+i.n),
-      timestamp:Date.now(),done:false,urgent:false,time:t
-    });
+    // Solo empujar a cocina si NO viene de una orden de mesa
+    // (en orden de mesa los items ya están en pedidos_cocina)
+    if(!esMesa){
+      await push(ref(APP.db,'pedidos_cocina'),{
+        mesa,cliente,notas,mesero:APP.user,
+        items:APP.order.map(i=>i.q+'x '+i.n),
+        timestamp:Date.now(),done:false,urgent:false,time:t
+      });
+    } else {
+      // Marcar todos los pedidos de esta mesa como pagados/completados
+      const {ref:fbRef,update:fbUpdate}=APP.fb;
+      const mesaLabel=`Mesa ${APP._mosData.mesaId}`;
+      (APP.kitchenOrders||[])
+        .filter(o=>(o.mesa===mesaLabel||o.mesa===APP._mosData.mesaId)&&!o.cancelled)
+        .forEach(o=>fbUpdate(fbRef(APP.db,`pedidos_cocina/${o.id}`),{done:true}).catch(()=>{}));
+    }
     const snap=await get(ref(APP.db,'ventas/'+today+'/resumen'));
     const prev=snap.val()||{total:0,ordenes:0,efectivo:0,tarjeta:0,transf:0,dolares:0,bancolombia:0,credito:0,lucro:0};
     const upd={...prev,total:(prev.total||0)+tot,ordenes:(prev.ordenes||0)+1,lucro:(prev.lucro||0)+iva,efectivo:(prev.efectivo||0)+ef,tarjeta:(prev.tarjeta||0)+tj};
@@ -3498,12 +3685,13 @@ APP.completePay = async function(){
     await set(ref(APP.db,'ventas/'+today+'/resumen'),upd);
     const mk='mesa'+mesa.replace('Mesa ','').trim();
     if(APP.tables[mk])await update(ref(APP.db,'mesas/'+mk),{status:'libre',guests:0,total:0});
+    APP._mosData={};
     APP.payState.totalOrders++;
     APP.closePayScreen();
-    APP.showDoneScreen(tot,method,elapsed);
+    APP.showDoneScreen(tot,method,elapsed,esMesa);
   }catch(e){APP.showToast('Error: '+e.message);}
 };
-APP.showDoneScreen = function(tot,method,elapsed){
+APP.showDoneScreen = function(tot,method,elapsed,esMesa){
   const items=APP.order.reduce((a,i)=>a+i.q,0);
   const el1=document.getElementById('done-total');if(el1)el1.textContent='TOTAL:'+APP.fmtNum(tot)+' $';
   const el2=document.getElementById('done-method');if(el2)el2.textContent=method+': '+APP.fmtNum(tot)+' $';
@@ -3516,16 +3704,24 @@ APP.showDoneScreen = function(tot,method,elapsed){
   const oc=document.getElementById('o-cliente');if(oc)oc.value='';
   const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent='Toca para seleccionar...';
   APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
+  // Guardar destino al cerrar done-screen
+  APP._doneScreenReturnMesa = !!esMesa;
 };
 APP.doneFreezeOrder = function(){
   document.getElementById('done-screen').classList.remove('on');
   APP.renderProducts(''); APP.updateActiveLine(); APP.updateOrderCount(); APP.renderCats();
-  APP.showPanel('p-catalog','catalog'); APP.showToast('Orden congelada');
+  if(APP._doneScreenReturnMesa){ APP.showPanel('p-tables','tables'); }
+  else { APP.showPanel('p-catalog','catalog'); }
+  APP._doneScreenReturnMesa = false;
+  APP.showToast('Orden congelada');
 };
 APP.doneQuota = function(){
   document.getElementById('done-screen').classList.remove('on');
   APP.renderProducts(''); APP.updateActiveLine(); APP.updateOrderCount(); APP.renderCats();
-  APP.showPanel('p-catalog','catalog'); APP.showToast('Cuota registrada');
+  if(APP._doneScreenReturnMesa){ APP.showPanel('p-tables','tables'); }
+  else { APP.showPanel('p-catalog','catalog'); }
+  APP._doneScreenReturnMesa = false;
+  APP.showToast('Cuota registrada');
 };
 APP.cobrar = async function(){await APP.completePay();};
 APP.openPartialPay = function(){
@@ -3900,32 +4096,38 @@ APP.openMesaDirectly = async function(id, cap){
 };
 
 APP.showCatalogForMesa = function(mesaId){
-  // Ir al catálogo
   APP.showPanel('p-catalog','catalog');
-  // Actualizar título en topbar
+  // Título topbar
   const tb = document.getElementById('tb-title');
-  if(tb) tb.textContent = `Órdenes de mesa > ${mesaId}`;
-  else {
-    // Buscar el span de marca en la topbar y agregar subtítulo
-    const brand = document.querySelector('.tb-brand');
-    if(brand) brand.dataset.mesa = mesaId;
-  }
-  // Mostrar mesa activa en la barra de búsqueda
-  const hint = document.getElementById('catalog-mesa-hint');
-  if(!hint){
-    const sb = document.querySelector('.search-bar');
-    if(sb){
-      const div=document.createElement('div');
-      div.id='catalog-mesa-hint';
-      div.style.cssText='background:var(--bl);color:#fff;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px;flex-shrink:0';
-      div.innerHTML=`🪑 Mesa ${mesaId}`;
-      sb.appendChild(div);
-    }
-  } else {
-    hint.innerHTML=`🪑 Mesa ${mesaId}`;
-    hint.style.display='flex';
-  }
+  if(tb) tb.innerHTML = `✏️ Órdenes de mesa > ${mesaId}`;
+  // Cambiar footer a modo MESA
+  document.getElementById('cat-footer-normal').style.display = 'none';
+  document.getElementById('cat-footer-mesa').style.display   = '';
+  // Personas
+  const mp = document.getElementById('mesa-personas-count');
+  if(mp) mp.textContent = APP._personas || 1;
   APP.showToast(`Mesa ${mesaId} — selecciona productos`);
+};
+
+APP.mesaCatalogRegresar = function(){
+  // Volver al detalle de la mesa sin enviar nada
+  APP._catalogMesa = '';
+  APP.order = []; APP.numpadLast = null;
+  APP.renderOrder(); APP.updateOrderCount();
+  APP.renderProducts(''); APP.updateActiveLine(); APP.renderCats();
+  // Restaurar footer normal
+  document.getElementById('cat-footer-normal').style.display = '';
+  document.getElementById('cat-footer-mesa').style.display   = 'none';
+  APP.showPanel('p-tables','tables');
+  setTimeout(()=>APP.openMesaOrder(APP._mosData?.mesaId||''), 200);
+};
+
+APP.mesaCatalogPedido = function(){
+  // Enviar a cocina y volver al detalle
+  APP.slideEnviarCocina();
+  // Restaurar footer normal (sendToCocina lo hará al navegar)
+  document.getElementById('cat-footer-normal').style.display = '';
+  document.getElementById('cat-footer-mesa').style.display   = 'none';
 };
 
 APP.renderGMTables = function(){
@@ -3984,120 +4186,384 @@ APP.mesaA3 = async function(){
 };
 
 // ── PEDIDOS ──────────────────────────────────
-APP.switchPedidosTab = function(tab,el){
-  APP.pedidosTab = tab;
-  document.querySelectorAll('#p-pedidos .ktab').forEach(t=>t.classList.remove('on'));
-  if(el) el.classList.add('on');
+APP._pedidoSort = 'desc'; // desc = más recientes primero
+APP._pedidoSelId = null;
+
+APP.sortPedidos = function(dir){
+  APP._pedidoSort = dir;
   APP.renderPedidos();
 };
+
+APP.switchPedidosTab = function(tab, el){
+  APP.pedidosTab = tab;
+  document.querySelectorAll('#p-pedidos .ktab').forEach(t => t.classList.remove('on'));
+  if(el) el.classList.add('on');
+  APP._pedidoSelId = null;
+  document.getElementById('pedido-detalle-panel').style.display = 'none';
+  APP.renderPedidos();
+};
+
+APP._buildPedidosList = function(){
+  // Mezclar ventas (pagadas) + pedidos_cocina (activos/completados)
+  // ventas vienen de Firebase ventas/{hoy}/ordenes — por ahora usamos kitchenOrders
+  // como fuente principal + APP.ventas si existe
+  const ventasArr = APP.ventas || [];
+  const cocinaArr = APP.kitchenOrders || [];
+
+  // Convertir ventas a formato normalizado
+  const ventasNorm = ventasArr.map(v => ({
+    ...v,
+    _fuente: 'venta',
+    _completado: true,
+    _estadoCocina: 'No relacionado con la cocina',
+    _estadoOrden: 'Pedido completado',
+    _tipoOrden: v.mesa ? (v.mesa.toLowerCase().includes('delivery')||v.mesa.toLowerCase().includes('llevar') ? 'Restaurante' : 'Mesa') : 'Restaurante',
+  }));
+
+  // Convertir pedidos_cocina a formato normalizado
+  const cocNorm = cocinaArr.map(o => ({
+    ...o,
+    _fuente: 'cocina',
+    _completado: !!o.done,
+    _estadoCocina: o.done ? 'Pedido listo' : 'Si está preparando en la cocina',
+    _estadoOrden: o.done ? 'Pedido completado' : 'Ordenado',
+    _tipoOrden: o.mesa ? (o.mesa.toLowerCase().includes('delivery')||o.mesa.toLowerCase().includes('llevar') ? 'Restaurante' : 'Mesa') : 'Restaurante',
+    total: o.total || 0,
+  }));
+
+  // Unir y deduplicar por id
+  const all = [...ventasNorm, ...cocNorm];
+  const seen = new Set();
+  const dedup = all.filter(o => {
+    if(!o.id || seen.has(o.id)) return false;
+    seen.add(o.id); return true;
+  });
+
+  return dedup;
+};
+
 APP.renderPedidos = function(){
   const list = document.getElementById('pedidos-list'); if(!list) return;
   const totBar = document.getElementById('pedidos-total-bar');
   const tab = APP.pedidosTab || 'todas';
 
-  // Usar ventas guardadas en Firebase (histórico real)
-  let orders = [...(APP.ventas||[]), ...APP.kitchenOrders]
-    .sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-
-  // Deduplicar por id
-  const seen = new Set();
-  orders = orders.filter(o=>{ if(seen.has(o.id)) return false; seen.add(o.id); return true; });
+  let orders = APP._buildPedidosList();
 
   // Filtrar por tab
-  if(tab==='mesa') orders = orders.filter(o=>o.mesa&&!o.mesa.toLowerCase().includes('llevar')&&!o.mesa.toLowerCase().includes('delivery'));
-  if(tab==='llevar') orders = orders.filter(o=>o.mesa&&(o.mesa.toLowerCase().includes('llevar')||o.mesa.toLowerCase().includes('delivery')));
-  if(tab==='credito') orders = orders.filter(o=>o.method==='Crédito por pagar');
+  if(tab === 'mesa')        orders = orders.filter(o => o._tipoOrden === 'Mesa');
+  if(tab === 'mensajeria')  orders = orders.filter(o => o.mesa && (o.mesa.toLowerCase().includes('delivery')||o.mesa.toLowerCase().includes('mensajería')));
+  if(tab === 'restaurante') orders = orders.filter(o => o._tipoOrden === 'Restaurante');
+  if(tab === 'credito')     orders = orders.filter(o => o.method === 'Crédito por pagar' || o.boleto > 0);
 
-  const total = orders.reduce((a,o)=>a+(o.total||o.subtotal||0),0);
-  if(totBar) totBar.textContent = `Precio total de ${orders.length} pedidos: ${APP.fmtNum(total)} $`;
+  // Ordenar
+  orders.sort((a,b) => APP._pedidoSort === 'asc'
+    ? (a.timestamp||0) - (b.timestamp||0)
+    : (b.timestamp||0) - (a.timestamp||0));
+
+  // Footer total
+  const totalSum = orders.reduce((a,o) => a + (o.total||0), 0);
+  if(totBar) totBar.textContent = `Precio total de ${orders.length} pedidos: ${APP.fmtNum(totalSum)} $`;
 
   if(!orders.length){
-    list.innerHTML=`<div style="text-align:center;padding:5rem 2rem">
-      <div style="font-size:80px;opacity:.1;font-weight:900;font-style:italic;color:var(--bl);font-family:serif;line-height:1">R</div>
-      <div style="font-size:13px;font-weight:700;color:var(--bl);margin-top:1rem;max-width:260px;margin-left:auto;margin-right:auto">
-        Aún no ha recibido ningún pedido. Puede ver sus pedidos aquí después de recibir pedidos.</div>
+    list.innerHTML = `<div style="text-align:center;padding:5rem 2rem">
+      <div style="font-size:72px;opacity:.08;font-weight:900;font-style:italic;color:var(--bl);font-family:serif;line-height:1">R</div>
+      <div style="font-size:13px;font-weight:700;color:var(--bl);margin-top:1rem">
+        Aún no ha recibido ningún pedido.</div>
     </div>`;
-    APP.updateBadge('pedidos',0);
+    APP.updateBadge('pedidos', 0);
     return;
   }
 
-  list.innerHTML = orders.map((o,i)=>{
-    const even = i%2===0;
-    const bg = even ? 'var(--bl)' : 'white';
-    const fg = even ? 'white' : 'var(--tx)';
-    const fg3 = even ? 'rgba(255,255,255,.75)' : 'var(--tx3)';
+  list.innerHTML = orders.map((o, i) => {
+    const even = i % 2 === 0;
+    const bg  = even ? 'var(--bl)' : 'white';
+    const fg  = even ? 'white'     : 'var(--tx)';
+    const fg2 = even ? 'rgba(255,255,255,.85)' : 'var(--tx2)';
+    const fg3 = even ? 'rgba(255,255,255,.65)' : 'var(--tx3)';
+    const sel = o.id === APP._pedidoSelId;
 
-    // Fecha y hora
+    // Fecha/hora
     const dt = o.timestamp ? new Date(o.timestamp) : null;
-    const dateStr = dt ? `${String(dt.getDate()).padStart(2,'0')}.${String(dt.getMonth()+1).padStart(2,'0')}` : (o.date||'--');
-    const timeStr = o.time || (dt ? dt.toTimeString().substring(0,8) : '--:--');
+    const dateStr = dt
+      ? `${String(dt.getDate()).padStart(2,'0')}.${String(dt.getMonth()+1).padStart(2,'0')}`
+      : '--';
+    const timeStr = o.time || (dt ? dt.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '--:--');
 
-    // Tipo de orden — mesa o mercado
-    const isMesa = o.mesa && !o.mesa.toLowerCase().includes('llevar') && !o.mesa.toLowerCase().includes('delivery');
-    const tipoIcon = isMesa
-      ? `<svg width="28" height="22" viewBox="0 0 28 22" fill="none">
-          <rect x="0" y="12" width="28" height="2" rx="1" fill="currentColor"/>
-          <rect x="4" y="14" width="2" height="8" rx="1" fill="currentColor"/>
-          <rect x="22" y="14" width="2" height="8" rx="1" fill="currentColor"/>
-          <rect x="8" y="6" width="12" height="8" rx="1" fill="currentColor"/>
-          <rect x="6" y="3" width="2" height="10" rx="1" fill="currentColor"/>
-          <rect x="20" y="3" width="2" height="10" rx="1" fill="currentColor"/>
+    // Tabla label (solo si es mesa)
+    const isMesa = o._tipoOrden === 'Mesa';
+    const mesaNum = isMesa ? (o.mesa||'').replace(/\D/g,'').padStart(2,'0') || o.mesa : '';
+    const tablaLabel = isMesa ? `Tabla No: ${mesaNum}` : '';
+
+    // Ícono tipo orden
+    const iconMesa = `<svg width="22" height="20" viewBox="0 0 22 20" fill="${fg}" opacity=".9">
+      <rect x="1" y="10" width="20" height="2" rx="1"/>
+      <rect x="3" y="12" width="2" height="7" rx="1"/>
+      <rect x="17" y="12" width="2" height="7" rx="1"/>
+      <rect x="6" y="5" width="10" height="6" rx="1"/>
+      <rect x="5" y="3" width="2" height="8" rx="1"/>
+      <rect x="15" y="3" width="2" height="8" rx="1"/>
+    </svg>`;
+    const iconRest = `<svg width="22" height="20" viewBox="0 0 22 20" fill="none">
+      <rect x="1" y="4" width="20" height="12" rx="2" stroke="${fg}" stroke-width="1.5" fill="none" opacity=".9"/>
+      <rect x="3" y="7" width="4" height="4" rx="1" fill="${fg}" opacity=".9"/>
+      <rect x="9" y="6" width="8" height="2" rx="1" fill="${fg}" opacity=".7"/>
+      <rect x="9" y="10" width="6" height="2" rx="1" fill="${fg}" opacity=".5"/>
+    </svg>`;
+    const iconPago = `<svg width="20" height="18" viewBox="0 0 20 18" fill="none">
+      <rect x="1" y="3" width="18" height="12" rx="2" stroke="${fg}" stroke-width="1.5" fill="none" opacity=".9"/>
+      <rect x="1" y="7" width="18" height="3" fill="${fg}" opacity=".35"/>
+      <rect x="3" y="11" width="4" height="2" rx="1" fill="${fg}" opacity=".7"/>
+    </svg>`;
+
+    // Ícono estado (portapapeles = pendiente, check verde = completado)
+    const iconEstado = o._completado
+      ? `<svg width="22" height="22" viewBox="0 0 22 22">
+          <rect x="1" y="1" width="20" height="20" rx="4" fill="#27AE60"/>
+          <path d="M5 11l5 5 7-7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
         </svg>`
-      : `<svg width="24" height="22" viewBox="0 0 24 22" fill="none">
-          <rect x="0" y="4" width="24" height="14" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
-          <rect x="3" y="8" width="4" height="4" rx="1" fill="currentColor"/>
-          <rect x="10" y="7" width="7" height="2" rx="1" fill="currentColor"/>
-          <rect x="10" y="11" width="5" height="2" rx="1" fill="currentColor"/>
+      : `<svg width="22" height="22" viewBox="0 0 22 22">
+          <rect x="1" y="1" width="20" height="20" rx="4" fill="none" stroke="${even?'rgba(255,255,255,.5)':'var(--brd)'}" stroke-width="1.5"/>
+          <rect x="5" y="5" width="12" height="2" rx="1" fill="${fg}" opacity=".6"/>
+          <rect x="5" y="9" width="10" height="2" rx="1" fill="${fg}" opacity=".4"/>
+          <rect x="5" y="13" width="8" height="2" rx="1" fill="${fg}" opacity=".3"/>
         </svg>`;
 
-    const monto = o.total || o.subtotal || 0;
-    const mesaLabel = o.mesa ? `Tabla No: ${(o.mesa||'').replace(/[^0-9]/g,'')||o.mesa}` : '';
+    const monto = o.total || 0;
 
-    return `<div style="background:${bg};padding:11px 14px;
-        border-bottom:1px solid rgba(255,255,255,.15);cursor:pointer;
-        display:flex;align-items:center;gap:10px"
-      onclick="APP.verPedidoDetalle('${o.id}')">
-      <!-- Fecha y mesa -->
-      <div style="flex:0 0 80px;min-width:0">
-        ${mesaLabel?`<div style="font-size:12px;font-weight:700;color:${fg}">${mesaLabel}</div>`:''}
-        <div style="font-size:11px;color:${fg3}">${dateStr} /</div>
-        <div style="font-size:11px;color:${fg3}">${timeStr}</div>
+    return `<div onclick="APP.verPedidoDetalle('${o.id}')"
+      style="background:${sel?'rgba(21,101,192,.15)':bg};padding:10px 12px;
+        border-bottom:1px solid ${even?'rgba(255,255,255,.12)':'var(--brd)'};
+        cursor:pointer;display:flex;align-items:center;gap:8px;
+        ${sel?'outline:2px solid var(--bl);outline-offset:-2px':''}">
+      <!-- Col 1: fecha + tabla -->
+      <div style="min-width:0;flex:0 0 90px">
+        ${tablaLabel ? `<div style="font-size:10px;font-weight:800;color:${fg};line-height:1.2;margin-bottom:1px">${tablaLabel}</div>` : ''}
+        <div style="font-size:10px;color:${fg3};line-height:1.3">${dateStr} / ${timeStr}</div>
       </div>
-      <!-- Íconos tipo orden + método pago -->
-      <div style="display:flex;gap:6px;align-items:center;color:${fg};flex:0 0 auto">
-        <span style="opacity:.8">${tipoIcon}</span>
-        <svg width="22" height="18" viewBox="0 0 22 18" fill="${fg}" opacity=".8">
-          <circle cx="11" cy="9" r="8" stroke="${fg}" stroke-width="1.5" fill="none"/>
-          <text x="11" y="13" text-anchor="middle" font-size="9" font-weight="bold" fill="${fg}">$</text>
-        </svg>
+      <!-- Col 2: íconos tipo -->
+      <div style="display:flex;gap:3px;align-items:center;flex-shrink:0">
+        ${isMesa ? iconMesa : iconRest}
+        ${iconPago}
       </div>
-      <!-- Monto -->
-      <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:${fg}">
+      <!-- Col 3: monto -->
+      <div style="flex:1;text-align:right;font-size:12px;font-weight:800;color:${fg}">
         ${APP.fmtNum(monto)} $
       </div>
-      <!-- Íconos extra (cocina lista) -->
-      <div style="display:flex;gap:4px;align-items:center;flex:0 0 auto">
-        ${o.done||o.paid ? `<svg width="20" height="20" viewBox="0 0 20 20">
-          <circle cx="10" cy="10" r="9" fill="#27AE60"/>
-          <path d="M5 10l4 4 6-6" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
-        </svg>` : ''}
-        <!-- Check verde siempre -->
-        <svg width="22" height="22" viewBox="0 0 22 22">
-          <rect x="1" y="1" width="20" height="20" rx="3" fill="none" stroke="${even?'rgba(255,255,255,.4)':'var(--brd)'}" stroke-width="1.5"/>
-          <path d="M5 11l5 5 7-7" stroke="#27AE60" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        </svg>
-      </div>
+      <!-- Col 4: estado -->
+      <div style="flex-shrink:0;margin-left:4px">${iconEstado}</div>
     </div>`;
   }).join('');
 
-  APP.updateBadge('pedidos', APP.kitchenOrders.filter(o=>!o.done).length);
+  APP.updateBadge('pedidos', orders.filter(o => !o._completado).length);
+};
+
+APP.cerrarDetallePedido = function(){
+  APP._pedidoSelId = null;
+  document.getElementById('pedido-detalle-panel').style.display = 'none';
+  APP.renderPedidos();
 };
 
 APP.verPedidoDetalle = function(id){
-  const o = [...(APP.ventas||[]), ...APP.kitchenOrders].find(x=>x.id===id);
+  const all = APP._buildPedidosList();
+  const o = all.find(x => x.id === id);
   if(!o){ APP.showToast('Pedido no encontrado'); return; }
-  const items = (o.items||[]).map(it=>typeof it==='string'?it:`${it.q}x ${it.n}`).join('\n');
-  APP.showToast(`${o.mesa||'Sin mesa'} — ${APP.fmtNum(o.total||0)} $`);
+
+  APP._pedidoSelId = id;
+  APP._pedidoActual = o;
+
+  // Mostrar panel
+  const panel = document.getElementById('pedido-detalle-panel');
+  panel.style.display = 'flex';
+  panel.style.flexDirection = 'column';
+
+  // Número corto (últimos 10 dígitos del id)
+  const numCorto = String(o.id||o.timestamp||'').slice(-10);
+
+  // Header
+  document.getElementById('pd-titulo').textContent = `Pedido ${numCorto}`;
+  const estadoEl = document.getElementById('pd-estado');
+  estadoEl.textContent = `( ${o._estadoOrden||'—'} )`;
+  estadoEl.style.color = o._completado ? 'var(--gr)' : 'var(--or)';
+
+  // Info
+  const dt = o.timestamp ? new Date(o.timestamp) : null;
+  const pedidoEn = o.time || (dt ? dt.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—');
+  const mesaNum = (o.mesa||'').replace(/\D/g,'').padStart(2,'0') || o.mesa || '—';
+  document.getElementById('pd-info').innerHTML = `
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:10px">
+      <span style="color:var(--tx3)">Número de orden:</span>  <span style="font-weight:700;color:var(--tx)">${numCorto}</span>
+      <span style="color:var(--tx3)">Pedido en:</span>        <span style="font-weight:600;color:var(--tx)">${pedidoEn} (Hoy)</span>
+      <span style="color:var(--tx3)">Ordenado por:</span>     <span style="font-weight:600;color:var(--tx)">${o.cajero||o.mesero||o.ordenadoPor||'CAJA'}</span>
+      <span style="color:var(--tx3)">Estado cocina:</span>    <span style="font-weight:600;color:var(--tx)">${o._estadoCocina||'—'}</span>
+      <span style="color:var(--tx3)">Estado orden:</span>     <span style="font-weight:600;color:${o._completado?'var(--gr)':'var(--or)'}">${o._estadoOrden||'—'}</span>
+      <span style="color:var(--tx3)">Tipo de orden:</span>    <span style="font-weight:600;color:var(--tx)">${o._tipoOrden||'—'}</span>
+      ${o.mesa ? `<span style="color:var(--tx3)">Nombre tabla:</span><span style="font-weight:700;color:var(--bl)">${mesaNum}</span>` : ''}
+      <span style="color:var(--tx3)">N° personas:</span>      <span style="font-weight:600;color:var(--tx)">${o.guests||o.personas||1}</span>
+    </div>`;
+
+  // Items
+  const p = APP.perms[APP.role];
+  let itemsHtml = '';
+  let sub = 0;
+  const rawItems = o.items || [];
+
+  if(rawItems.length){
+    // Normalizar: pueden ser strings "2x Nombre" u objetos {n,p,q}
+    const normItems = rawItems.map(it => {
+      if(typeof it === 'string'){
+        const m = it.match(/^(\d+)x\s+(.+)$/);
+        if(m){
+          const qty = parseInt(m[1]), name = m[2];
+          let precio = 0;
+          Object.values(APP.menuData).forEach(cat => {
+            const prod = cat.find(x => x.n === name);
+            if(prod) precio = prod.p;
+          });
+          return {n:name, p:precio, q:qty};
+        }
+        return {n:it, p:0, q:1};
+      }
+      return {n:it.n||'—', p:it.p||0, q:it.q||1};
+    });
+
+    // Cabecera items
+    itemsHtml = `<div style="display:grid;grid-template-columns:1fr 60px 36px 64px;
+      gap:0;padding:6px 0;border-bottom:2px solid var(--brd);
+      font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase">
+      <span>Producto</span><span style="text-align:right">Precio</span>
+      <span style="text-align:center">Cant</span><span style="text-align:right">Total</span>
+    </div>`;
+
+    normItems.forEach(it => {
+      const lineTotal = it.p * it.q;
+      sub += lineTotal;
+      itemsHtml += `<div style="display:grid;grid-template-columns:1fr 60px 36px 64px;
+        gap:0;padding:6px 0;border-bottom:1px solid var(--brd);align-items:start">
+        <span style="font-size:11px;font-weight:600;color:var(--tx);line-height:1.3">${it.n}</span>
+        ${p.verPrecios
+          ? `<span style="font-size:10px;color:var(--tx3);text-align:right">${APP.fmtNum(it.p)} $</span>
+             <span style="font-size:10px;color:var(--tx2);text-align:center">x ${it.q}.0</span>
+             <span style="font-size:11px;font-weight:700;color:var(--bl);text-align:right">${APP.fmtNum(lineTotal)} $</span>`
+          : `<span></span><span style="font-size:10px;color:var(--tx2);text-align:center">x ${it.q}</span><span></span>`}
+      </div>`;
+    });
+  } else {
+    itemsHtml = `<div style="color:var(--tx3);font-size:11px;padding:12px 0">Sin items registrados</div>`;
+    sub = o.total || 0;
+  }
+  document.getElementById('pd-items').innerHTML = itemsHtml;
+
+  // Totales
+  if(p.verPrecios){
+    const srv = o.iva || Math.round(sub * 0.05);
+    const tot = o.total || (sub + srv);
+    const metodo = o.method || (o.efectivo > 0 ? 'Dinero en efectivo' : '');
+    const metodoStr = metodo && o.efectivo
+      ? `<div style="font-size:10px;color:var(--tx3);margin-bottom:6px">
+           ${metodo} ${APP.fmtNum(o.efectivo||tot)} $</div>`
+      : '';
+    document.getElementById('pd-totales').innerHTML = `
+      ${metodoStr}
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-bottom:3px">
+        <span>Total parcial:</span><span style="font-weight:700;color:var(--tx)">${APP.fmtNum(sub)} $</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-bottom:3px">
+        <span>Servicio(%5.0):</span><span style="font-weight:700;color:var(--tx)">${APP.fmtNum(srv)} $</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--bl);margin-top:4px;padding-top:4px;border-top:1.5px solid var(--bl)">
+        <span>Total:</span><span>${APP.fmtNum(tot)} $</span>
+      </div>`;
+  } else {
+    document.getElementById('pd-totales').innerHTML = '';
+  }
+
+  // Log
+  const logLines = [];
+  if(o.pedidoEn || o.time){
+    const t1 = o.pedidoEn ? o.pedidoEn.split(' ')[1]||o.pedidoEn : o.time;
+    logLines.push(`${t1} (Hoy) * Orden creada ( ${o.cajero||o.mesero||'CAJA'} )`);
+  }
+  if(o._fuente === 'cocina' && o.time && !o.pedidoEn){
+    logLines.push(`${o.time} (Hoy) * Pedido agregado ( ${o.mesero||'CAJA'} )`);
+  }
+  // Buscar pedidos adicionales de la misma mesa para el log
+  if(o._tipoOrden === 'Mesa'){
+    const mesaLabel = o.mesa;
+    (APP.kitchenOrders||[])
+      .filter(k => k.id !== o.id && (k.mesa === mesaLabel))
+      .forEach(k => { if(k.time) logLines.push(`${k.time} (Hoy) * Pedido agregado ( ${k.mesero||'CAJA'} )`); });
+  }
+  if(o._completado && o.time){
+    logLines.push(`${o.time} (Hoy) * Pedido pagado ( ${o.cajero||'CAJA'} )`);
+  }
+  document.getElementById('pd-log').innerHTML = logLines.length
+    ? logLines.map(l => `<div style="margin-bottom:2px">• ${l}</div>`).join('')
+    : '<div>Sin historial</div>';
+
+  // Re-render lista para marcar seleccionado
+  APP.renderPedidos();
+};
+
+APP.cancelarPedido = function(){
+  const o = APP._pedidoActual;
+  if(!o){ APP.showToast('Selecciona un pedido'); return; }
+  if(!confirm('¿Cancelar este pedido?')) return;
+  if(APP.db && o._fuente === 'cocina'){
+    const {update,ref} = APP.fb;
+    update(ref(APP.db,`pedidos_cocina/${o.id}`),{cancelled:true,done:true})
+      .then(()=>{ APP.showToast('Pedido cancelado'); APP.cerrarDetallePedido(); })
+      .catch(e=>APP.showToast('Error: '+e.message));
+  } else {
+    APP.showToast('No se puede cancelar un pedido ya cobrado');
+  }
+};
+
+APP.editarPedido = function(){
+  const o = APP._pedidoActual;
+  if(!o){ APP.showToast('Selecciona un pedido'); return; }
+
+  // Reconstruir orden en APP.order desde los items del pedido
+  const rawItems = o.items || [];
+  APP.order = rawItems.map(it => {
+    if(typeof it === 'string'){
+      const m = it.match(/^(\d+)x\s+(.+)$/);
+      if(m){
+        const qty = parseInt(m[1]), name = m[2];
+        let precio = 0, emoji = '🍽️', img = '';
+        Object.values(APP.menuData).forEach(cat => {
+          const prod = cat.find(x => x.n === name);
+          if(prod){ precio = prod.p; emoji = prod.e||'🍽️'; img = prod.img||''; }
+        });
+        return {n:name, p:precio, q:qty, e:emoji, img, _tipo:'servido'};
+      }
+      return {n:it, p:0, q:1, e:'🍽️', img:'', _tipo:'servido'};
+    }
+    return {n:it.n, p:it.p||0, q:it.q||1, e:it.e||'🍽️', img:it.img||'', _tipo:'servido'};
+  }).filter(it => it.n);
+
+  // Poner mesa
+  const msel = document.getElementById('mesa-sel');
+  if(msel && o.mesa) msel.value = o.mesa;
+
+  // Ir al catálogo con contexto de edición
+  APP._editandoPedidoId = o.id;
+  APP._catalogMesa = o._tipoOrden === 'Mesa' ? (o.mesa||'').replace(/\D/g,'') : '';
+
+  APP.renderOrder();
+  APP.updateOrderCount();
+  APP.cerrarDetallePedido();
+
+  if(APP._catalogMesa){
+    APP.showCatalogForMesa(APP._catalogMesa);
+  } else {
+    APP.showPanel('p-catalog','catalog');
+    APP.renderProducts();
+  }
+  APP.showToast(`✏️ Editando pedido ${String(o.id||'').slice(-6)}`);
+};
+
+APP.imprimirPedido = function(){
+  APP.showToast('🖨️ Función de impresión próximamente');
 };
 
 // ── INVENTARIO ───────────────────────────────
