@@ -1818,12 +1818,33 @@ body{background:var(--bg);color:var(--tx)}
   </div>
   <div class="order-slide-body" id="slide-items"></div>
   <div class="order-slide-bottom">
-    <textarea class="osb-note" id="slide-nota" rows="2" placeholder="Añadir la nota..."></textarea>
-    <div class="osb-personas">
-      <span class="osb-personas-lbl" style="font-size:9px;color:var(--tx2);font-weight:700;text-align:right;display:block;margin-bottom:2px">Número de<br>personas</span>
-      <button class="osb-pbtn" onclick="APP.chgPersonas(-1)">👤−</button>
-      <div class="osb-pnum" id="slide-personas">1</div>
-      <button class="osb-pbtn" onclick="APP.chgPersonas(1)">👤+</button>
+    <!-- Fila nota + tipo de pedido -->
+    <div style="display:flex;gap:6px;margin-bottom:8px;align-items:stretch">
+      <textarea class="osb-note" id="slide-nota" rows="2"
+        placeholder="Añadir la nota..."
+        style="flex:1;border-radius:10px;border:1.5px solid var(--brd);padding:8px 10px;
+        font-size:12px;resize:none;outline:none;font-family:inherit"></textarea>
+      <!-- Tipo de pedido -->
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <button id="tipo-llevar" onclick="APP.setTipoPedido('llevar')"
+          title="Para llevar"
+          style="width:44px;height:44px;border-radius:10px;border:2px solid var(--brd);
+          background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">
+          🛍️
+        </button>
+        <button id="tipo-rest" onclick="APP.setTipoPedido('restaurante')"
+          title="En restaurante"
+          style="width:44px;height:44px;border-radius:10px;border:2px solid var(--bl);
+          background:var(--bll2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">
+          🍽️
+        </button>
+        <button id="tipo-delivery" onclick="APP.setTipoPedido('delivery')"
+          title="Delivery / Moto"
+          style="width:44px;height:44px;border-radius:10px;border:2px solid var(--brd);
+          background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">
+          🛵
+        </button>
+      </div>
     </div>
     <div class="osb-actions">
       <button class="osb-btn gray" onclick="APP.closeOrderSlide()">VOLVER</button>
@@ -3025,9 +3046,9 @@ APP.showPanel = function(pid, nk){
       } else {
         document.getElementById('pedidos-lista-wrap').style.display = 'flex';
         document.getElementById('pedidos-mesa-wrap').style.display  = 'none';
-        APP.renderPedidos();
+        APP.loadVentasAndRender();
       }
-    }catch(e){}
+    }catch(e){ console.error(e); }
   }
   if(nk === 'kitchen')     { try{ APP.renderKitchen(); }catch(e){} }
   if(nk === 'tables')      { try{ APP.renderTables?.(); }catch(e){} }
@@ -3085,15 +3106,27 @@ APP.renderProducts = function(filter=''){
            align-items:center;justify-content:center">${emoji}</span>`
       : `<span style="font-size:28px">${emoji}</span>`;
 
-    return `<div class="pc${isActive?' active':''}"
-      onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
-      <div class="pimg">
+    return `<div class="pc${isActive?' active':''}" style="position:relative">
+      <div class="pimg"
+        onclick="APP.tapProduct(event,'${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
         ${imgHtml}
         ${qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
         ${showLow?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">-${Math.abs(stock)}<br>Rest.</div>`:''}
         ${showStock?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">${stock}<br>Rest.</div>`:''}
+        ${qty>0?`
+          <div style="position:absolute;bottom:0;left:0;width:50%;height:32px;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(198,40,40,.75);color:#fff;font-size:20px;font-weight:900;
+            border-radius:0 0 0 10px;cursor:pointer"
+            onclick="event.stopPropagation();APP.tapProductLeft('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">−</div>
+          <div style="position:absolute;bottom:0;right:0;width:50%;height:32px;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(21,101,192,.75);color:#fff;font-size:20px;font-weight:900;
+            border-radius:0 0 10px 0;cursor:pointer"
+            onclick="event.stopPropagation();APP.tapProductRight('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">+</div>`:''}
       </div>
-      <div class="pinfo">
+      <div class="pinfo"
+        onclick="APP.tapProduct(event,'${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
         <div class="pname">${item.n}</div>
         ${p.verPrecios
           ? `<div class="pprice">${APP.fmtNum(item.p)} $</div>`
@@ -3105,6 +3138,30 @@ APP.renderProducts = function(filter=''){
     : `<div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--tx3)">Sin resultados</div>`);
 };
 
+APP.tapProduct = function(ev, en, price, em, img){
+  APP.selectProduct(en, price, em, img);
+};
+APP.tapProductLeft = function(en, price, em, img){
+  const name = decodeURIComponent(en);
+  const ex = APP.order.find(x => x.n === name);
+  if(!ex) return;
+  if(ex.q > 1){
+    ex.q--;
+    APP.numpadLast = {n:name, p:price, e:em, img:img||'', q:ex.q};
+    APP.highlightNumpad(ex.q <= 9 ? ex.q : 9);
+  } else {
+    APP.order = APP.order.filter(x => x.n !== name);
+    APP.numpadLast = null;
+    APP.highlightNumpad(0);
+  }
+  APP.updateActiveLine();
+  APP.renderOrder();
+  APP.updateOrderCount();
+  APP.renderProducts(document.getElementById('search-inp')?.value||'');
+};
+APP.tapProductRight = function(en, price, em, img){
+  APP.selectProduct(en, price, em, img);
+};
 APP.selectProduct = function(en, price, em, img){
   const name = decodeURIComponent(en);
   const isAlreadyActive = APP.numpadLast?.n === name;
@@ -3786,26 +3843,51 @@ APP.showDoneScreen = function(tot,method,elapsed,esMesa){
   const oc=document.getElementById('o-cliente');if(oc)oc.value='';
   const ocl=document.getElementById('o-cliente-lbl');if(ocl)ocl.textContent='Toca para seleccionar...';
   APP.renderOrder();APP.renderProducts();if(APP.updateOrderCount)APP.updateOrderCount();
-  // Guardar destino al cerrar done-screen
   APP._doneScreenReturnMesa = !!esMesa;
+  // Auto-cierre en 5 segundos como el RePOS
+  clearTimeout(APP._doneTimer);
+  APP._doneTimer = setTimeout(()=>{
+    if(document.getElementById('done-screen').classList.contains('on')){
+      APP._closeDoneScreen();
+    }
+  }, 5000);
 };
-APP.doneFreezeOrder = function(){
+APP._closeDoneScreen = function(){
+  clearTimeout(APP._doneTimer);
   document.getElementById('done-screen').classList.remove('on');
   APP.renderProducts(''); APP.updateActiveLine(); APP.updateOrderCount(); APP.renderCats();
-  if(APP._doneScreenReturnMesa){ APP.showPanel('p-tables','tables'); }
+  if(APP._doneScreenReturnMesa){ APP.showPanel('p-ordenes-mesa','ordenes-mesa'); }
   else { APP.showPanel('p-catalog','catalog'); }
   APP._doneScreenReturnMesa = false;
+};
+APP.doneFreezeOrder = function(){
+  APP._closeDoneScreen();
   APP.showToast('Orden congelada');
 };
 APP.doneQuota = function(){
-  document.getElementById('done-screen').classList.remove('on');
-  APP.renderProducts(''); APP.updateActiveLine(); APP.updateOrderCount(); APP.renderCats();
-  if(APP._doneScreenReturnMesa){ APP.showPanel('p-tables','tables'); }
-  else { APP.showPanel('p-catalog','catalog'); }
-  APP._doneScreenReturnMesa = false;
+  APP._closeDoneScreen();
   APP.showToast('Cuota registrada');
 };
 APP.cobrar = async function(){await APP.completePay();};
+APP._tipoPedido = 'restaurante';
+APP.setTipoPedido = function(tipo){
+  APP._tipoPedido = tipo;
+  ['llevar','rest','delivery'].forEach(t=>{
+    const btn = document.getElementById('tipo-'+t);
+    if(!btn) return;
+    const activo = (t==='llevar'&&tipo==='llevar')||(t==='rest'&&tipo==='restaurante')||(t==='delivery'&&tipo==='delivery');
+    btn.style.borderColor = activo ? 'var(--bl)' : 'var(--brd)';
+    btn.style.background  = activo ? 'var(--bll2)' : 'white';
+  });
+  // Actualizar la mesa selector si aplica
+  const msel = document.getElementById('mesa-sel');
+  if(msel){
+    if(tipo==='llevar') msel.value = 'Para llevar';
+    else if(tipo==='delivery') msel.value = 'Delivery';
+    else if(msel.value==='Para llevar'||msel.value==='Delivery') msel.value = '';
+  }
+  APP.showToast(tipo==='llevar'?'🛍️ Para llevar':tipo==='delivery'?'🛵 Delivery':'🍽️ En restaurante');
+};
 APP.openPartialPay = function(){
   APP.order.forEach(it=>it._partialQty=0);
   const list=document.getElementById('partial-items-list');if(!list)return;
@@ -4268,7 +4350,32 @@ APP.mesaA3 = async function(){
 };
 
 // ── PEDIDOS ──────────────────────────────────
-APP._pedidoSort = 'desc'; // desc = más recientes primero
+APP.loadVentasAndRender = function(){
+  if(!APP.db){ APP.renderPedidos(); return; }
+  const {get, ref} = APP.fb;
+  const today = APP.today();
+  // Mostrar spinner mientras carga
+  const list = document.getElementById('pedidos-list');
+  if(list) list.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--tx3)">
+    <div style="font-size:24px;margin-bottom:.5rem">⏳</div>
+    <div style="font-size:12px">Cargando pedidos...</div></div>`;
+  get(ref(APP.db, `ventas/${today}/ordenes`)).then(snap => {
+    const data = snap.val() || {};
+    APP.ventas = Object.entries(data).map(([id, v]) => ({
+      ...v, id,
+      _fuente: 'venta',
+      _completado: true,
+      _estadoCocina: 'No relacionado con la cocina',
+      _estadoOrden: 'Pedido completado',
+      _tipoOrden: v.mesa
+        ? ((v.mesa.toLowerCase().includes('delivery')||v.mesa.toLowerCase().includes('llevar')) ? 'Restaurante' : 'Mesa')
+        : 'Restaurante',
+    }));
+    APP.renderPedidos();
+  }).catch(() => APP.renderPedidos());
+};
+
+APP._pedidoSort = 'desc';
 APP._pedidoSelId = null;
 
 APP.sortPedidos = function(dir){
@@ -4377,7 +4484,7 @@ APP.switchPedidosTab = function(tab, el){
     // Mostrar lista, ocultar grilla de mesas
     listaWrap.style.display = 'flex';
     mesaWrap.style.display  = 'none';
-    APP.renderPedidos();
+    APP.loadVentasAndRender();
   }
 };
 
