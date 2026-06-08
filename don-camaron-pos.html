@@ -135,27 +135,24 @@ body{background:var(--bg);color:var(--tx)}
 .ctab.on{color:var(--bl);border-bottom-color:var(--bl)}
 .catalog-body{flex:1;overflow:hidden;display:flex;position:relative;min-height:0}
 .pgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;
-  gap:8px;padding:8px;align-content:start;
+  gap:6px;padding:6px;align-content:start;
   -webkit-overflow-scrolling:touch;touch-action:pan-y}
-.pc{background:white;border-radius:var(--r);overflow:hidden;cursor:pointer;
-  box-shadow:0 1px 3px rgba(0,0,0,.1);border:1px solid var(--brd);
-  transition:transform .1s;display:flex;flex-direction:column;
-  min-height:130px;max-height:160px}
-.pc:active{transform:scale(.97)}
-.pimg{width:100%;height:80px;flex-shrink:0;display:flex;align-items:center;
-  justify-content:center;font-size:30px;
+.pc{background:white;border-radius:12px;overflow:hidden;cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);border:1.5px solid var(--brd);
+  transition:transform .1s,border-color .1s,box-shadow .1s;
+  display:flex;flex-direction:column}
+.pc:active{transform:scale(.96)}
+.pimg{width:100%;aspect-ratio:1/0.75;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:36px;
   background:linear-gradient(135deg,#E3F2FD,#BBDEFB);
   overflow:hidden;position:relative}
 .pimg img{position:absolute;top:0;left:0;width:100%;height:100%;
   object-fit:cover;display:block}
-.pimg img.err{display:none} /* ocultar si falla */
-.pinfo{padding:5px 8px 7px;flex:1;display:flex;flex-direction:column;
-  background:white;overflow:hidden}
-.pname{font-size:10px;font-weight:700;color:var(--bl);line-height:1.2;
-  margin-bottom:3px;flex:1;overflow:hidden;display:-webkit-box;
-  -webkit-line-clamp:2;-webkit-box-orient:vertical}
-.pprice{font-size:11px;font-weight:800;color:var(--tx2);flex-shrink:0;
-  white-space:nowrap}
+.pimg img.err{display:none}
+.pinfo{padding:6px 8px 8px;display:flex;flex-direction:column;gap:2px;background:white}
+.pname{font-size:11px;font-weight:700;color:var(--bl);line-height:1.25;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pprice{font-size:11px;font-weight:800;color:var(--tx2);white-space:nowrap}
 /* Teclado numérico lateral */
 .numpad{width:40px;flex-shrink:0;display:flex;flex-direction:column;
   background:white;border-left:1px solid var(--brd);overflow:hidden}
@@ -166,15 +163,12 @@ body{background:var(--bg);color:var(--tx)}
 .npkey:last-child{border-bottom:none}
 .npkey:active{background:var(--bll2)}
 .npkey.on{background:var(--bl);color:#fff;font-size:17px}
-/* Producto activo (seleccionado) en grilla */
-.pc.active{border-color:var(--bl);border-width:3px;box-shadow:0 0 0 2px rgba(21,101,192,.2)}
-.pc.active .pimg{filter:none}
-.pc.active .pinfo{background:white}
+/* Producto activo */
+.pc.active{border-color:var(--bl);border-width:2.5px;box-shadow:0 0 0 3px rgba(21,101,192,.18)}
 .pc.active .pname{color:var(--bl)}
-.pc.active .pprice{color:var(--tx2)}
-.pc-qty-badge{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.65);
+.pc-qty-badge{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.68);
   color:#fff;border-radius:8px;font-size:11px;font-weight:800;padding:3px 8px;
-  letter-spacing:.3px;min-width:22px;text-align:center}
+  letter-spacing:.3px;min-width:24px;text-align:center}
 .pc-stock-badge{position:absolute;top:4px;left:4px;background:#C62828;
   color:#fff;border-radius:6px;font-size:9px;font-weight:700;padding:2px 5px;line-height:1.4;text-align:center}
 
@@ -199,10 +193,11 @@ body{background:var(--bg);color:var(--tx)}
   display:flex;align-items:center;gap:4px;opacity:.9;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   border-bottom:1px solid rgba(255,255,255,.15);min-height:26px}
-.cat-footer-summary{padding:12px 16px;display:flex;align-items:center;
-  justify-content:space-between;cursor:pointer}
-.cat-footer-label{font-size:15px;font-weight:800}
-.cat-footer-arrow{font-size:24px;font-weight:700;transition:transform .2s;flex-shrink:0}
+.cat-footer-summary{padding:13px 16px;display:flex;align-items:center;
+  justify-content:space-between;cursor:pointer;gap:8px}
+.cat-footer-label{font-size:15px;font-weight:800;flex:1}
+.cat-footer-arrow{font-size:32px;font-weight:900;transition:transform .2s;
+  flex-shrink:0;line-height:1}
 .cat-footer-arrow.open{transform:rotate(180deg)}
 /* Panel slide-up de resumen */
 .order-slide-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:290;display:none}
@@ -445,19 +440,36 @@ body{background:var(--bg);color:var(--tx)}
 .tstat-val{font-size:20px;font-weight:800;color:var(--bl)}
 .tstat-lbl{font-size:10px;color:var(--tx3);margin-top:1px;font-weight:600}
 .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tc{border-radius:var(--r);padding:12px 8px;text-align:center;cursor:pointer;
-  border:2.5px solid var(--bl);transition:all .18s;min-height:90px;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+.tc{border-radius:14px;padding:10px 8px 12px;text-align:center;cursor:pointer;
+  border:2.5px solid var(--bl);background:white;
+  box-shadow:0 2px 8px rgba(0,0,0,.07);
+  transition:transform .1s,background .15s;
+  display:flex;flex-direction:column;align-items:center;min-height:90px}
 .tc:active{transform:scale(.93)}
-.tc.libre{background:#fff;border-color:var(--bl)}
-.tc.ocupada{background:var(--bl);border-color:var(--bll);color:#fff}
-.tc.ocupada .tc-num{color:#fff;font-size:26px}
+.tc.libre{background:white;border-color:var(--bl)}
+.tc.ocupada{background:var(--bl);border-color:var(--bl);color:#fff}
+.tc.ocupada .tc-num{color:#fff}
 .tc-top-row{display:flex;justify-content:space-between;align-items:flex-start;font-size:9px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:2px}
 .tc-mesero{font-size:9px;font-weight:700}
-.tc.ocupada .tc-personas{font-size:8px;text-align:right;line-height:1.2;color:rgba(255,255,255,.8)}
+.tc.ocupada .tc-personas{color:rgba(255,255,255,.8)}
 .tc-hora{font-size:9px;color:rgba(255,255,255,.75);margin-top:1px}
 .tc-total-ocu{font-size:10px;font-weight:700;color:rgba(255,255,255,.95);margin-top:2px}
-/* Overlay "orden completada" post-pedido */
+.tc.reservada{background:#EDE7F6;border-color:#CE93D8}
+.tc.sel{box-shadow:0 0 0 3px rgba(21,101,192,.25)}
+.tc-personas{font-size:10px;color:var(--tx3);font-weight:600;
+  width:100%;text-align:right;margin-bottom:0;line-height:1}
+.tc-num{font-size:30px;font-weight:900;color:var(--bl);
+  line-height:1;margin:4px 0 2px;align-self:center}
+.tc-stat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:none}
+.tc.ocupada .tc-stat{display:block;color:rgba(255,255,255,.85)}
+.tc.reservada .tc-stat{display:block;color:#6A1B9A}
+.tc-cap{font-size:9px;color:var(--tx3);margin-top:0}
+.tc-total{font-size:10px;font-weight:700;color:var(--or);margin-top:2px}
+.tables-legend{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.tleg{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.tleg.l{background:#E8F5E9;color:#2E7D32}
+.tleg.o{background:#FFF3E0;color:#E65100}
+.tleg.r{background:#EDE7F6;color:#6A1B9A}
 .order-done-overlay{position:fixed;inset:0;z-index:450;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.3)}
 .order-done-card{background:#fff;border-radius:16px;padding:1.5rem;width:100%;max-width:380px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25)}
 .order-done-check{width:72px;height:72px;border-radius:50%;border:4px solid var(--bl);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 1rem;color:var(--bl)}
@@ -941,7 +953,7 @@ body{background:var(--bg);color:var(--tx)}
               Resumen de la orden (<span id="order-count">0</span>) : 
               <span id="order-footer-total">0.00 $</span>
             </span>
-            <span class="cat-footer-arrow" id="slide-arrow" style="font-size:24px">↑</span>
+            <span class="cat-footer-arrow" id="slide-arrow">↑</span>
           </div>
         </div>
         <!-- Footer modo MESA: REGRESAR + PEDIDO -->
@@ -1072,11 +1084,11 @@ body{background:var(--bg);color:var(--tx)}
         </div>
         <!-- Botón QR flotante -->
         <div style="position:fixed;bottom:14px;left:12px;z-index:50">
-          <button onclick="APP.showPanel('p-qr','qr')"
+          <button onclick="APP.openQRModal()"
             style="width:52px;height:52px;border-radius:50%;background:var(--bl);
             border:none;color:#fff;font-size:22px;cursor:pointer;
             box-shadow:0 4px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">
-            📄
+            📱
           </button>
         </div>
       </div>
@@ -1097,13 +1109,15 @@ body{background:var(--bg);color:var(--tx)}
             </div>
           </div>
         </div>
-        <!-- Cuerpo: lista + detalle -->
+        <!-- Cuerpo: lista + detalle / o grilla de mesas -->
         <div style="flex:1;display:flex;overflow:hidden;min-height:0">
-          <!-- Lista -->
-          <div id="pedidos-list" style="flex:1;overflow-y:auto;min-width:0"></div>
-          <!-- Panel detalle (oculto hasta seleccionar) -->
-          <div id="pedido-detalle-panel" style="display:none;width:52%;max-width:340px;flex-shrink:0;
-            border-left:1px solid var(--brd);background:white;overflow-y:auto;flex-direction:column">
+          <!-- Vista lista (TODAS / MENSAJERÍA / RESTAURANTE / ÓRD) -->
+          <div id="pedidos-lista-wrap" style="flex:1;display:flex;overflow:hidden;min-width:0">
+            <!-- Lista -->
+            <div id="pedidos-list" style="flex:1;overflow-y:auto;min-width:0"></div>
+            <!-- Panel detalle (oculto hasta seleccionar) -->
+            <div id="pedido-detalle-panel" style="display:none;width:52%;max-width:340px;flex-shrink:0;
+              border-left:1px solid var(--brd);background:white;overflow-y:auto;flex-direction:column">
             <!-- Header -->
             <div style="background:white;padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0">
               <div style="font-size:12px;font-weight:800;color:var(--bl)" id="pd-titulo">Pedido —</div>
@@ -1132,6 +1146,21 @@ body{background:var(--bg);color:var(--tx)}
                 style="padding:11px 4px;background:#9E9E9E;color:#fff;border:none;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer">
                 VOLVER</button>
             </div>
+          </div>
+          </div><!-- /pedidos-lista-wrap -->
+
+          <!-- Vista mesas (solo visible en tab ÓRDENES DE MESA) -->
+          <div id="pedidos-mesa-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+            <!-- Tabs de pisos -->
+            <div class="floor-tabs" id="pedidos-floor-tabs" style="flex-shrink:0"></div>
+            <!-- Grilla de mesas -->
+            <div style="flex:1;overflow-y:auto;padding:10px 10px 80px">
+              <div class="tgrid" id="pedidos-tgrid"></div>
+            </div>
+            <!-- Hint -->
+            <div style="flex-shrink:0;padding:8px 14px;background:white;
+              border-top:1px solid var(--brd);font-size:11px;color:var(--tx3);text-align:center">
+              Toca una mesa para ver sus pedidos activos</div>
           </div>
         </div>
         <!-- Footer total -->
@@ -2077,6 +2106,72 @@ body{background:var(--bg);color:var(--tx)}
   </div>
 </div>
 
+<!-- ══ MODAL QR ══ -->
+<div id="qr-modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:500;align-items:flex-end;justify-content:center"
+  onclick="if(event.target===this)APP.closeQRModal()">
+  <div id="qr-modal" style="background:white;border-radius:20px 20px 0 0;
+    width:100%;max-width:480px;padding:20px 20px 32px;
+    box-shadow:0 -4px 24px rgba(0,0,0,.2)">
+    <!-- Handle -->
+    <div style="width:36px;height:4px;background:var(--brd);border-radius:2px;margin:0 auto 16px"></div>
+
+    <!-- Vista 1: Seleccionar mesa -->
+    <div id="qr-step-1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:800;color:var(--bl)">OPERACIONES CON CÓDIGO QR</div>
+        <button onclick="APP.closeQRModal()" style="background:none;border:none;font-size:22px;color:var(--tx3);cursor:pointer">✕</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <span style="font-size:13px;font-weight:700;color:var(--bl);white-space:nowrap">Seleccionar tabla</span>
+        <select id="qr-mesa-sel"
+          style="flex:1;padding:12px;border:2px solid var(--bl);border-radius:8px;
+          font-size:16px;font-weight:700;color:var(--bl);text-align:center;outline:none">
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="APP.showToast('Ajustes QR próximamente')"
+          style="padding:14px;background:#9E9E9E;color:#fff;border:none;
+          border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">
+          AJUSTES</button>
+        <button onclick="APP.generarQR()"
+          style="padding:14px;background:var(--bl);color:#fff;border:none;
+          border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">
+          GENERAR QR</button>
+      </div>
+    </div>
+
+    <!-- Vista 2: QR generado -->
+    <div id="qr-step-2" style="display:none">
+      <div style="background:var(--bl);border-radius:14px;padding:20px 16px;text-align:center;margin-bottom:16px">
+        <div style="background:white;border-radius:10px;padding:16px;display:inline-block;width:100%;max-width:280px">
+          <!-- Logo DC -->
+          <div style="font-size:22px;font-weight:900;color:var(--tx);letter-spacing:-1px;margin-bottom:8px">
+            <span style="border:2.5px solid var(--tx);padding:2px 6px;border-radius:4px;font-size:16px">D|C</span>
+          </div>
+          <div style="font-size:10px;color:var(--tx2);margin-bottom:12px">
+            Escanee el código QR a continuación con la cámara de su teléfono<br>y abra el sistema de pedidos en línea del restaurante.
+          </div>
+          <!-- QR code generado con canvas -->
+          <canvas id="qr-canvas" style="width:140px;height:140px;display:block;margin:0 auto"></canvas>
+          <div style="margin-top:12px;font-size:13px;font-weight:800;color:var(--bl)" id="qr-mesa-label">Mesa 01</div>
+          <div style="font-size:9px;color:var(--tx3);margin-top:2px">DON CAMARÓN</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="APP.closeQRModal()"
+          style="padding:14px;background:#9E9E9E;color:#fff;border:none;
+          border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">
+          SOLO COMPARTE QR</button>
+        <button onclick="APP.closeQRModal()"
+          style="padding:14px;background:var(--bl);color:#fff;border:none;
+          border-radius:10px;font-size:13px;font-weight:800;cursor:pointer">
+          CUOTA</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL PRODUCTO DETALLE ══ -->
 <div class="prod-detail-bg" id="prod-detail-bg">
   <div class="prod-detail">
@@ -2946,7 +3041,18 @@ APP.showPanel = function(pid, nk){
   if(nk === 'clientes')  { try{ APP.renderClientes(); }catch(e){} }
   if(nk === 'gastos')    { try{ APP.renderGastos(); }catch(e){} }
   if(nk === 'reservas')  { try{ APP.renderReservaCal(); }catch(e){} }
-  if(nk === 'pedidos')   { try{ APP.renderPedidos(); }catch(e){} }
+  if(nk === 'pedidos'){
+    try{
+      const tab = APP.pedidosTab || 'todas';
+      if(tab === 'mesa'){
+        APP.switchPedidosTab('mesa', document.getElementById('ptab-mesa'));
+      } else {
+        document.getElementById('pedidos-lista-wrap').style.display = 'flex';
+        document.getElementById('pedidos-mesa-wrap').style.display  = 'none';
+        APP.renderPedidos();
+      }
+    }catch(e){}
+  }
   if(nk === 'kitchen')   { try{ APP.renderKitchen(); }catch(e){} }
   if(nk === 'tables')       { try{ APP.renderTables?.(); }catch(e){} }
   if(nk === 'ordenes-mesa') { try{ APP.renderOrdenesMesa?.(); }catch(e){} }
@@ -4194,13 +4300,109 @@ APP.sortPedidos = function(dir){
   APP.renderPedidos();
 };
 
+// Grilla de mesas dentro de la tab Órdenes de mesa del panel Pedidos
+APP.renderPedidosMesaGrid = function(){
+  // Tabs de pisos
+  const floorTabsEl = document.getElementById('pedidos-floor-tabs');
+  if(floorTabsEl){
+    floorTabsEl.innerHTML = Object.keys(APP.floors).map(f =>
+      `<div class="ftab${f === APP.activeFloor ? ' on' : ''}"
+        onclick="APP._pedidosActiveFloor='${f}';APP.renderPedidosMesaGrid()">
+        ${f}
+      </div>`
+    ).join('');
+  }
+
+  const activeFloor = APP._pedidosActiveFloor || APP.activeFloor || Object.keys(APP.floors)[0];
+  APP._pedidosActiveFloor = activeFloor;
+
+  // Sync tab highlight
+  if(floorTabsEl){
+    floorTabsEl.querySelectorAll('.ftab').forEach(t => {
+      t.classList.toggle('on', t.textContent.trim() === activeFloor);
+    });
+  }
+
+  const grid = document.getElementById('pedidos-tgrid');
+  if(!grid) return;
+
+  const fl = APP.floors[activeFloor] || [];
+
+  grid.innerHTML = fl.map(t => {
+    const td = APP.tables[`mesa${t.id}`] || { status: 'libre' };
+    const ocupada  = td.status === 'ocupada';
+    const reservada = td.status === 'reservada';
+
+    // Color igual que la grilla de Órdenes de mesa
+    const bg     = ocupada  ? 'var(--bl)' : reservada ? '#FFF3E0' : 'white';
+    const fg     = ocupada  ? 'white'     : 'var(--tx)';
+    const border = ocupada  ? 'var(--bl)' : reservada ? 'var(--or)' : 'var(--brd)';
+
+    // Tiempo y total (solo mesas ocupadas)
+    const extra = ocupada
+      ? `<div style="font-size:9px;margin-top:4px;opacity:.85">
+           ${td.pedidoEn||''}
+           ${td.total ? `<br><strong>${APP.fmtNum(td.total)} $</strong>` : ''}
+         </div>`
+      : '';
+
+    // Etiqueta CAJA si fue la caja quien abrió
+    const cajaLabel = ocupada && td.mesero
+      ? `<div style="font-size:8px;font-weight:700;opacity:.75;margin-bottom:1px">CAJA ${td.mesero}</div>`
+      : '';
+
+    // Nº personas
+    const personasLabel = td.guests
+      ? `<div style="font-size:9px;opacity:.7">${td.guests}/${t.cap} Persona</div>`
+      : `<div style="font-size:9px;opacity:.5">${t.cap} Persona</div>`;
+
+    // Al tocar: si está ocupada abre el detalle de mesa; si libre muestra toast
+    const onclick = ocupada
+      ? `APP.openMesaOrder('${t.id}')`
+      : `APP.showToast('Mesa ${t.num} — libre')`;
+
+    return `<div onclick="${onclick}"
+      style="background:${bg};border:2px solid ${border};border-radius:12px;
+        padding:10px 8px;text-align:center;cursor:pointer;
+        box-shadow:0 1px 4px rgba(0,0,0,.08);min-height:80px;
+        display:flex;flex-direction:column;align-items:center;justify-content:center">
+      ${cajaLabel}
+      ${personasLabel}
+      <div style="font-size:22px;font-weight:900;color:${fg};line-height:1.1;margin:2px 0">
+        ${String(t.num).padStart(2,'0')}
+      </div>
+      ${extra}
+    </div>`;
+  }).join('');
+};
+
 APP.switchPedidosTab = function(tab, el){
   APP.pedidosTab = tab;
   document.querySelectorAll('#p-pedidos .ktab').forEach(t => t.classList.remove('on'));
   if(el) el.classList.add('on');
   APP._pedidoSelId = null;
-  document.getElementById('pedido-detalle-panel').style.display = 'none';
-  APP.renderPedidos();
+
+  const listaWrap  = document.getElementById('pedidos-lista-wrap');
+  const mesaWrap   = document.getElementById('pedidos-mesa-wrap');
+  const detPanel   = document.getElementById('pedido-detalle-panel');
+  const totBar     = document.getElementById('pedidos-total-bar');
+
+  if(tab === 'mesa'){
+    // Mostrar grilla de mesas, ocultar lista
+    listaWrap.style.display = 'none';
+    mesaWrap.style.display  = 'flex';
+    if(detPanel) detPanel.style.display = 'none';
+    // Footer: total de mesas ocupadas
+    const ocupadas = Object.values(APP.tables||{}).filter(t=>t.status==='ocupada');
+    const total = ocupadas.reduce((a,t)=>a+(t.total||0),0);
+    if(totBar) totBar.textContent = `${ocupadas.length} mesas ocupadas — Total acumulado: ${APP.fmtNum(total)} $`;
+    APP.renderPedidosMesaGrid();
+  } else {
+    // Mostrar lista, ocultar grilla de mesas
+    listaWrap.style.display = 'flex';
+    mesaWrap.style.display  = 'none';
+    APP.renderPedidos();
+  }
 };
 
 APP._buildPedidosList = function(){
@@ -4564,6 +4766,71 @@ APP.editarPedido = function(){
 
 APP.imprimirPedido = function(){
   APP.showToast('🖨️ Función de impresión próximamente');
+};
+
+// ── QR MODAL ─────────────────────────────────
+APP.openQRModal = function(){
+  // Poblar selector de mesas
+  const sel = document.getElementById('qr-mesa-sel');
+  if(sel){
+    const allMesas = Object.values(APP.floors).flat().map(t => t.id);
+    sel.innerHTML = allMesas.map(id =>
+      `<option value="${id}">${String(id).padStart(2,'0')}</option>`
+    ).join('');
+  }
+  document.getElementById('qr-step-1').style.display = '';
+  document.getElementById('qr-step-2').style.display = 'none';
+  const bg = document.getElementById('qr-modal-bg');
+  bg.style.display = 'flex';
+  requestAnimationFrame(()=> bg.style.opacity = '1');
+};
+
+APP.closeQRModal = function(){
+  document.getElementById('qr-modal-bg').style.display = 'none';
+};
+
+APP.generarQR = function(){
+  const mesaId = document.getElementById('qr-mesa-sel')?.value || '01';
+  const mesaNum = String(mesaId).padStart(2,'0');
+  document.getElementById('qr-mesa-label').textContent = `Mesa ${mesaNum}`;
+
+  // Dibujar QR simulado en canvas (patrón visual sin librería externa)
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 140; canvas.height = 140;
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0,0,140,140);
+
+  // URL que codificaría el QR
+  const url = `https://leonetguerrero22-commits.github.io/menu?mesa=${mesaNum}`;
+
+  // Patrón QR básico visual (finder patterns + data cells)
+  const drawQR = () => {
+    const size = 140, mod = 7, cell = Math.floor(size / mod);
+    ctx.fillStyle = '#000';
+    // Finder pattern top-left
+    [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+     [0,1],[6,1],[0,2],[2,2],[3,2],[4,2],[6,2],
+     [0,3],[2,3],[4,3],[6,3],[0,4],[2,4],[3,4],[4,4],[6,4],
+     [0,5],[6,5],[0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6]
+    ].forEach(([x,y])=>{ ctx.fillRect(x*cell+4,y*cell+4,cell-1,cell-1); });
+
+    // Datos pseudo-random seeded por mesaId
+    let seed = parseInt(mesaId)||1;
+    const rnd = ()=>{ seed=(seed*1664525+1013904223)&0xffffffff; return (seed>>>0)/0xffffffff; };
+    for(let r=0;r<mod;r++) for(let c=0;c<mod;c++){
+      if(r<7&&c<7) continue; // skip finder
+      if(rnd()>0.5){ ctx.fillRect(c*cell+4,r*cell+4,cell-1,cell-1); }
+    }
+    // Timing patterns
+    for(let i=0;i<mod;i++){
+      if(i%2===0){ ctx.fillRect(i*cell+4,6*cell+4,cell-1,cell-1); }
+    }
+  };
+  drawQR();
+
+  document.getElementById('qr-step-1').style.display = 'none';
+  document.getElementById('qr-step-2').style.display = '';
 };
 
 // ── INVENTARIO ───────────────────────────────
