@@ -3106,27 +3106,16 @@ APP.renderProducts = function(filter=''){
            align-items:center;justify-content:center">${emoji}</span>`
       : `<span style="font-size:28px">${emoji}</span>`;
 
-    return `<div class="pc${isActive?' active':''}" style="position:relative">
+    return `<div class="pc${isActive?' active':''}">
       <div class="pimg"
-        onclick="APP.tapProduct(event,'${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
+        onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
         ${imgHtml}
-        ${qty>0?`<div class="pc-qty-badge" style="position:absolute;top:4px;right:4px">×${qty}</div>`:''}
-        ${showLow?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">-${Math.abs(stock)}<br>Rest.</div>`:''}
-        ${showStock?`<div class="pc-stock-badge" style="position:absolute;top:4px;left:4px">${stock}<br>Rest.</div>`:''}
-        ${qty>0?`
-          <div style="position:absolute;bottom:0;left:0;width:50%;height:32px;
-            display:flex;align-items:center;justify-content:center;
-            background:rgba(198,40,40,.75);color:#fff;font-size:20px;font-weight:900;
-            border-radius:0 0 0 10px;cursor:pointer"
-            onclick="event.stopPropagation();APP.tapProductLeft('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">−</div>
-          <div style="position:absolute;bottom:0;right:0;width:50%;height:32px;
-            display:flex;align-items:center;justify-content:center;
-            background:rgba(21,101,192,.75);color:#fff;font-size:20px;font-weight:900;
-            border-radius:0 0 10px 0;cursor:pointer"
-            onclick="event.stopPropagation();APP.tapProductRight('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">+</div>`:''}
+        ${qty>0?`<div class="pc-qty-badge">×${qty}</div>`:''}
+        ${showLow?`<div class="pc-stock-badge">-${Math.abs(stock)}<br>Rest.</div>`:''}
+        ${showStock?`<div class="pc-stock-badge">${stock}<br>Rest.</div>`:''}
       </div>
       <div class="pinfo"
-        onclick="APP.tapProduct(event,'${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
+        onclick="APP.selectProduct('${encodeURIComponent(item.n)}',${item.p},'${emoji}',${JSON.stringify(item.img||'').replace(/"/g,'&quot;')})">
         <div class="pname">${item.n}</div>
         ${p.verPrecios
           ? `<div class="pprice">${APP.fmtNum(item.p)} $</div>`
@@ -3167,8 +3156,9 @@ APP.selectProduct = function(en, price, em, img){
   const isAlreadyActive = APP.numpadLast?.n === name;
 
   if(isAlreadyActive){
-    // Segunda pulsación en el mismo producto → abrir modal
-    APP.openPdModal({n:name,p:price,e:em,img:img||''});
+    // Segunda pulsación en el mismo producto → abrir modal con cantidad actual
+    const currentQty = APP.order.find(x=>x.n===name)?.q || 1;
+    APP.openPdModal({n:name,p:price,e:em,img:img||''}, currentQty);
     return;
   }
 
@@ -3270,7 +3260,9 @@ APP.numpadPress = function(k){
   if(_ft&&APP.perms[APP.role]?.verPrecios)_ft.textContent=APP.fmtNum(_s)+' $';
   APP.renderOrder(); APP.updateOrderCount();
   APP.updateActiveLine();
-  APP.renderProducts(document.getElementById('search-inp')?.value||'');
+  // Si el slide está abierto, re-renderizarlo para mostrar nueva cantidad
+  if(APP._slideOpen) APP.renderSlideItems();
+  else APP.renderProducts(document.getElementById('search-inp')?.value||'');
 };
 
 // ── ORDEN ─────────────────────────────────────
@@ -3309,6 +3301,7 @@ APP.toggleOrderSlide = function(){
 };
 APP.openOrderSlide = function(){
   APP._slideOpen = true;
+  APP._slideActiveItem = APP.numpadLast?.n || null;
   document.getElementById('order-slide').classList.add('open');
   document.getElementById('order-slide-bg').classList.add('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.classList.add('open');
@@ -3324,32 +3317,67 @@ APP.openOrderSlide = function(){
 };
 APP.closeOrderSlide = function(){
   APP._slideOpen = false;
+  APP._slideActiveItem = null;
   document.getElementById('order-slide').classList.remove('open');
   document.getElementById('order-slide-bg').classList.remove('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.classList.remove('open');
+  // Re-render productos para mostrar badges actualizados
+  APP.renderProducts(document.getElementById('search-inp')?.value||'');
 };
 APP.renderSlideItems = function(){
-  const list=document.getElementById('slide-items');if(!list)return;
-  const p=APP.perms[APP.role];
+  const list = document.getElementById('slide-items'); if(!list) return;
+  const p = APP.perms[APP.role];
   if(!APP.order.length){
-    list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3);font-size:12px">Orden vacía</div>';
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--tx3);font-size:12px">Orden vacía</div>';
     return;
   }
-  list.innerHTML=APP.order.map((it,i)=>`
-    <div class="osi">
-      <div class="osi-left">
-        <div class="osi-name">${it.n}</div>
-        ${p.verPrecios?`<div class="osi-price">${APP.fmtNum(it.p)} $ / Trozo</div>`:''}
+  const activeN = APP._slideActiveItem || APP.numpadLast?.n;
+  list.innerHTML = APP.order.map((it, i) => {
+    const isActive = it.n === activeN;
+    const bg = isActive ? 'var(--bl)' : '#fff';
+    const fg = isActive ? '#fff' : 'var(--tx)';
+    const fg2 = isActive ? 'rgba(255,255,255,.8)' : 'var(--tx2)';
+    const fgTotal = isActive ? '#fff' : 'var(--bl)';
+    return `<div onclick="APP.slideSelectItem('${encodeURIComponent(it.n)}')"
+      style="background:${bg};border:1.5px solid ${isActive?'var(--bl)':'var(--brd)'};
+      border-radius:10px;padding:10px 12px;margin-bottom:6px;
+      display:flex;align-items:center;gap:10px;cursor:pointer">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:${fg};line-height:1.2">${it.n}</div>
+        ${p.verPrecios?`<div style="font-size:10px;color:${fg2};margin-top:2px">${APP.fmtNum(it.p)} $ / Trozo</div>`:''}
       </div>
-      <div class="osi-btns">
-        <button class="osi-btn" onclick="APP.slideGift(${i})" title="Gratis">🎁</button>
-        <button class="osi-btn" onclick="APP.slideNote(${i})" title="Nota">📄</button>
+      <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;align-items:center">
+        <div style="width:30px;height:26px;border-radius:6px;background:${isActive?'rgba(255,255,255,.25)':'var(--bl)'};
+          color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px"
+          onclick="event.stopPropagation();APP.slideGift(${i})">🎁</div>
+        <div style="width:30px;height:26px;border-radius:6px;background:${isActive?'rgba(255,255,255,.25)':'var(--bl)'};
+          color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px"
+          onclick="event.stopPropagation();APP.slideNote(${i})">📄</div>
       </div>
-      <div class="osi-right">
-        ${p.verPrecios?`<div class="osi-total">${APP.fmtNum(it.p*it.q)} $</div>`:''}
-        <div class="osi-qty">X ${it.q}</div>
+      <div style="text-align:right;flex-shrink:0;min-width:72px">
+        ${p.verPrecios?`<div style="font-size:13px;font-weight:800;color:${fgTotal}">${APP.fmtNum(it.p*it.q)} $</div>`:''}
+        <div style="font-size:12px;font-weight:700;color:${fg2}">X ${it.q}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+};
+
+APP.slideSelectItem = function(en){
+  const name = decodeURIComponent(en);
+  const it = APP.order.find(x => x.n === name);
+  if(!it) return;
+
+  // Si ya está activo → abrir modal de detalle
+  if(APP._slideActiveItem === name){
+    APP.openPdModal({n:it.n, p:it.p, e:it.e||'🍽️', img:it.img||''}, it.q);
+    return;
+  }
+
+  // Primera pulsación → seleccionar
+  APP._slideActiveItem = name;
+  APP.numpadLast = {...it};
+  APP.highlightNumpad(it.q <= 9 ? it.q : 9);
+  APP.renderSlideItems();
 };
 APP.slideGift = function(i){APP.showToast('Promoción/regalo aplicado');};
 APP.slideNote = function(i){APP.showToast('Añadir nota al item');};
@@ -3917,8 +3945,8 @@ APP.closePartialPay = function(){
 };
 APP.confirmPartialPay = function(){APP.showToast('Pago parcial registrado');APP.closePartialPay();APP.closePayScreen();APP.showPanel('p-catalog','catalog');};
 APP._pdProduct=null;
-APP.openPdModal = function(p){
-  APP._pdProduct=p;APP._pdQty=1;APP._pdTipo='servido';
+APP.openPdModal = function(p, initQty){
+  APP._pdProduct=p; APP._pdQty=initQty||1; APP._pdTipo='servido';
   const img=document.getElementById('pd-img');
   const em=document.getElementById('pd-emoji');
   if(p.img){img.src=p.img;img.style.display='block';em.style.display='none';}
@@ -3927,7 +3955,7 @@ APP.openPdModal = function(p){
   const showPrice=APP.perms[APP.role]?.verPrecios;
   const pp=document.getElementById('pd-price');if(pp)pp.textContent=showPrice?APP.fmtNum(p.p)+' $':'';
   const ll=document.getElementById('pd-llevar-lbl');if(ll)ll.textContent='llevar (+'+APP.fmtNum(Math.round(p.p*0.1))+' $)';
-  const pq=document.getElementById('pd-qty');if(pq)pq.textContent=1;
+  const pq=document.getElementById('pd-qty');if(pq)pq.textContent=APP._pdQty;
   const cl=document.getElementById('pd-ch-llevar');if(cl)cl.checked=false;
   const cc=document.getElementById('pd-ch-comer');if(cc)cc.checked=false;
   const tb=document.getElementById('pd-tipo-btn');if(tb)tb.classList.add('on');
