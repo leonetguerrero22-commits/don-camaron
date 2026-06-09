@@ -3049,11 +3049,14 @@ APP.showPanel = function(pid, nk){
       tEl.innerHTML = `✏️ Órdenes de mesa > ${APP._catalogMesa}`;
     } else {
       tEl.innerHTML = titles[nk] || 'DON <span style="color:var(--or2)">CAMARÓN</span>';
+      // Restaurar footer normal siempre que no sea modo mesa
+      const fn=document.getElementById('cat-footer-normal');
+      const fm=document.getElementById('cat-footer-mesa');
       if(nk !== 'catalog'){
         APP._catalogMesa = '';
-        // Restaurar footer normal si salimos del catálogo
-        const fn=document.getElementById('cat-footer-normal');
-        const fm=document.getElementById('cat-footer-mesa');
+      }
+      // Si no hay mesa activa, siempre mostrar footer normal
+      if(!APP._catalogMesa){
         if(fn)fn.style.display='';
         if(fm)fm.style.display='none';
       }
@@ -3393,6 +3396,13 @@ APP.closeOrderSlide = function(){
   // Restaurar numpad del catálogo
   const catNp=document.getElementById('numpad');
   if(catNp) catNp.style.visibility='';
+  // Limpiar buffer y resetear cuadro 99+ al cerrar
+  APP._snpkBuf=''; APP._snpkLong=false;
+  clearTimeout(APP._snpkReset);
+  const lbl=document.getElementById('snpk-custom-lbl');
+  if(lbl){ lbl.textContent='99+'; lbl.style.color=''; }
+  const custom=document.getElementById('snpk-custom');
+  if(custom) custom.style.background='';
   APP.renderProducts(document.getElementById('search-inp')?.value||'');
 };
 APP._highlightSlideNumpad = function(qty){
