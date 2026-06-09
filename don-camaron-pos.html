@@ -207,7 +207,7 @@ body{background:var(--bg);color:var(--tx)}
 /* Panel slide-up de resumen */
 .order-slide-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:290;display:none}
 .order-slide-bg.open{display:block}
-.order-slide{position:fixed;inset:0;z-index:300;
+.order-slide{position:fixed;top:0;bottom:0;left:0;right:0;z-index:300;
   background:#F0F4F8;
   transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
   display:flex;flex-direction:column}
@@ -217,6 +217,14 @@ body{background:var(--bg);color:var(--tx)}
   flex-shrink:0}
 .order-slide-title{font-size:13px;font-weight:700}
 .order-slide-body{flex:1;overflow-y:auto;padding:.7rem}
+/* Numpad del slide */
+.snpk{flex:1;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;color:var(--bl);cursor:pointer;
+  border-bottom:1px solid var(--brd);transition:background .1s;
+  min-height:0;user-select:none}
+.snpk:last-child{border-bottom:none}
+.snpk:active,.snpk.on{background:var(--bl);color:#fff}
+.snpk-custom{background:#F5F5F5;font-size:11px!important}
 .osi{background:#fff;border:1px solid var(--brd);border-radius:10px;
   padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px}
 .osi-left{flex:1;min-width:0}
@@ -1818,6 +1826,7 @@ body{background:var(--bg);color:var(--tx)}
 <!-- ══ SLIDE PANEL - RESUMEN DE ORDEN DESDE CATÁLOGO ══ -->
 <div class="order-slide-bg" id="order-slide-bg" onclick="APP.closeOrderSlide()"></div>
 <div class="order-slide" id="order-slide">
+  <!-- Header -->
   <div class="order-slide-head">
     <div class="order-slide-title">
       Resumen de la orden (<span id="slide-count">0</span>) : 
@@ -1825,42 +1834,56 @@ body{background:var(--bg);color:var(--tx)}
     </div>
     <div onclick="APP.closeOrderSlide()" style="cursor:pointer;font-size:22px;font-weight:700">✓</div>
   </div>
-  <div class="order-slide-body" id="slide-items"></div>
+  <!-- Body: items + numpad lado a lado -->
+  <div style="flex:1;display:flex;overflow:hidden;min-height:0">
+    <!-- Lista de items -->
+    <div class="order-slide-body" id="slide-items" style="flex:1;min-width:0"></div>
+    <!-- Numpad integrado (misma columna que en el catálogo) -->
+    <div style="width:54px;flex-shrink:0;display:flex;flex-direction:column;
+      background:white;border-left:1px solid var(--brd)">
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(0)" ontouchend="APP.slideNumpadEnd(0)" onclick="void(0)">0</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(1)" ontouchend="APP.slideNumpadEnd(1)" onclick="void(0)">1</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(2)" ontouchend="APP.slideNumpadEnd(2)" onclick="void(0)">2</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(3)" ontouchend="APP.slideNumpadEnd(3)" onclick="void(0)">3</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(4)" ontouchend="APP.slideNumpadEnd(4)" onclick="void(0)">4</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(5)" ontouchend="APP.slideNumpadEnd(5)" onclick="void(0)">5</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(6)" ontouchend="APP.slideNumpadEnd(6)" onclick="void(0)">6</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(7)" ontouchend="APP.slideNumpadEnd(7)" onclick="void(0)">7</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(8)" ontouchend="APP.slideNumpadEnd(8)" onclick="void(0)">8</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart(9)" ontouchend="APP.slideNumpadEnd(9)" onclick="void(0)">9</div>
+      <div class="snpk" ontouchstart="APP.slideNumpadStart('.')" ontouchend="APP.slideNumpadEnd('.')" onclick="void(0)">.</div>
+      <!-- Cuadro buffer: muestra número acumulado por long-press -->
+      <div class="snpk snpk-custom" id="snpk-custom"
+        onclick="APP.slideNumpadCustom()"
+        style="font-size:9px;line-height:1.2;color:var(--bl);font-weight:800;
+        background:#F0F4FF">
+        <span id="snpk-custom-lbl" style="font-size:10px;font-weight:900;color:var(--bl)">99+</span>
+      </div>
+    </div>
+  </div>
+  <!-- Bottom: nota + tipo + botones -->
   <div class="order-slide-bottom">
-    <!-- Fila nota + tipo de pedido -->
     <div style="display:flex;gap:6px;margin-bottom:8px;align-items:stretch">
       <textarea class="osb-note" id="slide-nota" rows="2"
         placeholder="Añadir la nota..."
         style="flex:1;border-radius:10px;border:1.5px solid var(--brd);padding:8px 10px;
         font-size:12px;resize:none;outline:none;font-family:inherit"></textarea>
-      <!-- Tipo de pedido -->
       <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
-        <button id="tipo-llevar" onclick="APP.setTipoPedido('llevar')"
-          title="Para llevar"
+        <button id="tipo-llevar" onclick="APP.setTipoPedido('llevar')" title="Para llevar"
           style="width:44px;height:44px;border-radius:10px;border:2px solid var(--brd);
-          background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">
-          🛍️
-        </button>
-        <button id="tipo-rest" onclick="APP.setTipoPedido('restaurante')"
-          title="En restaurante"
+          background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">🛍️</button>
+        <button id="tipo-rest" onclick="APP.setTipoPedido('restaurante')" title="En restaurante"
           style="width:44px;height:44px;border-radius:10px;border:2px solid var(--bl);
-          background:var(--bll2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">
-          🍽️
-        </button>
-        <button id="tipo-delivery" onclick="APP.setTipoPedido('delivery')"
-          title="Delivery / Moto"
+          background:var(--bll2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">🍽️</button>
+        <button id="tipo-delivery" onclick="APP.setTipoPedido('delivery')" title="Delivery"
           style="width:44px;height:44px;border-radius:10px;border:2px solid var(--brd);
-          background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">
-          🛵
-        </button>
+          background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">🛵</button>
       </div>
     </div>
     <div class="osb-actions">
       <button class="osb-btn gray" onclick="APP.closeOrderSlide()">VOLVER</button>
-      <!-- Modo mesa: PEDIDO → envía a cocina -->
       <button id="slide-btn-pedido" class="osb-btn" style="background:var(--bl);color:#fff;display:none"
         onclick="APP.slideEnviarCocina()">PEDIDO</button>
-      <!-- Modo rápido: PAGO RÁPIDO + PAGO -->
       <button id="slide-btn-pago-rap" class="osb-btn" style="background:#2E7D32;color:#fff"
         onclick="APP.slidePagoRapido()">PAGO RÁPIDO EN EFECTIVO</button>
       <button id="slide-btn-pago" class="osb-btn" style="background:#fff;color:var(--bl);border:2px solid var(--bl)"
@@ -3344,11 +3367,15 @@ APP.toggleOrderSlide = function(){
 };
 APP.openOrderSlide = function(){
   APP._slideOpen = true;
+  APP._slideActiveItem = APP.numpadLast?.n || null;
   document.getElementById('order-slide').classList.add('open');
   document.getElementById('order-slide-bg').classList.add('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.style.transform='rotate(180deg)';
+  // Ocultar numpad del catálogo — el slide tiene el suyo
+  const catNp=document.getElementById('numpad');
+  if(catNp) catNp.style.visibility='hidden';
   APP.renderSlideItems();
-  // Adaptar botones según contexto
+  APP._highlightSlideNumpad(APP.numpadLast?.q||0);
   const isMesa = !!APP._catalogMesa;
   const btnP=document.getElementById('slide-btn-pedido');
   const btnRap=document.getElementById('slide-btn-pago-rap');
@@ -3359,9 +3386,23 @@ APP.openOrderSlide = function(){
 };
 APP.closeOrderSlide = function(){
   APP._slideOpen = false;
+  APP._slideActiveItem = null;
   document.getElementById('order-slide').classList.remove('open');
   document.getElementById('order-slide-bg').classList.remove('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.style.transform='';
+  // Restaurar numpad del catálogo
+  const catNp=document.getElementById('numpad');
+  if(catNp) catNp.style.visibility='';
+  APP.renderProducts(document.getElementById('search-inp')?.value||'');
+};
+APP._highlightSlideNumpad = function(qty){
+  document.querySelectorAll('.snpk').forEach(el=>el.classList.remove('on'));
+  const q=parseInt(qty)||0;
+  document.querySelectorAll('.snpk').forEach(el=>{
+    if(el.textContent.trim()===String(q<=9?q:'.')) el.classList.add('on');
+  });
+  const lbl=document.getElementById('snpk-custom-lbl');
+  if(lbl) lbl.textContent=q>9?q+'.00':'99+';
 };
 APP.renderSlideItems = function(){
   const list=document.getElementById('slide-items');if(!list)return;
@@ -3379,82 +3420,246 @@ APP.renderSlideItems = function(){
     const fgTot = isActive ? '#fff' : 'var(--bl)';
     const btnBg = isActive ? 'rgba(255,255,255,.2)' : '#EEF2FF';
     const btnFg = isActive ? '#fff' : 'var(--bl)';
-    return `<div class="slide-item" data-name="${encodeURIComponent(it.n)}"
-      onclick="APP.slideSelectItem('${encodeURIComponent(it.n)}')"
-      style="background:${bg};border:1.5px solid ${isActive?'var(--bl)':'var(--brd)'};
-      border-radius:10px;padding:10px 12px;margin-bottom:6px;
-      display:flex;align-items:center;gap:10px;cursor:pointer;
-      user-select:none;touch-action:pan-y;overflow:hidden;
-      transition:transform .15s">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:${fg};line-height:1.2">${it.n}</div>
-        ${p.verPrecios?`<div style="font-size:10px;color:${fg2};margin-top:2px">${APP.fmtNum(it.p)} $ / Trozo</div>`:''}
+    const brd   = isActive ? 'var(--bl)' : 'var(--brd)';
+    return `
+    <div class="slide-item-wrap" style="position:relative;margin-bottom:6px;border-radius:10px">
+      <!-- reveal izquierdo: incrementar -->
+      <div class="srev-l" style="position:absolute;inset:0;display:flex;align-items:center;
+        padding-left:14px;pointer-events:none;opacity:0;border-radius:10px">
+        <span style="font-size:15px;font-weight:800;color:var(--bl)">incrementar +</span>
       </div>
-      <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;align-items:center">
-        <div onclick="event.stopPropagation();APP.slideGift(${i})"
-          style="width:28px;height:26px;border-radius:6px;background:${btnBg};
-          color:${btnFg};display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer">🎁</div>
-        <div onclick="event.stopPropagation();APP.slideNote(${i})"
-          style="width:28px;height:26px;border-radius:6px;background:${btnBg};
-          color:${btnFg};display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer">📄</div>
+      <!-- reveal derecho: disminuir -->
+      <div class="srev-r" style="position:absolute;inset:0;display:flex;align-items:center;
+        justify-content:flex-end;padding-right:14px;pointer-events:none;opacity:0;border-radius:10px">
+        <span style="font-size:15px;font-weight:800;color:#C62828">✕Disminución</span>
       </div>
-      <div style="text-align:right;flex-shrink:0;min-width:72px">
-        ${p.verPrecios?`<div style="font-size:13px;font-weight:800;color:${fgTot}">${APP.fmtNum(it.p*it.q)} $</div>`:''}
-        <div style="font-size:12px;font-weight:700;color:${fg2}">X ${it.q}</div>
+      <!-- tarjeta -->
+      <div class="slide-item" data-name="${encodeURIComponent(it.n)}"
+        onclick="APP.slideSelectItem('${encodeURIComponent(it.n)}')"
+        style="position:relative;z-index:1;
+        background:${bg};border:1.5px solid ${brd};border-radius:10px;
+        padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;
+        user-select:none;touch-action:pan-y;will-change:transform">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:${fg};line-height:1.2">${it.n}</div>
+          ${p.verPrecios?`<div style="font-size:10px;color:${fg2};margin-top:2px">${APP.fmtNum(it.p)} $ / Trozo</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">
+          <div onclick="event.stopPropagation();APP.slideGift(${i})"
+            style="width:28px;height:26px;border-radius:6px;background:${btnBg};color:${btnFg};
+            display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer">🎁</div>
+          <div onclick="event.stopPropagation();APP.slideNote(${i})"
+            style="width:28px;height:26px;border-radius:6px;background:${btnBg};color:${btnFg};
+            display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer">📄</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;min-width:72px">
+          ${p.verPrecios?`<div style="font-size:13px;font-weight:800;color:${fgTot}">${APP.fmtNum(it.p*it.q)} $</div>`:''}
+          <div style="font-size:12px;font-weight:700;color:${fg2}">X ${it.q}</div>
+        </div>
       </div>
     </div>`;
   }).join('');
-
-  // Swipe en items del slide: derecha = +1, izquierda = -1
   APP._initSlideSwipe();
 };
 APP.slideSelectItem = function(en){
-  const name = decodeURIComponent(en);
-  const it = APP.order.find(x=>x.n===name); if(!it) return;
-  APP._slideActiveItem = name;
-  APP.numpadLast = {...it};
-  APP.highlightNumpad(it.q<=9?it.q:9);
+  const name=decodeURIComponent(en);
+  const it=APP.order.find(x=>x.n===name);if(!it)return;
+  APP._slideActiveItem=name;
+  APP.numpadLast={...it};
+  APP._highlightSlideNumpad(it.q);
   APP.renderSlideItems();
 };
-
 APP._initSlideSwipe = function(){
-  const body = document.getElementById('slide-items');
-  if(!body) return;
-  body.querySelectorAll('.slide-item').forEach(row=>{
-    let sx=0, sy=0, moved=false;
-    row.addEventListener('touchstart',e=>{
-      sx=e.touches[0].clientX; sy=e.touches[0].clientY; moved=false;
+  document.querySelectorAll('.slide-item-wrap').forEach(wrap=>{
+    const card=wrap.querySelector('.slide-item');
+    const revL=wrap.querySelector('.srev-l');
+    const revR=wrap.querySelector('.srev-r');
+    if(!card)return;
+    let sx=0,sy=0,dragging=false;
+    const THOLD=75;
+    card.addEventListener('touchstart',e=>{
+      sx=e.touches[0].clientX;sy=e.touches[0].clientY;
+      dragging=false;
+      card.style.transition='none';
     },{passive:true});
-    row.addEventListener('touchmove',e=>{
-      if(moved) return;
+    card.addEventListener('touchmove',e=>{
       const dx=e.touches[0].clientX-sx;
       const dy=e.touches[0].clientY-sy;
-      if(Math.abs(dx)<28||Math.abs(dx)<Math.abs(dy)*1.4) return;
-      moved=true;
-      const name=decodeURIComponent(row.dataset.name||'');
-      const it=APP.order.find(x=>x.n===name); if(!it) return;
-      const delta=dx>0?1:-1;
-      it.q+=delta;
-      // Feedback visual
-      row.style.transform=`translateX(${delta*8}px)`;
-      setTimeout(()=>{row.style.transform='';},150);
-      if(it.q<=0){
-        APP.order.splice(APP.order.indexOf(it),1);
-        if(APP._slideActiveItem===name) APP._slideActiveItem=APP.order[0]?.n||null;
-        APP.numpadLast=APP.order[0]?{...APP.order[0]}:null;
-        APP.showDarkToast(`Quitado: ${name}`);
-      } else {
+      if(!dragging&&Math.abs(dy)>Math.abs(dx)*1.2)return;
+      dragging=true;
+      card.style.transform=`translateX(${dx}px)`;
+      card.style.boxShadow=dx>5?'-3px 0 10px rgba(0,0,0,.15)':dx<-5?'3px 0 10px rgba(0,0,0,.15)':'';
+      if(dx>10){revL.style.opacity='1';revR.style.opacity='0';}
+      else if(dx<-10){revR.style.opacity='1';revL.style.opacity='0';}
+      else{revL.style.opacity='0';revR.style.opacity='0';}
+    },{passive:true});
+    card.addEventListener('touchend',e=>{
+      card.style.transition='transform .2s ease,box-shadow .2s';
+      card.style.transform='';card.style.boxShadow='';
+      revL.style.opacity='0';revR.style.opacity='0';
+      if(!dragging)return;
+      const dx=e.changedTouches[0].clientX-sx;
+      const name=decodeURIComponent(card.dataset.name||'');
+      const it=APP.order.find(x=>x.n===name);
+      if(!it)return;
+      if(dx>THOLD){
+        it.q++;
         APP.numpadLast={...it};
+        APP.highlightNumpad(it.q<=9?it.q:9);
+        APP._highlightSlideNumpad(it.q);
         APP.showDarkToast(`${it.q}× ${name}`);
+        APP.updateOrderCount();APP.renderSlideItems();
+      } else if(dx<-THOLD){
+        it.q--;
+        if(it.q<=0){
+          APP.order.splice(APP.order.indexOf(it),1);
+          if(APP._slideActiveItem===name)APP._slideActiveItem=APP.order[0]?.n||null;
+          APP.numpadLast=APP.order[0]?{...APP.order[0]}:null;
+          APP.showDarkToast(`Quitado: ${name}`);
+          APP.updateOrderCount();
+          if(!APP.order.length){APP.closeOrderSlide();return;}
+          APP.renderSlideItems();
+        } else {
+          APP.numpadLast={...it};
+          APP.highlightNumpad(it.q<=9?it.q:9);
+          APP._highlightSlideNumpad(it.q);
+          APP.showDarkToast(`${it.q}× ${name}`);
+          APP.updateOrderCount();APP.renderSlideItems();
+        }
       }
-      APP.highlightNumpad(APP.numpadLast?.q<=9?APP.numpadLast?.q||0:9);
-      APP.updateOrderCount();
-      APP.renderSlideItems();
-      if(!APP.order.length) APP.closeOrderSlide();
     },{passive:true});
   });
 };
+
+APP.slideGift = function(i){APP.showToast('Promoción/regalo aplicado');};
 APP.slideNote = function(i){APP.showToast('Añadir nota al item');};
+
+// ── NUMPAD INTEGRADO EN SLIDE ──────────────────────
+// Buffer acumulativo: el cuadro 99+ muestra los dígitos mientras se escriben
+// Long-press (>350ms) activa el modo buffer; tap corto aplica directo (1-9)
+APP._snpkBuf = '';
+APP._snpkTimer = null;
+APP._snpkLong = false;
+APP._snpkReset = null; // timer de reset automático
+
+APP._snpkResetBuf = function(){
+  APP._snpkBuf = '';
+  APP._snpkLong = false;
+  clearTimeout(APP._snpkReset);
+  // Solo desactivar el fondo azul — el número se queda visible
+  const custom = document.getElementById('snpk-custom');
+  if(custom) custom.style.background='';
+  const lbl = document.getElementById('snpk-custom-lbl');
+  if(lbl) lbl.style.color='';
+  // NO resetear lbl.textContent — mantener el último número
+};
+
+APP._snpkShowBuf = function(){
+  const custom = document.getElementById('snpk-custom');
+  const lbl    = document.getElementById('snpk-custom-lbl');
+  if(custom) custom.style.background = 'var(--bl)';
+  if(lbl){ lbl.textContent = APP._snpkBuf||'0'; lbl.style.color='#fff'; }
+};
+
+APP._snpkApply = function(){
+  const raw = APP._snpkBuf;
+  const qty = parseFloat(raw)||0;
+  const lastLabel = APP._snpkBuf || ''; // guardar antes de reset
+  APP._snpkResetBuf(); // limpia buffer pero mantiene label
+  if(qty <= 0) return;
+  const name = APP._slideActiveItem || APP.numpadLast?.n;
+  const it   = APP.order.find(x=>x.n===name);
+  if(!it) return;
+  it.q = qty;
+  APP.numpadLast = {...it};
+  // Mantener el número en el cuadro (no volver a 99+)
+  const lbl = document.getElementById('snpk-custom-lbl');
+  if(lbl) lbl.textContent = lastLabel;
+  APP._highlightSlideNumpad(qty);
+  APP.updateOrderCount();
+  APP.renderSlideItems();
+};
+
+APP.slideNumpadStart = function(k){
+  clearTimeout(APP._snpkTimer);
+  clearTimeout(APP._snpkReset);
+  APP._snpkLong = false;
+  // Si ya hay buffer activo, agregar dígito inmediatamente
+  if(APP._snpkBuf !== ''){
+    if(k === '.'){
+      // Punto decimal — solo agregar si no hay ya uno
+      if(!APP._snpkBuf.includes('.')) APP._snpkBuf += '.';
+    } else {
+      APP._snpkBuf += String(k);
+    }
+    APP._snpkShowBuf();
+    // Reset automático si no se toca nada en 3 segundos
+    APP._snpkReset = setTimeout(APP._snpkResetBuf, 3000);
+    return;
+  }
+  // Iniciar long-press timer
+  APP._snpkTimer = setTimeout(()=>{
+    APP._snpkLong = true;
+    APP._snpkBuf  = String(k);
+    APP._snpkShowBuf();
+    // Reset automático si no confirma en 4s
+    APP._snpkReset = setTimeout(APP._snpkResetBuf, 4000);
+  }, 350);
+};
+
+APP.slideNumpadEnd = function(k){
+  clearTimeout(APP._snpkTimer);
+  if(APP._snpkLong){
+    // El long-press ya activó el buffer — no hacer tap
+    APP._snpkLong = false;
+    return;
+  }
+  if(APP._snpkBuf !== ''){
+    // Buffer en curso — agregar dígito (ya se hizo en Start si buf>0)
+    return;
+  }
+  // Tap corto → aplicar directamente
+  APP.slideNumpad(k);
+};
+
+// Tap en el cuadro 99+ → confirmar buffer si hay, o reactivar buffer
+APP.slideNumpadCustom = function(){
+  if(APP._snpkBuf){
+    APP._snpkApply();
+  }
+  // Sin buffer: no hacer nada — el usuario debe hacer long-press en un número
+};
+
+APP.slideNumpad = function(k){
+  const name = APP._slideActiveItem || APP.numpadLast?.n;
+  const it   = APP.order.find(x=>x.n===name);
+
+  // Feedback visual
+  document.querySelectorAll('.snpk').forEach(el=>{
+    if(el.textContent.trim()===String(k)){
+      el.classList.add('on');
+      setTimeout(()=>el.classList.remove('on'),180);
+    }
+  });
+
+  const qty = parseInt(k)||0;
+  if(!it){ APP.numpadPress(k); return; }
+  if(qty===0){
+    APP.order.splice(APP.order.indexOf(it),1);
+    if(APP._slideActiveItem===it.n) APP._slideActiveItem=APP.order[0]?.n||null;
+    APP.numpadLast=APP.order[0]?{...APP.order[0]}:null;
+    APP.updateOrderCount();
+    if(!APP.order.length){APP.closeOrderSlide();return;}
+  } else {
+    it.q=qty; APP.numpadLast={...it};
+    APP._highlightSlideNumpad(qty);
+    APP.updateOrderCount();
+  }
+  APP.renderSlideItems();
+};
+
+
+
 APP.chgPersonas = function(d){
   APP._personas=Math.max(1,(APP._personas||1)+d);
   const el=document.getElementById('slide-personas');if(el)el.textContent=APP._personas;
