@@ -1918,6 +1918,26 @@ body{background:var(--bg);color:var(--tx)}
 <div class="toast" id="toast"></div>
 <div class="toast-dark" id="toast-dark"></div>
 
+<!-- ══ ADVERTENCIA: ORDEN EN CURSO (estilo RePOS) ══ -->
+<div id="order-warn-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:600;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:520px;
+    box-shadow:0 12px 40px rgba(0,0,0,.35)">
+    <div style="font-size:16px;font-weight:800;color:var(--bl);text-align:center;
+      line-height:1.45;margin-bottom:20px">
+      Estabas a punto de crear un pedido, el pedido que empezaste a crear se eliminará. Quieres continuar ?
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <button onclick="APP.orderWarnCancel()"
+        style="padding:15px 10px;background:#E53935;color:#fff;border:none;border-radius:8px;
+        font-size:14px;font-weight:800;letter-spacing:1px;cursor:pointer">REGRESAR</button>
+      <button onclick="APP.orderWarnOk()"
+        style="padding:15px 10px;background:var(--bl);color:#fff;border:none;border-radius:8px;
+        font-size:14px;font-weight:800;letter-spacing:1px;cursor:pointer">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ OVERLAY ORDEN COMPLETADA ══ -->
 <div class="order-done-overlay" id="order-done-overlay" style="display:none" onclick="APP.closeOrderDoneOverlay()">
   <div class="order-done-card" onclick="event.stopPropagation()">
@@ -2945,8 +2965,18 @@ APP.doLogin = function(){
   APP.showPanel(firstPanel, firstKey);
 };
 APP.doLogout = function(){
+  // Guardia: si hay orden en curso en el catálogo, advertir antes de salir
+  const inCatalog = document.getElementById('p-catalog')?.classList.contains('on');
+  if(inCatalog && APP.order.length){
+    APP.showOrderWarn(()=>APP._logoutNow());
+    return;
+  }
+  APP._logoutNow();
+};
+APP._logoutNow = function(){
   document.getElementById('app').classList.remove('on');
   document.getElementById('login').classList.add('on');
+  APP._catalogMesa='';
   APP.order=[]; APP.selMetodo=null;
   if(APP.selRoleBtn){APP.selRoleBtn.classList.remove('sel');APP.selRoleBtn=null;}
   document.getElementById('l-user').value='';
@@ -3011,7 +3041,46 @@ APP.switchDrawerTab = function(tab){
 
 APP.drawerGo = function(panel, key){
   APP.closeDrawer();
-  APP.showPanel(panel, key);
+  // Guardia: si hay una orden en curso en el catálogo, advertir antes de salir
+  const inCatalog = document.getElementById('p-catalog')?.classList.contains('on');
+  const mismoCatalogo = (panel === 'p-catalog' && !APP._catalogMesa);
+  const irA = ()=>{
+    if(panel === 'p-catalog') APP._catalogMesa = ''; // "Pedido rápido" = salir del modo mesa
+    APP.showPanel(panel, key);
+  };
+  if(inCatalog && APP.order.length && !mismoCatalogo){
+    APP.showOrderWarn(irA);
+    return;
+  }
+  irA();
+};
+
+// ── ADVERTENCIA DE ORDEN EN CURSO (RePOS) ──────
+APP._warnPending = null;
+APP.showOrderWarn = function(proceed){
+  APP._warnPending = proceed;
+  const el = document.getElementById('order-warn-bg');
+  if(el) el.style.display = 'flex';
+};
+APP.orderWarnCancel = function(){
+  // REGRESAR → quedarse donde estaba, no se pierde nada
+  APP._warnPending = null;
+  const el = document.getElementById('order-warn-bg');
+  if(el) el.style.display = 'none';
+};
+APP.orderWarnOk = function(){
+  // OK → eliminar el pedido en curso y continuar a donde iba
+  const go = APP._warnPending;
+  APP._warnPending = null;
+  const el = document.getElementById('order-warn-bg');
+  if(el) el.style.display = 'none';
+  APP.order = []; APP.numpadLast = null;
+  const nota = document.getElementById('slide-nota'); if(nota) nota.value = '';
+  APP.renderOrder && APP.renderOrder();
+  APP.updateOrderCount && APP.updateOrderCount();
+  APP.renderProducts && APP.renderProducts('');
+  APP.updateActiveLine && APP.updateActiveLine();
+  if(go) go();
 };
 
 APP.buildNav = function(){};
@@ -3722,7 +3791,12 @@ APP.chgPersonas = function(d){
 };
 // Tocar el título "Órdenes de mesa > 01" en la topbar regresa (estilo botón atrás)
 APP.tbTitleTap = function(){
-  if(APP._catalogMesa) APP.mesaCatalogRegresar();
+  if(!APP._catalogMesa) return;
+  if(APP.order.length){
+    APP.showOrderWarn(()=>APP.mesaCatalogRegresar());
+  } else {
+    APP.mesaCatalogRegresar();
+  }
 };
 APP.slideEnviarCocina = function(){
   // Copiar nota del slide a la orden antes de enviar
@@ -4067,7 +4141,7 @@ APP.sendToCocina = async function(){
       // Como RePOS: volver a la GRILLA de mesas — la mesa queda azul con su monto
       // y encima se muestra el mensaje "orden completada". El detalle "Actualizar"
       // solo se abre cuando el usuario toca una mesa ocupada.
-      APP.showPanel('p-tables','tables');
+      APP.showPanel('p-ordenes-mesa','ordenes-mesa');
     } else {
       APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
       APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
@@ -4653,7 +4727,7 @@ APP.mesaCatalogRegresar = function(){
   APP.order = []; APP.numpadLast = null;
   APP.renderOrder(); APP.updateOrderCount();
   APP.renderProducts(''); APP.updateActiveLine(); APP.renderCats();
-  APP.showPanel('p-tables','tables');
+  APP.showPanel('p-ordenes-mesa','ordenes-mesa');
   // Si la mesa ya tiene orden, volver a su detalle; si estaba libre, quedarse en la grilla
   const td = APP.tables[`mesa${mesaId}`];
   if(mesaId && td && td.status === 'ocupada'){
