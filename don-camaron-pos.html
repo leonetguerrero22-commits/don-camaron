@@ -1978,7 +1978,8 @@ body{background:var(--bg);color:var(--tx)}
   <div class="repos-modal" style="max-width:560px;padding:18px">
     <button class="repos-btn-blue" style="width:100%;margin-bottom:12px" onclick="APP.mosOtraDescuento()">DESCUENTO:</button>
     <button class="repos-btn-red" style="width:100%;margin-bottom:12px" onclick="APP.mosOtraCancelar()">CANCELAR ORDEN</button>
-    <button class="repos-btn-blue" style="width:100%" onclick="APP.mosOtraEditar()">EDITAR ORDEN</button>
+    <button class="repos-btn-blue" style="width:100%;margin-bottom:12px" onclick="APP.mosOtraEditar()">EDITAR ORDEN</button>
+    <button class="repos-btn-gray" style="width:100%" onclick="APP.mosOtraLiberar()">LIBERAR MESA</button>
   </div>
 </div>
 <!-- Detalle de descuento (RePOS) -->
@@ -4287,12 +4288,21 @@ APP.sendToCocina = async function(){
       const tot=sub+Math.round(sub*0.05);
       const{update,ref}=APP.fb;
       const mk=`mesa${APP._catalogMesa}`;
-      const prev=(APP.tables[mk]||{}).total||0;
-      await update(ref(APP.db,`mesas/${mk}`),{
+      const tdM=APP.tables[mk]||{};
+      const prev=tdM.total||0;
+      const now=new Date();
+      const cambios={
         total:prev+tot,
         guests:APP._personas||1,
         mesero:APP.user||'CAJA'
-      });
+      };
+      // Si la mesa estaba libre, este primer PEDIDO la ocupa
+      if(tdM.status!=='ocupada' && tdM.status!=='factura'){
+        cambios.status='ocupada';
+        cambios.hora=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+        cambios.pedidoEn=now.toISOString().replace('T',' ').substring(0,19);
+      }
+      await update(ref(APP.db,`mesas/${mk}`),cambios);
       const mesaIdParaVolver = APP._catalogMesa;
       APP._catalogMesa='';
       APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
@@ -4822,7 +4832,7 @@ APP.renderTables = function(){
         ? `<div class="tc-top-row"><span class="tc-mesero">${mesero?mesero.substring(0,7):'Administ'}</span><span class="tc-personas">${guests}/${t.cap}<br>Persona</span></div>
            <div class="tc-num">${t.num}</div>
            ${hora?`<div class="tc-hora">${hora}</div>`:''}
-           ${total?`<div class="tc-total-ocu">${APP.fmtShort(total)} $</div>`:''}`
+           ${total?`<div class="tc-total-ocu">${APP.fmtNum(total)} $</div>`:''}`
         : `<div class="tc-personas">${t.cap} Persona</div>
            <div class="tc-num">${t.num}</div>
            ${td.status==='reservada'?`<div class="tc-stat">Reservada</div>`:''}`
@@ -4850,20 +4860,10 @@ APP.openMesaDirectly = async function(id, cap){
     APP.openMesaOrder(id);
     return;
   }
-  // Mesa libre o reservada → marcar como ocupada e ir al catálogo
-  if(APP.db){
-    const{update,ref}=APP.fb;
-    const now=new Date();
-    const hora=now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
-    await update(ref(APP.db,`mesas/mesa${id}`),{
-      status:'ocupada',
-      guests:cap||APP._personas||1,
-      mesero:APP.user||'CAJA',
-      hora,
-      total:0,
-      pedidoEn:now.toISOString().replace('T',' ').substring(0,19)
-    });
-  }
+  // Mesa libre → ir al catálogo SIN ocuparla todavía.
+  // La mesa se marca ocupada solo al enviar el primer PEDIDO (como RePOS),
+  // así no quedan mesas fantasma si el usuario se sale sin pedir.
+  APP._personas = 1;
   document.getElementById('mesa-sel').value=`Mesa ${id}`;
   APP._catalogMesa = id;
   APP.showCatalogForMesa(id);
@@ -6468,6 +6468,19 @@ APP._pedidoParse = function(ped){
   });
   const bruto=out.reduce((a,x)=>a+x.p*x.q,0);
   return {items:out, bruto, tot:Math.round(bruto*1.05)};
+};
+APP.mosOtraLiberar = async function(){
+  APP.closeMosOtras();
+  const mesaId=APP._mosData.mesaId;
+  if(!confirm(`¿Liberar la mesa ${mesaId}? Se borrará su orden y su historial.`)) return;
+  const {ref,update,remove}=APP.fb;
+  try{
+    APP._mesaPedidos(mesaId).forEach(o=>remove(ref(APP.db,`pedidos_cocina/${o.id}`)).catch(()=>{}));
+    await update(ref(APP.db,`mesas/mesa${mesaId}`),{status:'libre',total:0,guests:0,desc:null,facturaEn:null,logs:null,hora:null,pedidoEn:null});
+  }catch(e){APP.showToast('Error: '+e.message);return;}
+  APP.closeMesaOrder();
+  APP.showToast(`Mesa ${mesaId} liberada`);
+  APP.showPanel('p-ordenes-mesa','ordenes-mesa');
 };
 APP.mosOtraCancelar = function(){APP.closeMosOtras();APP._mpedMode='cancelar';APP._openMesaPedidos('Seleccione la orden para cancelar.');};
 APP.mosOtraEditar = function(){APP.closeMosOtras();APP._mpedMode='editar';APP._openMesaPedidos('Seleccione el pedido para editar.');};
