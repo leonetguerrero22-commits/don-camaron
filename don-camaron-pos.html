@@ -18,7 +18,7 @@
 }
 html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
 body{background:var(--bg);color:var(--tx)}
-.scr{display:none;height:100vh;flex-direction:column;overflow:hidden}
+.scr{display:none;height:100vh;height:100dvh;height:var(--appH,100dvh);flex-direction:column;overflow:hidden}
 .scr.on{display:flex}
 .scr.on{display:flex}
 
@@ -134,9 +134,16 @@ body{background:var(--bg);color:var(--tx)}
   white-space:nowrap;flex-shrink:0;transition:all .15s;letter-spacing:.2px}
 .ctab.on{color:var(--bl);border-bottom-color:var(--bl)}
 .catalog-body{flex:1;overflow:hidden;display:flex;position:relative;min-height:0}
-.pgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;
-  gap:6px;padding:6px;align-content:start;
-  -webkit-overflow-scrolling:touch;touch-action:pan-y}
+.pgrid{flex:1;min-width:0;position:relative;display:flex;
+  overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none}
+.pgrid::-webkit-scrollbar{display:none}
+.cat-sec{flex:0 0 100%;width:100%;min-width:100%;
+  scroll-snap-align:start;scroll-snap-stop:always;
+  overflow-y:auto;overflow-x:hidden;padding:6px;
+  -webkit-overflow-scrolling:touch}
+.cat-sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start}
 .pc{background:white;border-radius:12px;overflow:hidden;cursor:pointer;
   box-shadow:0 2px 6px rgba(0,0,0,.08);border:1.5px solid var(--brd);
   transition:transform .1s,border-color .1s;
@@ -856,7 +863,7 @@ body{background:var(--bg);color:var(--tx)}
     <button class="tb-menu" onclick="APP.openDrawer()">☰</button>
     <div class="tb-logo" id="tb-logo">🦐</div>
     <div class="tb-brand">
-      <span id="tb-title">DON <span style="color:var(--or2)">CAMARÓN</span></span>
+      <span id="tb-title" onclick="APP.tbTitleTap()">DON <span style="color:var(--or2)">CAMARÓN</span></span>
       <small id="tb-roletext">—</small>
     </div>
     <div class="tb-spacer"></div>
@@ -961,33 +968,8 @@ body{background:var(--bg);color:var(--tx)}
               line-height:1;transition:transform .2s">↑</span>
           </div>
         </div>
-        <!-- Footer modo MESA: REGRESAR + PEDIDO -->
-        <div id="cat-footer-mesa" style="display:none;flex-shrink:0;background:var(--bl);color:#fff">
-          <div class="cat-footer-product" id="cat-active-product-mesa">
-            Selecciona un producto del menú...
-          </div>
-          <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px">
-            <div style="font-size:13px;font-weight:700;flex:1">
-              Resumen (<span id="order-count-mesa">0</span>) : <span id="order-footer-total-mesa">0.00 $</span>
-            </div>
-            <div style="display:flex;gap:8px;flex-shrink:0">
-              <button onclick="APP.mesaCatalogRegresar()"
-                style="padding:10px 16px;background:#9E9E9E;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer">
-                REGRESAR
-              </button>
-              <button onclick="APP.mesaCatalogPedido()"
-                style="padding:10px 16px;background:#27AE60;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:800;cursor:pointer">
-                PEDIDO
-              </button>
-            </div>
-          </div>
-          <!-- personas -->
-          <div style="padding:4px 12px 8px;display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,.2)">
-            <span style="font-size:10px;opacity:.8;flex:1">Número de personas</span>
-            <button onclick="APP.chgPersonas(-1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-size:16px;cursor:pointer">−</button>
-            <span id="mesa-personas-count" style="font-size:13px;font-weight:800;min-width:24px;text-align:center">1</span>
-            <button onclick="APP.chgPersonas(1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);background:transparent;color:#fff;font-size:16px;cursor:pointer">+</button>
-          </div>
+        <!-- En modo MESA se usa el MISMO footer (Resumen + flecha), igual que RePOS.
+             VOLVER / PEDIDO / nota / personas viven en el panel deslizante. -->
         </div>
       </div>
 
@@ -1868,7 +1850,7 @@ body{background:var(--bg);color:var(--tx)}
         placeholder="Añadir la nota..."
         style="flex:1;border-radius:10px;border:1.5px solid var(--brd);padding:8px 10px;
         font-size:12px;resize:none;outline:none;font-family:inherit"></textarea>
-      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+      <div id="slide-tipo-col" style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
         <button id="tipo-llevar" onclick="APP.setTipoPedido('llevar')" title="Para llevar"
           style="width:44px;height:44px;border-radius:10px;border:2px solid var(--brd);
           background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">🛍️</button>
@@ -1880,9 +1862,22 @@ body{background:var(--bg);color:var(--tx)}
           background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px">🛵</button>
       </div>
     </div>
+    <!-- Número de personas — solo en modo MESA (estilo RePOS) -->
+    <div id="slide-personas-row" style="display:none;align-items:center;gap:10px;margin-bottom:8px;
+      border:1.5px solid var(--brd);border-radius:10px;padding:8px 12px">
+      <span style="font-size:11px;font-weight:700;color:var(--tx2);flex:1">Número de personas</span>
+      <button onclick="APP.chgPersonas(-1)"
+        style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--bl);background:#fff;
+        color:var(--bl);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center">👤−</button>
+      <span id="slide-personas" style="font-size:15px;font-weight:800;color:var(--bl);min-width:26px;
+        text-align:center;border-bottom:2px solid var(--bl);padding-bottom:1px">1</span>
+      <button onclick="APP.chgPersonas(1)"
+        style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--bl);background:#fff;
+        color:var(--bl);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center">👤+</button>
+    </div>
     <div class="osb-actions">
       <button class="osb-btn gray" onclick="APP.closeOrderSlide()">VOLVER</button>
-      <button id="slide-btn-pedido" class="osb-btn" style="background:var(--bl);color:#fff;display:none"
+      <button id="slide-btn-pedido" class="osb-btn" style="background:#fff;color:var(--bl);border:2px solid var(--bl);display:none"
         onclick="APP.slideEnviarCocina()">PEDIDO</button>
       <button id="slide-btn-pago-rap" class="osb-btn" style="background:#2E7D32;color:#fff"
         onclick="APP.slidePagoRapido()">PAGO RÁPIDO EN EFECTIVO</button>
@@ -2386,6 +2381,18 @@ body{background:var(--bg);color:var(--tx)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+// ══════════════════════════════════════════════
+// FIX ALTURA REAL DEL VIEWPORT (Chrome Android)
+// 100vh incluye la barra del navegador y corta el footer.
+// Usamos la altura visible real + 100dvh como respaldo CSS.
+// ══════════════════════════════════════════════
+(function(){
+  const setAppH = () => document.documentElement.style.setProperty('--appH', window.innerHeight + 'px');
+  setAppH();
+  window.addEventListener('resize', setAppH);
+  window.addEventListener('orientationchange', setAppH);
+})();
+
 // ══════════════════════════════════════════════
 // APP NAMESPACE
 // ══════════════════════════════════════════════
@@ -3049,16 +3056,8 @@ APP.showPanel = function(pid, nk){
       tEl.innerHTML = `✏️ Órdenes de mesa > ${APP._catalogMesa}`;
     } else {
       tEl.innerHTML = titles[nk] || 'DON <span style="color:var(--or2)">CAMARÓN</span>';
-      // Restaurar footer normal siempre que no sea modo mesa
-      const fn=document.getElementById('cat-footer-normal');
-      const fm=document.getElementById('cat-footer-mesa');
       if(nk !== 'catalog'){
         APP._catalogMesa = '';
-      }
-      // Si no hay mesa activa, siempre mostrar footer normal
-      if(!APP._catalogMesa){
-        if(fn)fn.style.display='';
-        if(fm)fm.style.display='none';
       }
     }
   }
@@ -3110,20 +3109,51 @@ APP.renderCats = function(){
     ? `<div class="ctab" style="color:var(--or);border-color:transparent;position:relative" onclick="APP.openEspera()">⏳<span style="position:absolute;top:4px;right:2px;background:#C62828;color:#fff;border-radius:8px;font-size:9px;padding:0 4px;font-weight:800;min-width:14px;text-align:center">${esperaN}</span></div>`
     : '';
   document.getElementById('cat-tabs').innerHTML=cats.map(c=>
-    `<div class="ctab${c===APP.activeCat?' on':''}" onclick="APP.setCat('${c.replace(/'/g,"&#39;")}')">${c}</div>`
+    `<div class="ctab${c===APP.activeCat?' on':''}" data-cat="${c.replace(/"/g,'&quot;')}" onclick="APP.setCat('${c.replace(/'/g,"&#39;")}')">${c}</div>`
   ).join('') + esperaBtn;
+};
+// Resalta la pestaña activa SIN reconstruir el HTML y la centra en la franja
+APP.highlightCat = function(c){
+  APP.activeCat = c;
+  document.querySelectorAll('#cat-tabs .ctab').forEach(el=>{
+    const on = el.dataset.cat === c;
+    el.classList.toggle('on', on);
+    if(on) el.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  });
 };
 APP.setCat = function(c){
   APP.activeCat=c; APP.numpadQty=null;
-  document.getElementById('search-inp').value='';
-  APP.renderCats(); APP.renderProducts();
+  const si=document.getElementById('search-inp');
+  const hadFilter = !!(si && si.value);
+  if(si) si.value='';
+  if(hadFilter) APP.renderProducts(); // re-render sin filtro para que existan todas las secciones
+  APP.highlightCat(c);
+  // Scroll del catálogo hasta la sección de esa categoría
+  const cats=Object.keys(APP.menuData);
+  const ci=cats.indexOf(c);
+  const sec=document.getElementById('catsec-'+ci);
+  const grid=document.getElementById('pgrid');
+  if(sec && grid){
+    APP._catSpyLock = true;               // pausar scroll-spy durante el scroll programado
+    grid.scrollTo({left:sec.offsetLeft, behavior:'smooth'});
+    clearTimeout(APP._catSpyT);
+    // 'scrollend' libera el lock justo al terminar; el timeout es respaldo
+    if(!APP._spyEndBound){
+      APP._spyEndBound = true;
+      grid.addEventListener('scrollend', ()=>{ APP._catSpyLock=false; }, {passive:true});
+    }
+    APP._catSpyT = setTimeout(()=>{ APP._catSpyLock=false; }, 1200);
+  }
 };
 APP.renderProducts = function(filter=''){
   const p=APP.perms[APP.role];
-  let items=APP.menuData[APP.activeCat]||[];
-  if(filter) items=items.filter(i=>i.n.toLowerCase().includes(filter.toLowerCase()));
+  const grid=document.getElementById('pgrid');
+  if(!grid) return;
+  const cats=Object.keys(APP.menuData);
   const activeName = APP.numpadLast?.n||'';
-  document.getElementById('pgrid').innerHTML=items.map(item=>{
+  const f=(filter||'').toLowerCase();
+
+  const cardHtml = item => {
     const inOrder = APP.order.find(o=>o.n===item.n);
     const qty = inOrder?.q||0;
     const isActive = item.n===activeName;
@@ -3132,9 +3162,9 @@ APP.renderProducts = function(filter=''){
     const showLow = stock!=null && stock<=0;
     const showStock = stock!=null && stock>0 && stock<=5;
     const emoji = item.e||'🍽️';
-    // Imagen con fallback al emoji si no carga
+    // Imagen con fallback al emoji si no carga (lazy para no cargar 259 fotos de golpe)
     const imgHtml = item.img
-      ? `<img src="${item.img}" alt="${item.n}"
+      ? `<img src="${item.img}" alt="${item.n}" loading="lazy" decoding="async"
            style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
         +`<span style="font-size:28px;display:none;position:absolute;inset:0;
@@ -3157,9 +3187,31 @@ APP.renderProducts = function(filter=''){
           : `<div class="pprice" style="color:var(--tx3)">—</div>`}
       </div>
     </div>`;
-  }).join('')||(Object.keys(APP.menuData).length===0
-    ? `<div style="grid-column:span 2;text-align:center;padding:3rem;color:var(--tx3)"><div style="font-size:32px;margin-bottom:.5rem">🔄</div><div>Cargando menú...</div></div>`
-    : `<div style="grid-column:span 2;text-align:center;padding:2rem;color:var(--tx3)">Sin resultados</div>`);
+  };
+
+  // Catálogo PAGINADO HORIZONTAL: cada categoría es una página (deslizar ⇄)
+  const prevLeft=grid.scrollLeft;
+  const prevTops={};
+  grid.querySelectorAll('.cat-sec').forEach(s=>{ prevTops[s.dataset.cat]=s.scrollTop; });
+
+  let html='';
+  cats.forEach((c,ci)=>{
+    let items=APP.menuData[c]||[];
+    if(f) items=items.filter(i=>i.n.toLowerCase().includes(f));
+    if(!items.length) return; // ocultar páginas vacías (p.ej. al filtrar)
+    html+=`<div class="cat-sec" id="catsec-${ci}" data-cat="${c.replace(/"/g,'&quot;')}">
+      <div class="cat-sec-grid">${items.map(cardHtml).join('')}</div>
+    </div>`;
+  });
+
+  grid.innerHTML = html || (cats.length===0
+    ? `<div style="flex:0 0 100%;text-align:center;padding:3rem;color:var(--tx3)"><div style="font-size:32px;margin-bottom:.5rem">🔄</div><div>Cargando menú...</div></div>`
+    : `<div style="flex:0 0 100%;text-align:center;padding:2rem;color:var(--tx3)">Sin resultados</div>`);
+  // Restaurar posición horizontal (página) y vertical de cada página
+  grid.scrollLeft = prevLeft;
+  grid.querySelectorAll('.cat-sec').forEach(s=>{
+    if(prevTops[s.dataset.cat]!=null) s.scrollTop=prevTops[s.dataset.cat];
+  });
 };
 
 APP.tapProduct = function(ev, en, price, em, img){
@@ -3258,41 +3310,26 @@ APP.updateActiveLine = function(){
 
 document.getElementById('search-inp').addEventListener('input',e=>APP.renderProducts(e.target.value));
 
-// ── SWIPE EN CATÁLOGO → NAVEGAR ENTRE CATEGORÍAS ──
+// ── CATÁLOGO PAGINADO ⇄ : el deslizamiento horizontal es nativo (scroll-snap).
+//    Este spy detecta la página visible y sincroniza la franja de categorías.
 (function(){
   const grid = document.getElementById('pgrid');
   if(!grid) return;
-  let sx=0, sy=0, swiped=false;
-
-  grid.addEventListener('touchstart',e=>{
-    sx=e.touches[0].clientX; sy=e.touches[0].clientY; swiped=false;
+  let spyT=null;
+  grid.addEventListener('scroll',()=>{
+    if(APP._catSpyLock) return;       // ignorar scroll programado (al tocar una pestaña)
+    if(spyT) return;                  // throttle
+    spyT=setTimeout(()=>{
+      spyT=null;
+      if(APP._catSpyLock) return;
+      const secs=grid.querySelectorAll('.cat-sec');
+      if(!secs.length) return;
+      const w=Math.max(1, grid.clientWidth);
+      const idx=Math.max(0, Math.min(secs.length-1, Math.round(grid.scrollLeft/w)));
+      const c=secs[idx].dataset.cat;
+      if(c && c!==APP.activeCat) APP.highlightCat(c);
+    },90);
   },{passive:true});
-
-  grid.addEventListener('touchmove',e=>{
-    if(swiped) return;
-    const dx=e.touches[0].clientX-sx;
-    const dy=e.touches[0].clientY-sy;
-    // Solo horizontal claro (>40px y más horizontal que vertical)
-    if(Math.abs(dx)<40||Math.abs(dx)<Math.abs(dy)*1.6) return;
-    swiped=true;
-    // Obtener categorías activas
-    const cats=Object.keys(APP.menuData||{});
-    if(!cats.length) return;
-    const cur=APP.activeCat||cats[0];
-    const idx=cats.indexOf(cur);
-    let next;
-    if(dx<0) next=cats[Math.min(idx+1,cats.length-1)]; // swipe izq → siguiente
-    else      next=cats[Math.max(idx-1,0)];              // swipe der → anterior
-    if(next && next!==cur){
-      APP.activeCat=next;
-      APP.renderCats();
-      APP.renderProducts('');
-      // Feedback: limpiar búsqueda
-      const si=document.getElementById('search-inp');if(si)si.value='';
-    }
-  },{passive:true});
-
-  grid.addEventListener('touchend',()=>{swiped=false;},{passive:true});
 })();
 
 // Teclado numérico
@@ -3374,6 +3411,7 @@ APP.openOrderSlide = function(){
   document.getElementById('order-slide').classList.add('open');
   document.getElementById('order-slide-bg').classList.add('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.style.transform='rotate(180deg)';
+  const arrM=document.getElementById('slide-arrow-mesa');if(arrM)arrM.style.transform='rotate(180deg)';
   // Ocultar numpad del catálogo — el slide tiene el suyo
   const catNp=document.getElementById('numpad');
   if(catNp) catNp.style.visibility='hidden';
@@ -3386,6 +3424,13 @@ APP.openOrderSlide = function(){
   if(btnP) btnP.style.display=isMesa?'block':'none';
   if(btnRap) btnRap.style.display=isMesa?'none':'block';
   if(btnPag) btnPag.style.display=isMesa?'none':'block';
+  // Modo MESA (RePOS): ocultar tipo llevar/rest/delivery, mostrar Número de personas
+  const tipoCol=document.getElementById('slide-tipo-col');
+  if(tipoCol) tipoCol.style.display=isMesa?'none':'flex';
+  const pRow=document.getElementById('slide-personas-row');
+  if(pRow) pRow.style.display=isMesa?'flex':'none';
+  const pVal=document.getElementById('slide-personas');
+  if(pVal) pVal.textContent=APP._personas||1;
 };
 APP.closeOrderSlide = function(){
   APP._slideOpen = false;
@@ -3393,6 +3438,7 @@ APP.closeOrderSlide = function(){
   document.getElementById('order-slide').classList.remove('open');
   document.getElementById('order-slide-bg').classList.remove('open');
   const arr=document.getElementById('slide-arrow');if(arr)arr.style.transform='';
+  const arrM=document.getElementById('slide-arrow-mesa');if(arrM)arrM.style.transform='';
   // Restaurar numpad del catálogo
   const catNp=document.getElementById('numpad');
   if(catNp) catNp.style.visibility='';
@@ -3674,7 +3720,15 @@ APP.chgPersonas = function(d){
   APP._personas=Math.max(1,(APP._personas||1)+d);
   const el=document.getElementById('slide-personas');if(el)el.textContent=APP._personas;
 };
+// Tocar el título "Órdenes de mesa > 01" en la topbar regresa (estilo botón atrás)
+APP.tbTitleTap = function(){
+  if(APP._catalogMesa) APP.mesaCatalogRegresar();
+};
 APP.slideEnviarCocina = function(){
+  // Copiar nota del slide a la orden antes de enviar
+  const nota=document.getElementById('slide-nota');
+  const onota=document.getElementById('o-notas');
+  if(nota&&onota&&nota.value)onota.value=nota.value;
   APP.closeOrderSlide();
   APP.sendToCocina();
 };
@@ -3701,7 +3755,9 @@ APP._showOrderDoneOverlay = function(mesa, items, sub){
   const el = document.getElementById('order-done-overlay');
   if(!el) return;
   if(document.getElementById('od-never')?.checked) return; // "nunca mostrarlo"
-  document.getElementById('od-mesa-label').textContent = `Nombre de la tabla: ${mesa}  orden completada`;
+  const mesaNum = String(mesa||'').replace(/^Mesa\s*/i,'');
+  document.getElementById('od-mesa-label').innerHTML =
+    `Nombre de la tabla: ${mesaNum}<br><br>orden completada`;
   document.getElementById('od-total').textContent = `TOTAL:${APP.fmtNum(tot)} $`;
   document.getElementById('od-items').textContent = items;
   document.getElementById('od-pedidos-total').textContent = (APP.kitchenOrders||[]).length;
@@ -3999,15 +4055,19 @@ APP.sendToCocina = async function(){
       const{update,ref}=APP.fb;
       const mk=`mesa${APP._catalogMesa}`;
       const prev=(APP.tables[mk]||{}).total||0;
-      await update(ref(APP.db,`mesas/${mk}`),{total:prev+tot});
+      await update(ref(APP.db,`mesas/${mk}`),{
+        total:prev+tot,
+        guests:APP._personas||1,
+        mesero:APP.user||'CAJA'
+      });
       const mesaIdParaVolver = APP._catalogMesa;
       APP._catalogMesa='';
       APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
       APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
-      // Volver al detalle de la mesa, no a la grilla
+      // Como RePOS: volver a la GRILLA de mesas — la mesa queda azul con su monto
+      // y encima se muestra el mensaje "orden completada". El detalle "Actualizar"
+      // solo se abre cuando el usuario toca una mesa ocupada.
       APP.showPanel('p-tables','tables');
-      // Pequeño delay para que Firebase actualice antes de abrir el detalle
-      setTimeout(()=>APP.openMesaOrder(mesaIdParaVolver), 400);
     } else {
       APP.order=[];APP.numpadLast=null;APP.renderOrder();APP.updateOrderCount();
       APP.renderProducts('');APP.updateActiveLine();APP.renderCats();
@@ -4577,38 +4637,33 @@ APP.openMesaDirectly = async function(id, cap){
 };
 
 APP.showCatalogForMesa = function(mesaId){
+  APP._catalogMesa = mesaId; // asegurar modo mesa para slide y envío a cocina
   APP.showPanel('p-catalog','catalog');
-  // Título topbar
+  // Título topbar (tocarlo regresa a la mesa)
   const tb = document.getElementById('tb-title');
   if(tb) tb.innerHTML = `✏️ Órdenes de mesa > ${mesaId}`;
-  // Cambiar footer a modo MESA
-  document.getElementById('cat-footer-normal').style.display = 'none';
-  document.getElementById('cat-footer-mesa').style.display   = '';
-  // Personas
-  const mp = document.getElementById('mesa-personas-count');
-  if(mp) mp.textContent = APP._personas || 1;
+  // Mismo footer que pedido rápido (estilo RePOS) — solo cambia el título
   APP.showToast(`Mesa ${mesaId} — selecciona productos`);
 };
 
 APP.mesaCatalogRegresar = function(){
-  // Volver al detalle de la mesa sin enviar nada
+  // Salir del catálogo de mesa sin enviar nada
+  const mesaId = APP._catalogMesa || APP._mosData?.mesaId || '';
   APP._catalogMesa = '';
   APP.order = []; APP.numpadLast = null;
   APP.renderOrder(); APP.updateOrderCount();
   APP.renderProducts(''); APP.updateActiveLine(); APP.renderCats();
-  // Restaurar footer normal
-  document.getElementById('cat-footer-normal').style.display = '';
-  document.getElementById('cat-footer-mesa').style.display   = 'none';
   APP.showPanel('p-tables','tables');
-  setTimeout(()=>APP.openMesaOrder(APP._mosData?.mesaId||''), 200);
+  // Si la mesa ya tiene orden, volver a su detalle; si estaba libre, quedarse en la grilla
+  const td = APP.tables[`mesa${mesaId}`];
+  if(mesaId && td && td.status === 'ocupada'){
+    setTimeout(()=>APP.openMesaOrder(mesaId), 200);
+  }
 };
 
 APP.mesaCatalogPedido = function(){
-  // Enviar a cocina y volver al detalle
+  // Enviar a cocina y volver al detalle (sendToCocina navega solo)
   APP.slideEnviarCocina();
-  // Restaurar footer normal (sendToCocina lo hará al navegar)
-  document.getElementById('cat-footer-normal').style.display = '';
-  document.getElementById('cat-footer-mesa').style.display   = 'none';
 };
 
 APP.renderGMTables = function(){
