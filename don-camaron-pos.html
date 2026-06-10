@@ -485,6 +485,32 @@ body{background:var(--bg);color:var(--tx)}
 .order-done-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tc.reservada{background:#EDE7F6;border-color:#CE93D8}
 .tc.sel{background:var(--bll3);border-color:var(--bl);box-shadow:0 0 0 3px rgba(21,101,192,.18)}
+.tc.factura{background:#9E9E9E;border-color:#8d8d8d;color:#fff}
+.repos-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:620;
+  align-items:center;justify-content:center;padding:16px}
+.repos-modal-bg.on{display:flex}
+.repos-modal{background:#fff;border-radius:18px;padding:22px 18px;width:100%;
+  box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.repos-btn-blue{padding:14px 10px;background:var(--bl);color:#fff;border:none;border-radius:8px;
+  font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.repos-btn-red{padding:14px 10px;background:#E53935;color:#fff;border:none;border-radius:8px;
+  font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.repos-btn-gray{padding:14px 10px;background:#757575;color:#fff;border:none;border-radius:8px;
+  font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.repos-step{width:46px;height:46px;border:2.5px solid var(--bl);border-radius:10px;background:#fff;
+  color:var(--bl);font-size:22px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.msel-card{background:#fff;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.10)}
+.msel-card .n{font-size:26px;font-weight:800;color:var(--bl)}
+.msel-card .c{font-size:11px;color:var(--bl);margin-top:6px}
+.msel-card.cur{background:#29B6F6;color:#fff}
+.msel-card.cur .n,.msel-card.cur .c{color:#fff}
+.msel-card.tgt{outline:3px solid var(--bl)}
+.msel-tab{font-size:13px;font-weight:800;color:var(--tx2);padding:8px 2px 10px;cursor:pointer;
+  border-bottom:4px solid transparent;white-space:nowrap}
+.msel-tab.on{color:var(--bl);border-bottom-color:var(--bl)}
+.tc.factura .tc-num{color:#fff;font-size:26px}
+.tc.factura .tc-personas{font-size:8px;text-align:right;line-height:1.2;color:rgba(255,255,255,.85)}
 .tc-personas{font-size:10px;color:var(--tx2);font-weight:600;margin-bottom:4px;align-self:flex-end;width:100%;text-align:right}
 .tc-num{font-size:28px;font-weight:800;color:var(--bl);margin-bottom:2px}
 .tc-stat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:none}
@@ -1891,7 +1917,7 @@ body{background:var(--bg);color:var(--tx)}
 <div class="mesa-order-screen" id="mesa-order-screen">
   <div class="mesa-order-head">
     <div class="mesa-order-title" id="mos-title">01 Actualizar</div>
-    <button class="mesa-otro-btn" onclick="APP.openOtras()">Otro<br>Opciones</button>
+    <button class="mesa-otro-btn" onclick="APP.openMosOtras()">Otro<br>Opciones</button>
   </div>
   <div class="mesa-order-body">
     <div class="mesa-info-card" id="mos-info"></div>
@@ -1918,6 +1944,118 @@ body{background:var(--bg);color:var(--tx)}
 <div class="toast" id="toast"></div>
 <div class="toast-dark" id="toast-dark"></div>
 
+<!-- ══ FUNCIONES MESA REPOS: modales y pantallas ══ -->
+<!-- Cortesías por item -->
+<div class="repos-modal-bg" id="cg-bg" onclick="if(event.target===this)APP.cgCancel()">
+  <div class="repos-modal" style="max-width:560px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+      <span style="font-size:14px;font-weight:800;color:var(--bl);flex:1">Número de cortesías:</span>
+      <button class="repos-step" onclick="APP.cgStep(-1)">−</button>
+      <span id="cg-n" style="font-size:18px;font-weight:800;color:var(--bl);min-width:30px;text-align:center">0</span>
+      <button class="repos-step" onclick="APP.cgStep(1)">+</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <button class="repos-btn-red" onclick="APP.cgCancel()">REGRESAR</button>
+      <button class="repos-btn-blue" onclick="APP.cgOk()">OK</button>
+    </div>
+  </div>
+</div>
+<!-- Nota por item -->
+<div class="repos-modal-bg" id="inote-bg" onclick="if(event.target===this)APP.inoteCancel()">
+  <div class="repos-modal" style="max-width:560px">
+    <div id="inote-title" style="font-size:16px;font-weight:800;color:var(--bl);margin-bottom:24px"></div>
+    <input id="inote-inp" type="text" autocomplete="off"
+      style="width:100%;border:none;border-bottom:2px solid var(--bl);font-size:14px;color:var(--bl);
+      padding:6px 2px;outline:none;background:transparent;margin-bottom:22px;-webkit-user-select:text;user-select:text">
+    <div style="display:flex;justify-content:flex-end;gap:12px">
+      <button class="repos-btn-blue" style="min-width:100px" onclick="APP.inoteOk()">OK</button>
+      <button class="repos-btn-blue" style="min-width:120px" onclick="APP.inoteCancel()">CANCEL</button>
+    </div>
+  </div>
+</div>
+<!-- Otro Opciones del detalle de mesa -->
+<div class="repos-modal-bg" id="mos-otras-bg" onclick="if(event.target===this)APP.closeMosOtras()">
+  <div class="repos-modal" style="max-width:560px;padding:18px">
+    <button class="repos-btn-blue" style="width:100%;margin-bottom:12px" onclick="APP.mosOtraDescuento()">DESCUENTO:</button>
+    <button class="repos-btn-red" style="width:100%;margin-bottom:12px" onclick="APP.mosOtraCancelar()">CANCELAR ORDEN</button>
+    <button class="repos-btn-blue" style="width:100%" onclick="APP.mosOtraEditar()">EDITAR ORDEN</button>
+  </div>
+</div>
+<!-- Detalle de descuento (RePOS) -->
+<div class="repos-modal-bg" id="mdesc-bg" onclick="if(event.target===this)APP.mdescRegresar()">
+  <div class="repos-modal" style="max-width:620px">
+    <div style="font-size:17px;font-weight:800;color:var(--bl);text-align:center;margin-bottom:18px">
+      Detalle de descuento <span style="background:var(--bl);color:#fff;border-radius:50%;padding:1px 7px;font-size:12px">?</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:18px">
+      <span style="font-size:14px;font-weight:700;color:var(--bl);flex:1">Porcentaje de descuento(Máximo%10)</span>
+      <input id="mdesc-pct" type="number" min="0" max="10"
+        style="width:90px;border:none;border-bottom:2px solid var(--bl);font-size:15px;color:var(--bl);text-align:center;outline:none;-webkit-user-select:text;user-select:text">
+      <span style="font-size:15px;font-weight:800;color:var(--bl)">%</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:18px">
+      <span style="font-size:14px;font-weight:700;color:var(--bl);flex:1">Importe de descuento</span>
+      <input id="mdesc-amt" type="number" min="0"
+        style="width:110px;border:none;border-bottom:2px solid var(--bl);font-size:15px;color:var(--bl);text-align:center;outline:none;-webkit-user-select:text;user-select:text">
+      <span style="font-size:15px;font-weight:800;color:var(--bl)">$</span>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:24px">
+      <span style="font-size:14px;font-weight:700;color:var(--bl)">Referencia</span>
+      <input id="mdesc-ref" type="text"
+        style="flex:1;border:none;border-bottom:2px solid var(--bl);font-size:14px;color:var(--bl);outline:none;-webkit-user-select:text;user-select:text">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <button class="repos-btn-gray" onclick="APP.mdescRegresar()">REGRESAR</button>
+      <button class="repos-btn-red" onclick="APP.mdescReiniciar()">REINICIAR</button>
+      <button class="repos-btn-blue" onclick="APP.mdescOk()">OK</button>
+    </div>
+  </div>
+</div>
+<!-- Lista de pedidos: cancelar / editar -->
+<div class="repos-modal-bg" id="mped-bg" onclick="if(event.target===this)APP.closeMesaPedidos()">
+  <div class="repos-modal" style="max-width:640px">
+    <div id="mped-title" style="font-size:18px;font-weight:800;color:var(--bl);margin-bottom:14px"></div>
+    <div id="mped-list" style="max-height:46vh;overflow-y:auto;font-size:14px;color:var(--bl);line-height:1.5"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button onclick="APP.closeMesaPedidos()"
+        style="background:none;border:none;color:var(--bl);font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer">REGRESAR</button>
+    </div>
+  </div>
+</div>
+<!-- Modal impuesto sobre las ventas -->
+<div class="repos-modal-bg" id="imp-bg" onclick="if(event.target===this)APP.closeImpuestoModal()">
+  <div class="repos-modal" style="max-width:620px">
+    <div style="font-size:17px;font-weight:800;color:var(--bl);text-align:center;margin-bottom:16px">
+      Seleccionar impuesto sobre las ventas
+    </div>
+    <div onclick="APP.impPick()" style="border:2px solid var(--bl);border-radius:10px;padding:14px;
+      font-size:15px;font-weight:700;color:var(--bl);cursor:pointer;margin-bottom:60px">Servicio %5.0</div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="repos-btn-red" onclick="APP.closeImpuestoModal()">REGRESAR</button>
+    </div>
+  </div>
+</div>
+<!-- Pantalla MESA DE CAMBIO / FUSIÓN -->
+<div class="pay-screen" id="msel-screen">
+  <div style="background:var(--bl);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <span style="font-size:14px;font-weight:700" id="msel-tb">Órdenes de mesa</span>
+  </div>
+  <div style="padding:12px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0">
+    <div id="msel-title" style="font-size:15px;font-weight:800;color:var(--bl);flex:1"></div>
+    <div id="msel-x" onclick="APP.closeMesaSel()" style="width:34px;height:34px;border:2px solid var(--bl);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--bl);
+      font-size:16px;font-weight:800;cursor:pointer">✕</div>
+  </div>
+  <div style="margin:0 12px;background:#fff;border-radius:12px;padding:8px 10px 0;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+    <div id="msel-tabs" style="display:flex;gap:18px;overflow-x:auto"></div>
+  </div>
+  <div id="msel-grid" style="flex:1;overflow-y:auto;padding:14px 12px;display:grid;
+    grid-template-columns:repeat(3,1fr);gap:12px;align-content:start"></div>
+  <div id="msel-foot" style="display:none;padding:10px 12px;gap:12px;flex-shrink:0">
+    <button class="repos-btn-red" style="flex:1;padding:16px" onclick="APP.closeMesaSel()">CANCELAR</button>
+    <button class="repos-btn-blue" style="flex:1;padding:16px" onclick="APP.doFusion()">MESA DE FUSIÓN</button>
+  </div>
+</div>
 <!-- ══ ADVERTENCIA: ORDEN EN CURSO (estilo RePOS) ══ -->
 <div id="order-warn-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
   z-index:600;align-items:center;justify-content:center;padding:16px">
@@ -1967,9 +2105,9 @@ body{background:var(--bg);color:var(--tx)}
     </label>
     <div class="order-done-actions">
       <button style="padding:12px;border:none;border-radius:10px;background:var(--bl);color:#fff;font-weight:800;font-size:13px;cursor:pointer"
-        onclick="APP.closeOrderDoneOverlay()">CONGELAR</button>
+        onclick="APP.odCongelar()">CONGELAR</button>
       <button style="padding:12px;border:none;border-radius:10px;background:var(--bl);color:#fff;font-weight:800;font-size:13px;cursor:pointer"
-        onclick="APP.closeOrderDoneOverlay()">CUOTA</button>
+        onclick="APP.odCuota()">CUOTA</button>
     </div>
   </div>
 </div>
@@ -1989,13 +2127,24 @@ body{background:var(--bg);color:var(--tx)}
     <div class="pay-total-card">
       <div class="pay-serv-row">
         <span class="pay-serv-minus" onclick="APP.togglePayIva()" id="pay-iva-toggle">−</span>
-        <span id="pay-iva-lbl">Servicio(%5.0): <span id="pay-iva-val">0</span> $</span>
+        <span id="pay-iva-lbl" onclick="APP.openImpuestoModal()" style="cursor:pointer">Servicio(%5.0): <span id="pay-iva-val">0</span> $</span>
       </div>
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:.3rem">
         <span style="font-size:22px">💵</span>
       </div>
       <div class="pay-monto-lbl">El monto a pagar :</div>
       <div class="pay-monto-val"><span id="pay-total-val">0.00</span> $</div>
+      <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:8px;
+        border-top:1px solid var(--brd);padding-top:8px">
+        <span style="font-size:18px">👤</span>
+        <button onclick="APP.payClients(-1)" style="width:32px;height:32px;border-radius:50%;
+          border:1.5px solid var(--bl);background:#ECEFF1;color:var(--bl);font-size:16px;cursor:pointer">−</button>
+        <span id="pay-clients-n" style="font-size:15px;font-weight:800;color:var(--bl);min-width:20px;text-align:center">1</span>
+        <button onclick="APP.payClients(1)" style="width:32px;height:32px;border-radius:50%;
+          border:1.5px solid var(--bl);background:#ECEFF1;color:var(--bl);font-size:16px;cursor:pointer">+</button>
+        <span style="font-size:12px;font-weight:700;color:var(--bl)">Cliente / por cliente :
+          <span id="pay-per-client">0.00</span> $</span>
+      </div>
     </div>
     <!-- Métodos de pago principales -->
     <div class="pay-methods">
@@ -3334,7 +3483,7 @@ APP.selectProduct = function(en, price, em, img){
 
   // Actualizar contadores inmediatamente
   const _total=APP.order.reduce((a,i)=>a+i.q,0);
-  const _sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const _sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const _oc=document.getElementById('order-count'); if(_oc)_oc.textContent=_total;
   const _ft=document.getElementById('order-footer-total');
   if(_ft&&APP.perms[APP.role]?.verPrecios)_ft.textContent=APP.fmtNum(_sub)+' $';
@@ -3372,7 +3521,7 @@ APP.updateActiveLine = function(){
   // También actualizar el resumen de orden en la línea grande
   const sumEl = document.getElementById('order-footer-total');
   if(sumEl && showPrice){
-    const sub = APP.order.reduce((a,i)=>a+i.p*i.q, 0);
+    const sub = APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)), 0);
     sumEl.textContent = APP.fmtNum(sub) + ' $';
   }
 };
@@ -3431,7 +3580,7 @@ APP.numpadPress = function(k){
   }
   // Actualizar contadores inmediatamente
   const _t=APP.order.reduce((a,i)=>a+i.q,0);
-  const _s=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const _s=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const _oc=document.getElementById('order-count'); if(_oc)_oc.textContent=_t;
   const _ft=document.getElementById('order-footer-total');
   if(_ft&&APP.perms[APP.role]?.verPrecios)_ft.textContent=APP.fmtNum(_s)+' $';
@@ -3447,7 +3596,7 @@ APP.addItem = function(en,price,em,imgData){
 };
 APP.updateOrderCount = function(){
   const total=APP.order.reduce((a,i)=>a+i.q,0);
-  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const p=APP.perms[APP.role];
   // Footer normal (pedido rápido)
   const oc=document.getElementById('order-count');if(oc)oc.textContent=total;
@@ -3568,6 +3717,8 @@ APP.renderSlideItems = function(){
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:${fg};line-height:1.2">${it.n}</div>
           ${p.verPrecios?`<div style="font-size:10px;color:${fg2};margin-top:2px">${APP.fmtNum(it.p)} $ / Trozo</div>`:''}
+          ${it.cortesia?`<div style="font-size:10px;color:${fgTot};font-weight:800;margin-top:2px">🎁 ${it.cortesia} cortesía${it.cortesia>1?'s':''}</div>`:''}
+          ${it.nota?`<div style="font-size:10px;color:${fg2};font-style:italic;margin-top:2px">📝 ${it.nota}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0">
           <div onclick="event.stopPropagation();APP.slideGift(${i})"
@@ -3809,7 +3960,7 @@ APP.slideEnviarCocina = function(){
 APP.slidePagoRapido = function(){
   APP.closeOrderSlide();
   if(!APP.order.length){APP.showToast('Orden vacía');return;}
-  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const srv=Math.round(sub*0.05);
   const tot=sub+srv;
   APP.showToast(`✅ Pago rápido en efectivo: ${APP.fmtNum(tot)} $`);
@@ -3928,16 +4079,23 @@ APP.openMesaOrder = function(mesaId){
       `<div style="color:var(--tx3);font-size:11px;padding:8px 0">Sin items registrados en cocina</div>`;
   }
 
-  // Totales
-  const srv = Math.round(sub * 0.05);
-  const tot = sub + srv;
+  // Totales (con descuento de la mesa si existe)
+  const d = td.desc || {};
+  const descV = Math.min(sub, Math.round(sub * ((+d.pct||0)/100)) + (+d.amt||0));
+  const subD = Math.max(0, sub - descV);
+  const srv = Math.round(subD * 0.05);
+  const tot = subD + srv;
   document.getElementById('mos-total').innerHTML =
-    `<span style="font-size:10px;opacity:.7">Total parcial: ${APP.fmtNum(sub)} $<br>Servicio(5.0%): ${APP.fmtNum(srv)} $<br></span>` +
+    `<span style="font-size:10px;opacity:.7">Total parcial: ${APP.fmtNum(sub)} $<br>` +
+    (descV>0?`Descuento${d.pct?` (${d.pct}%)`:''}: −${APP.fmtNum(descV)} $<br>`:'') +
+    `Servicio(5.0%): ${APP.fmtNum(srv)} $<br></span>` +
     `<strong>Total: ${APP.fmtNum(tot)} $</strong>`;
+  APP._mosDesc = descV;
 
   // Log — historial real de pedidos de esta mesa
   const logLines = [];
   if(td.pedidoEn) logLines.push(`${td.pedidoEn} (Hoy) * Orden creada ( ${td.mesero||'CAJA'} )`);
+  (td.logs||[]).forEach(l => logLines.push(l));
   pedidos.forEach(ped => {
     if(ped.time) logLines.push(`${ped.time} (Hoy) * Pedido agregado ( ${ped.mesero||'CAJA'} )`);
   });
@@ -4039,7 +4197,7 @@ APP.renderOrder = function(){
     </div>`
   ).join('');
   if(p.verPrecios){
-    const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+    const sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
     const disc=APP.getDiscount?APP.getDiscount(sub):0;
     const subAfter=Math.max(0,sub-disc);
     const noIva=(APP.payState&&APP.payState.noIva)||false;
@@ -4082,7 +4240,7 @@ APP.chgQ = function(en,d){
 APP.payState = {noIva:false, discVal:0, discType:'pct', orderStartTime:Date.now(), totalOrders:0};
 
 APP.showPay = APP.openPayScreen = function(){
-  const sub = APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const sub = APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const disc = APP.getDiscount(sub);
   const subAfter = Math.max(0,sub-disc);
   const ivaRate = 0.05;
@@ -4091,6 +4249,7 @@ APP.showPay = APP.openPayScreen = function(){
   const el1=document.getElementById('ps-subtotal');if(el1)el1.textContent=APP.fmtNum(sub);
   const el2=document.getElementById('pay-iva-val');if(el2)el2.textContent=APP.fmtNum(iva);
   const el3=document.getElementById('pay-total-val');if(el3)el3.textContent=APP.fmtNum(tot);
+  APP._payTotal=tot; if(APP.renderPayClients)APP.renderPayClients();
   const el4=document.getElementById('pmi-efectivo');if(el4){el4.value=tot>0?APP.fmtNum(tot):'';}
   const el5=document.getElementById('pmi-tarjeta');if(el5)el5.value='';
   const el6=document.getElementById('pmi-boleto');if(el6)el6.value='';
@@ -4111,7 +4270,7 @@ APP.sendToCocina = async function(){
     await push(ref(APP.db, 'pedidos_cocina'), {
       mesa,
       mesero: APP.user,
-      items: APP.order.map(i => `${i.q}x ${i.n}`),
+      items: APP.order.map(i => `${i.q}x ${i.n}${i.cortesia?` (${i.cortesia} cortesía)`:''}${i.nota?` — ${i.nota}`:''}`),
       notas,
       timestamp: Date.now(),
       time: t,
@@ -4121,10 +4280,10 @@ APP.sendToCocina = async function(){
     });
     APP.showToast(`✅ Pedido enviado a cocina — ${mesa}`);
     // Mostrar pantalla confirmación "orden completada" como en RePOS
-    APP._showOrderDoneOverlay(mesa, APP.order.reduce((a,i)=>a+i.q,0), APP.order.reduce((a,i)=>a+i.p*i.q,0));
+    APP._showOrderDoneOverlay(mesa, APP.order.reduce((a,i)=>a+i.q,0), APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0));
     // Actualizar total acumulado en la mesa
     if(APP._catalogMesa && APP.db){
-      const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+      const sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
       const tot=sub+Math.round(sub*0.05);
       const{update,ref}=APP.fb;
       const mk=`mesa${APP._catalogMesa}`;
@@ -4171,7 +4330,7 @@ APP.selectPayMethod = function(id,card){
   const inp=document.getElementById('pmi-'+id);if(inp){inp.focus();}
 };
 APP.updatePayTotals = function(){
-  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const disc=APP.getDiscount(sub);
   const subAfter=Math.max(0,sub-disc);
   const iva=!APP.payState.noIva?Math.round(subAfter*0.05):0;
@@ -4198,7 +4357,7 @@ APP.selPago = function(m,btn){
 APP.pagoRapidoEfectivo = async function(){
   if(!APP.order.length){APP.showToast('Orden vacía');return;}
   // Calcular total y asignar directamente al campo efectivo
-  const sub = APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const sub = APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const iva = !APP.payState?.noIva ? Math.round(sub*0.05) : 0;
   const tot = sub + iva;
   // Poner el total en el campo efectivo automáticamente
@@ -4224,7 +4383,7 @@ APP.otraCliente = function(){APP.closeOtras();APP.openClienteSelector();};
 APP.otraMantenerOrden = function(){APP.closeOtras();APP.closePayScreen();APP.guardarEnEspera();};
 APP.completePay = async function(){
   if(!APP.db){APP.showToast('Sin conexi\xf3n Firebase');return;}
-  const sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const disc=APP.getDiscount(sub);
   const subAfter=Math.max(0,sub-disc);
   const iva=!APP.payState.noIva?Math.round(subAfter*0.05):0;
@@ -4274,7 +4433,7 @@ APP.completePay = async function(){
     APP.state=APP.state||{};APP.state.salesData=upd;
     await set(ref(APP.db,'ventas/'+today+'/resumen'),upd);
     const mk='mesa'+mesa.replace('Mesa ','').trim();
-    if(APP.tables[mk])await update(ref(APP.db,'mesas/'+mk),{status:'libre',guests:0,total:0});
+    if(APP.tables[mk])await update(ref(APP.db,'mesas/'+mk),{status:'libre',guests:0,total:0,desc:null,facturaEn:null,logs:null});
     APP._mosData={};
     APP.payState.totalOrders++;
     APP.closePayScreen();
@@ -4416,7 +4575,7 @@ APP.pdAgregar = function(){
   APP.closePdModal();
   // Actualizar contadores INMEDIATAMENTE
   const _total=APP.order.reduce((a,i)=>a+i.q,0);
-  const _sub=APP.order.reduce((a,i)=>a+i.p*i.q,0);
+  const _sub=APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0);
   const _oc=document.getElementById('order-count'); if(_oc)_oc.textContent=_total;
   const _ft=document.getElementById('order-footer-total');
   if(_ft&&APP.perms[APP.role]?.verPrecios)_ft.textContent=APP.fmtNum(_sub)+' $';
@@ -4559,7 +4718,7 @@ APP.guardarEnEspera = function(){
     notas,
     items: JSON.parse(JSON.stringify(APP.order)),
     time: APP.timeNow(),
-    total: APP.order.reduce((a,i)=>a+i.p*i.q,0)
+    total: APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0)
   };
   APP.pedidosEspera.push(espera);
   // Limpiar orden actual
@@ -4621,11 +4780,11 @@ APP.renderEsperaList = function(){
       </div>
       ${e.notas?`<div style="font-size:11px;color:#5D4037;background:#FFFDE7;padding:4px 8px;border-radius:6px;margin-bottom:8px">📝 ${e.notas}</div>`:''}
       <div style="display:flex;gap:6px">
-        <button onclick="APP.retormarEspera(${e.id})"
+        <button onclick="APP.retormarEspera('${e.id}')"
           style="flex:2;padding:9px;background:var(--bl);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
           ▶ Retomar
         </button>
-        <button onclick="APP.eliminarEspera(${e.id})"
+        <button onclick="APP.eliminarEspera('${e.id}')"
           style="flex:1;padding:9px;background:#FFEBEE;color:var(--rd);border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
           🗑
         </button>
@@ -4653,7 +4812,7 @@ APP.renderTables = function(){
     const td=APP.tables[`mesa${t.id}`]||{status:'libre',guests:0,total:0};
     const isSel = t.id===selId;
     const statClass = isSel?'sel':td.status;
-    const ocupada = td.status==='ocupada';
+    const ocupada = td.status==='ocupada' || td.status==='factura';
     const mesero = td.mesero||td.user||'';
     const hora = td.hora||'';
     const total = td.total||0;
@@ -4686,8 +4845,8 @@ APP.openMesaDirectly = async function(id, cap){
   clearTimeout(APP._mesaTapTimer);
   APP._mesaSelId = '';
   const td = APP.tables[`mesa${id}`]||{status:'libre'};
-  if(td.status==='ocupada'){
-    // Mesa ocupada → mostrar pantalla de orden existente
+  if(td.status==='ocupada' || td.status==='factura'){
+    // Mesa ocupada o con factura solicitada → mostrar pantalla de orden existente
     APP.openMesaOrder(id);
     return;
   }
@@ -6111,6 +6270,394 @@ APP.generarQR = function(){
   document.getElementById('qr-step-2').style.display = '';
 };
 </script>
+<script>
+/* ══ FUNCIONES MESA REPOS (apéndice): cortesías, notas, descuento,
+   cancelar/editar orden, fusión, cambio, factura y cuota ══ */
+
+// ── PEDIDOS EN ESPERA ⏳ persistentes en Firebase ──
+// Sobreviven al cerrar la app: nodo 'pedidos_espera'
+APP.guardarEnEspera = async function(){
+  if(!APP.order.length){APP.showToast('La orden está vacía');return;}
+  const mesa = document.getElementById('mesa-sel')?.value || 'Sin mesa';
+  const notas = document.getElementById('o-notas')?.value?.trim() || '';
+  const espera = {
+    mesa, notas,
+    items: JSON.parse(JSON.stringify(APP.order)),
+    time: APP.timeNow(),
+    timestamp: Date.now(),
+    cajero: APP.user||'CAJA',
+    total: APP.order.reduce((a,i)=>a+i.p*Math.max(0,i.q-(i.cortesia||0)),0)
+  };
+  try{
+    const {push,ref}=APP.fb;
+    await push(ref(APP.db,'pedidos_espera'), espera);
+  }catch(e){APP.showToast('Error guardando: '+e.message);return;}
+  APP.order = [];
+  APP.numpadLast = null;
+  const notasEl=document.getElementById('o-notas'); if(notasEl)notasEl.value='';
+  APP.renderOrder();
+  APP.updateOrderCount();
+  APP.renderProducts('');
+  APP.updateActiveLine&&APP.updateActiveLine();
+  APP.showToast(`⏳ Orden guardada en espera — ${mesa}`);
+};
+APP.retormarEspera = async function(id){
+  if(APP.order.length){
+    if(!confirm('¿Reemplazar la orden actual con esta?')) return;
+  }
+  const espera = (APP.pedidosEspera||[]).find(e=>String(e.id)===String(id));
+  if(!espera){APP.showToast('Pedido no encontrado');return;}
+  try{
+    const {ref,remove}=APP.fb;
+    await remove(ref(APP.db,`pedidos_espera/${id}`));
+  }catch(e){}
+  APP.order = JSON.parse(JSON.stringify(espera.items||[]));
+  const msel = document.getElementById('mesa-sel');
+  if(msel) msel.value = espera.mesa||'';
+  const notas = document.getElementById('o-notas');
+  if(notas) notas.value = espera.notas||'';
+  APP.numpadLast = APP.order[0]||null;
+  APP.renderOrder();
+  APP.updateOrderCount();
+  APP.renderProducts('');
+  APP.updateActiveLine&&APP.updateActiveLine();
+  APP.closeEspera();
+  APP.showToast(`▶ Orden retomada — ${espera.mesa||''}`);
+};
+APP.eliminarEspera = async function(id){
+  try{
+    const {ref,remove}=APP.fb;
+    await remove(ref(APP.db,`pedidos_espera/${id}`));
+  }catch(e){}
+  APP.showToast('Pedido eliminado');
+};
+
+// ── Cortesías por item ──────────────────────────
+APP._cgIdx=null; APP._cgN=0;
+APP.slideGift = function(i){
+  const it=APP.order[i]; if(!it) return;
+  APP._cgIdx=i; APP._cgN=it.cortesia||0;
+  document.getElementById('cg-n').textContent=APP._cgN;
+  document.getElementById('cg-bg').classList.add('on');
+};
+APP.cgStep = function(d){
+  const it=APP.order[APP._cgIdx]; if(!it) return;
+  APP._cgN=Math.max(0,Math.min(it.q,APP._cgN+d));
+  document.getElementById('cg-n').textContent=APP._cgN;
+};
+APP.cgCancel = function(){document.getElementById('cg-bg').classList.remove('on');APP._cgIdx=null;};
+APP.cgOk = function(){
+  const it=APP.order[APP._cgIdx];
+  if(it){ it.cortesia=APP._cgN||0; if(!it.cortesia) delete it.cortesia; }
+  APP.cgCancel();
+  APP.renderSlideItems&&APP.renderSlideItems();
+  APP.updateOrderCount&&APP.updateOrderCount();
+  APP.renderOrder&&APP.renderOrder();
+  const st=document.getElementById('slide-total');
+  if(st){const sub=APP.order.reduce((a,x)=>a+x.p*Math.max(0,x.q-(x.cortesia||0)),0);st.textContent=APP.fmtNum(sub)+' $';}
+};
+
+// ── Nota por item ───────────────────────────────
+APP._inoteIdx=null;
+APP.slideNote = function(i){
+  const it=APP.order[i]; if(!it) return;
+  APP._inoteIdx=i;
+  document.getElementById('inote-title').textContent=it.n;
+  const inp=document.getElementById('inote-inp'); inp.value=it.nota||'';
+  document.getElementById('inote-bg').classList.add('on');
+  setTimeout(()=>inp.focus(),80);
+};
+APP.inoteCancel = function(){document.getElementById('inote-bg').classList.remove('on');APP._inoteIdx=null;};
+APP.inoteOk = function(){
+  const it=APP.order[APP._inoteIdx];
+  if(it){ const v=document.getElementById('inote-inp').value.trim(); if(v) it.nota=v; else delete it.nota; }
+  APP.inoteCancel();
+  APP.renderSlideItems&&APP.renderSlideItems();
+};
+
+// ── Cliente / por cliente (pay-screen) ──────────
+APP._payClientsN=1;
+APP.payClients = function(d){
+  APP._payClientsN=Math.max(1,(APP._payClientsN||1)+d);
+  APP.renderPayClients();
+};
+APP.renderPayClients = function(){
+  const n=document.getElementById('pay-clients-n');
+  const v=document.getElementById('pay-per-client');
+  if(!n||!v) return;
+  n.textContent=APP._payClientsN||1;
+  v.textContent=APP.fmtNum(Math.round((APP._payTotal||0)/(APP._payClientsN||1)));
+};
+
+// ── Modal impuesto sobre las ventas ─────────────
+APP.openImpuestoModal = function(){document.getElementById('imp-bg').classList.add('on');};
+APP.closeImpuestoModal = function(){document.getElementById('imp-bg').classList.remove('on');};
+APP.impPick = function(){
+  APP.closeImpuestoModal();
+  if(APP.payState&&APP.payState.noIva){APP.togglePayIva();} // re-activar 5%
+  APP.showToast('Servicio %5.0 aplicado');
+};
+APP.otraImpuesto = function(){APP.closeOtras();APP.openImpuestoModal();};
+
+// ── Otro Opciones del detalle de mesa ───────────
+APP.openMosOtras = function(){document.getElementById('mos-otras-bg').classList.add('on');};
+APP.closeMosOtras = function(){document.getElementById('mos-otras-bg').classList.remove('on');};
+
+// Log helper: agrega línea al historial persistente de la mesa
+APP._mesaLog = async function(mesaId, txt){
+  try{
+    const {ref,update}=APP.fb;
+    const mk=`mesa${mesaId}`;
+    const logs=[...((APP.tables[mk]||{}).logs||[]), `${APP.timeNow()} (Hoy) * ${txt} ( ${APP.user||'CAJA'} )`];
+    await update(ref(APP.db,`mesas/${mk}`),{logs});
+  }catch(e){}
+};
+
+// ── Descuento (Detalle de descuento) ────────────
+APP.mosOtraDescuento = function(){
+  APP.closeMosOtras();
+  const td=APP.tables[`mesa${APP._mosData.mesaId}`]||{}; const d=td.desc||{};
+  document.getElementById('mdesc-pct').value=d.pct||'';
+  document.getElementById('mdesc-amt').value=d.amt||'';
+  document.getElementById('mdesc-ref').value=d.ref||'';
+  document.getElementById('mdesc-bg').classList.add('on');
+};
+APP.mdescRegresar = function(){document.getElementById('mdesc-bg').classList.remove('on');};
+APP.mdescReiniciar = async function(){
+  document.getElementById('mdesc-pct').value='';
+  document.getElementById('mdesc-amt').value='';
+  document.getElementById('mdesc-ref').value='';
+  const {ref,update}=APP.fb; const mesaId=APP._mosData.mesaId;
+  await update(ref(APP.db,`mesas/mesa${mesaId}`),{desc:null});
+  await APP._mesaLog(mesaId,'Descuento eliminado');
+  APP.mdescRegresar();
+  setTimeout(()=>APP.openMesaOrder(mesaId),250);
+};
+APP.mdescOk = async function(){
+  const mesaId=APP._mosData.mesaId;
+  let pct=Math.max(0,Math.min(10,parseFloat(document.getElementById('mdesc-pct').value)||0));
+  let amt=Math.max(0,parseFloat(document.getElementById('mdesc-amt').value)||0);
+  const refTxt=document.getElementById('mdesc-ref').value.trim();
+  const {ref,update}=APP.fb;
+  await update(ref(APP.db,`mesas/mesa${mesaId}`),{desc:{pct,amt,ref:refTxt}});
+  await APP._mesaLog(mesaId,`Descuento aplicado${pct?` ${pct}%`:''}${amt?` ${APP.fmtNum(amt)} $`:''}${refTxt?` — ${refTxt}`:''}`);
+  APP.mdescRegresar();
+  APP.showToast('Descuento aplicado');
+  setTimeout(()=>APP.openMesaOrder(mesaId),250);
+};
+
+// ── Lista de pedidos: cancelar / editar ─────────
+APP._mpedMode='cancelar';
+APP._mesaPedidos = function(mesaId){
+  const lbl=`Mesa ${mesaId}`;
+  return (APP.kitchenOrders||[]).filter(o=>(o.mesa===lbl||o.mesa===mesaId)&&!o.cancelled);
+};
+APP._pedidoParse = function(ped){
+  // Devuelve items [{n,p,q}] y total bruto del pedido
+  const out=[];
+  (ped.items||[]).forEach(it=>{
+    if(typeof it==='string'){
+      const m=it.match(/^([\d.]+)x (.+)$/);
+      const qty=m?parseFloat(m[1]):1;
+      let name=m?m[2]:it;
+      name=name.split(' (')[0].split(' — ')[0]; // limpiar cortesía/nota
+      let precio=0;
+      Object.values(APP.menuData||{}).forEach(arr=>{const f=(arr||[]).find(x=>x.n===name);if(f)precio=f.p;});
+      out.push({n:name,p:precio,q:qty});
+    } else if(it&&it.n){ out.push({n:it.n,p:it.p||0,q:it.q||1}); }
+  });
+  const bruto=out.reduce((a,x)=>a+x.p*x.q,0);
+  return {items:out, bruto, tot:Math.round(bruto*1.05)};
+};
+APP.mosOtraCancelar = function(){APP.closeMosOtras();APP._mpedMode='cancelar';APP._openMesaPedidos('Seleccione la orden para cancelar.');};
+APP.mosOtraEditar = function(){APP.closeMosOtras();APP._mpedMode='editar';APP._openMesaPedidos('Seleccione el pedido para editar.');};
+APP._openMesaPedidos = function(title){
+  const mesaId=APP._mosData.mesaId;
+  const peds=APP._mesaPedidos(mesaId);
+  document.getElementById('mped-title').textContent=title;
+  document.getElementById('mped-list').innerHTML = peds.length
+    ? peds.map(ped=>{
+        const pp=APP._pedidoParse(ped);
+        return `<div onclick="APP.mpedPick('${ped.id}')" style="cursor:pointer;padding:6px 4px;border-radius:8px;margin-bottom:6px">
+          *N º de pedido:${ped.timestamp||ped.id} Fecha:${ped.time||''}<br>
+          *TOTAL(${pp.items.length}) :${APP.fmtNum(pp.tot)} $<br>
+          ${pp.items.map(x=>`&nbsp;-&gt;${x.n} x ${x.q}`).join('<br>')}
+        </div>`;
+      }).join('')
+    : `<div style="color:var(--tx3)">Sin pedidos en esta mesa</div>`;
+  document.getElementById('mped-bg').classList.add('on');
+};
+APP.closeMesaPedidos = function(){document.getElementById('mped-bg').classList.remove('on');};
+APP.mpedPick = async function(pid){
+  const mesaId=APP._mosData.mesaId;
+  const ped=(APP.kitchenOrders||[]).find(o=>o.id===pid); if(!ped) return;
+  const pp=APP._pedidoParse(ped);
+  const {ref,update,remove}=APP.fb;
+  APP.closeMesaPedidos();
+  // Quitar el pedido y descontar su total de la mesa
+  try{ await remove(ref(APP.db,`pedidos_cocina/${pid}`)); }catch(e){}
+  const td=APP.tables[`mesa${mesaId}`]||{};
+  const nuevoTotal=Math.max(0,(td.total||0)-pp.tot);
+  const quedan=APP._mesaPedidos(mesaId).filter(o=>o.id!==pid).length;
+  if(APP._mpedMode==='cancelar'){
+    if(quedan===0){
+      await update(ref(APP.db,`mesas/mesa${mesaId}`),{status:'libre',total:0,guests:0,desc:null,facturaEn:null,logs:null});
+      APP.closeMesaOrder();
+      APP.showToast('Orden cancelada — mesa liberada');
+      APP.showPanel('p-ordenes-mesa','ordenes-mesa');
+    } else {
+      await update(ref(APP.db,`mesas/mesa${mesaId}`),{total:nuevoTotal});
+      await APP._mesaLog(mesaId,'Orden cancelada');
+      APP.showToast('Orden cancelada');
+      setTimeout(()=>APP.openMesaOrder(mesaId),300);
+    }
+  } else {
+    // EDITAR: cargar items al catálogo de la mesa y re-enviar con PEDIDO
+    await update(ref(APP.db,`mesas/mesa${mesaId}`),{total:nuevoTotal});
+    await APP._mesaLog(mesaId,'Orden en edición');
+    APP.order = pp.items.map(x=>({n:x.n,p:x.p,q:x.q,e:'🍽️',img:''}));
+    APP.numpadLast = APP.order[0]||null;
+    APP.closeMesaOrder();
+    APP._catalogMesa = mesaId;
+    const msel=document.getElementById('mesa-sel'); if(msel)msel.value=`Mesa ${mesaId}`;
+    APP.renderOrder();APP.updateOrderCount();
+    APP.renderProducts('');APP.updateActiveLine();
+    APP.showCatalogForMesa(mesaId);
+    APP.showToast('Edita el pedido y presiona PEDIDO para guardarlo');
+  }
+};
+
+// ── MESA DE CAMBIO / FUSIÓN ─────────────────────
+APP._mselMode='cambio'; APP._mselFloor=null; APP._fusTarget=null;
+APP.mosMesaCambio = function(){APP._mselMode='cambio';APP._fusTarget=null;APP._openMesaSel();};
+APP.mosMesaFusion = function(){APP._mselMode='fusion';APP._fusTarget=null;APP._openMesaSel();};
+APP._openMesaSel = function(){
+  const mesaId=APP._mosData.mesaId;
+  APP._mselFloor = APP.activeFloor || Object.keys(APP.floors||{})[0];
+  document.getElementById('msel-tb').textContent=`Órdenes de mesa > ${mesaId}`;
+  document.getElementById('msel-title').textContent = APP._mselMode==='cambio'
+    ? 'Seleccione la tabla que desea cambiar.'
+    : 'Seleccione la tabla que desea fusionar.';
+  document.getElementById('msel-x').style.display = APP._mselMode==='cambio' ? 'flex' : 'none';
+  document.getElementById('msel-foot').style.display = APP._mselMode==='fusion' ? 'flex' : 'none';
+  APP._renderMesaSel();
+  APP.closeMesaOrder();
+  document.getElementById('msel-screen').classList.add('on');
+};
+APP.closeMesaSel = function(){
+  document.getElementById('msel-screen').classList.remove('on');
+  setTimeout(()=>APP.openMesaOrder(APP._mosData.mesaId),200);
+};
+APP.mselFloorTap = function(f){APP._mselFloor=f;APP._renderMesaSel();};
+APP._renderMesaSel = function(){
+  const cur=APP._mosData.mesaId;
+  const floors=Object.keys(APP.floors||{});
+  document.getElementById('msel-tabs').innerHTML=floors.map(f=>
+    `<div class="msel-tab${f===APP._mselFloor?' on':''}" onclick="APP.mselFloorTap('${f}')">${f}</div>`).join('');
+  const fl=(APP.floors||{})[APP._mselFloor]||[];
+  document.getElementById('msel-grid').innerHTML=fl.map(t=>{
+    const td=APP.tables[`mesa${t.id}`]||{status:'libre'};
+    const esCur = t.id===cur;
+    if(APP._mselMode==='cambio'){
+      if(esCur || td.status!=='libre') return ''; // solo mesas libres
+      return `<div class="msel-card" onclick="APP.doCambio('${t.id}')">
+        <div class="n">${t.num}</div><div class="c">${t.cap} Persona</div></div>`;
+    }
+    // fusión: mostrar todas; actual en celeste; target marcada
+    const cls = esCur?' cur':(APP._fusTarget===t.id?' tgt':'');
+    const tap = esCur?'':`onclick="APP.fusPick('${t.id}')"`;
+    return `<div class="msel-card${cls}" ${tap}>
+      ${esCur?'<div style="font-size:10px;font-weight:700">(Tabla seleccionada)</div>':''}
+      <div class="n">${t.num}</div><div class="c">( ${t.cap} Persona )</div></div>`;
+  }).join('');
+};
+APP.fusPick = function(id){APP._fusTarget=id;APP._renderMesaSel();};
+APP.doCambio = async function(newId){
+  const oldId=APP._mosData.mesaId;
+  const {ref,update}=APP.fb;
+  const td={...(APP.tables[`mesa${oldId}`]||{})};
+  try{
+    await update(ref(APP.db,`mesas/mesa${newId}`),{
+      status:td.status||'ocupada', guests:td.guests||1, mesero:td.mesero||APP.user,
+      hora:td.hora||APP.timeNow(), total:td.total||0, pedidoEn:td.pedidoEn||'',
+      desc:td.desc||null, facturaEn:td.facturaEn||null,
+      logs:[...(td.logs||[]), `${APP.timeNow()} (Hoy) * Mesa cambiada ${oldId} → ${newId} ( ${APP.user||'CAJA'} )`]
+    });
+    await update(ref(APP.db,`mesas/mesa${oldId}`),{status:'libre',total:0,guests:0,desc:null,facturaEn:null,logs:null});
+    // Mover pedidos de cocina a la nueva mesa
+    APP._mesaPedidos(oldId).forEach(o=>update(ref(APP.db,`pedidos_cocina/${o.id}`),{mesa:`Mesa ${newId}`}).catch(()=>{}));
+  }catch(e){APP.showToast('Error: '+e.message);return;}
+  document.getElementById('msel-screen').classList.remove('on');
+  APP._mosData={mesaId:newId};
+  APP.showToast(`Orden movida a la mesa ${newId}`);
+  setTimeout(()=>APP.openMesaOrder(newId),350);
+};
+APP.doFusion = async function(){
+  const curId=APP._mosData.mesaId;
+  const tgt=APP._fusTarget;
+  if(!tgt){APP.showToast('Selecciona la mesa a fusionar');return;}
+  const tdT=APP.tables[`mesa${tgt}`]||{status:'libre'};
+  if(tdT.status==='libre'){APP.showToast('Esa mesa está vacía — no hay nada que fusionar');return;}
+  const {ref,update}=APP.fb;
+  const tdC=APP.tables[`mesa${curId}`]||{};
+  try{
+    APP._mesaPedidos(tgt).forEach(o=>update(ref(APP.db,`pedidos_cocina/${o.id}`),{mesa:`Mesa ${curId}`}).catch(()=>{}));
+    await update(ref(APP.db,`mesas/mesa${curId}`),{
+      total:(tdC.total||0)+(tdT.total||0),
+      guests:(tdC.guests||1)+(tdT.guests||0),
+      logs:[...(tdC.logs||[]), `${APP.timeNow()} (Hoy) * Mesa ${tgt} fusionada en ${curId} ( ${APP.user||'CAJA'} )`]
+    });
+    await update(ref(APP.db,`mesas/mesa${tgt}`),{status:'libre',total:0,guests:0,desc:null,facturaEn:null,logs:null});
+  }catch(e){APP.showToast('Error: '+e.message);return;}
+  document.getElementById('msel-screen').classList.remove('on');
+  APP.showToast(`Mesa ${tgt} fusionada en la ${curId}`);
+  setTimeout(()=>APP.openMesaOrder(curId),350);
+};
+
+// ── ORDEN COMPLETA → factura solicitada (gris) + overlay CUOTA/CONGELAR ──
+APP.mosOrdenCompleta = async function(){
+  const mesaId = APP._mosData.mesaId;
+  const {ref,update}=APP.fb;
+  try{
+    await update(ref(APP.db,`mesas/mesa${mesaId}`),{status:'factura',facturaEn:APP.timeNow()});
+    await APP._mesaLog(mesaId,'Factura solicitada');
+  }catch(e){}
+  APP.closeMesaOrder();
+  APP.showPanel('p-ordenes-mesa','ordenes-mesa');
+  // Overlay con CONGELAR / CUOTA — el total ya viene con descuento aplicado
+  APP._odCuotaMesa = mesaId;
+  const nItems=(APP._mosItems||[]).reduce((a,x)=>a+(x.q||1),0);
+  const subD=Math.max(0,(APP._mosSub||0)-(APP._mosDesc||0));
+  APP._showOrderDoneOverlay(mesaId, nItems, subD);
+  clearTimeout(APP._odTimer); // este overlay espera CONGELAR o CUOTA
+};
+APP.odCongelar = function(){
+  APP._odCuotaMesa=null;
+  APP.closeOrderDoneOverlay();
+};
+APP.odCuota = function(){
+  const mesaId=APP._odCuotaMesa;
+  APP.closeOrderDoneOverlay();
+  if(!mesaId){return;}
+  APP._odCuotaMesa=null;
+  // Construir la orden para Transacciones de pago
+  const td=APP.tables[`mesa${mesaId}`]||{};
+  if(APP._mosItems && APP._mosItems.length){
+    APP.order = APP._mosItems.map(it=>({...it,e:'🍽️',img:'',_tipo:'servido'}));
+  } else {
+    const totalMesa=td.total||APP._mosTot||0;
+    APP.order = totalMesa>0 ? [{n:`Mesa ${mesaId} — Consumo`,p:Math.round(totalMesa/1.05),q:1,e:'🪑',img:''}] : [];
+  }
+  if(APP._mosDesc>0){
+    APP.order.push({n:`Descuento${td.desc&&td.desc.ref?` (${td.desc.ref})`:''}`,p:-APP._mosDesc,q:1,e:'🏷️',img:''});
+  }
+  const msel=document.getElementById('mesa-sel'); if(msel)msel.value=`Mesa ${mesaId}`;
+  APP._payClientsN = td.guests||1;
+  APP.renderOrder&&APP.renderOrder();
+  APP.updateOrderCount&&APP.updateOrderCount();
+  APP.openPayScreen();
+};
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, set, get, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -6146,6 +6693,13 @@ onValue(ref(db,'inventario'), snap => {
   APP.inventory = d ? Object.entries(d).map(([k,v]) => ({id:k,...v})) : [];
   APP.renderInv();
   APP.renderInvChart && APP.renderInvChart();
+});
+
+onValue(ref(db,'pedidos_espera'), snap => {
+  const d = snap.val();
+  APP.pedidosEspera = d ? Object.entries(d).map(([k,v]) => ({id:k,...v})) : [];
+  APP.renderEsperaList && APP.renderEsperaList();
+  APP.renderCats && APP.renderCats(); // badge con contador
 });
 
 onValue(ref(db,'pedidos_cocina'), snap => {
