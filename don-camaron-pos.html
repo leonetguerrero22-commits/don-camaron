@@ -125,9 +125,16 @@ body{background:var(--bg);color:var(--tx)}
 
 /* ═══ PEDIDO RÁPIDO ═══ */
 #p-catalog{overflow:hidden}
-.cat-tabs{display:flex;gap:0;border-bottom:2px solid var(--brd);
-  overflow-x:auto;flex-shrink:0;scrollbar-width:none;background:white;
+.cat-tabs-row{display:flex;align-items:stretch;flex-shrink:0;background:white;
+  border-bottom:2px solid var(--brd)}
+.cat-tabs{display:flex;gap:0;flex:1;min-width:0;
+  overflow-x:auto;flex-shrink:1;scrollbar-width:none;background:white;
   padding:0 6px}
+.espera-pin{flex-shrink:0;width:52px;border:none;background:white;cursor:pointer;
+  font-size:22px;position:relative;border-left:1px solid var(--brd);
+  display:flex;align-items:center;justify-content:center}
+.espera-pin-n{position:absolute;top:5px;right:6px;background:#C62828;color:#fff;
+  border-radius:9px;font-size:10px;padding:0 4px;font-weight:800;min-width:15px;text-align:center}
 .cat-tabs::-webkit-scrollbar{display:none}
 .ctab{padding:10px 14px;font-size:11px;font-weight:700;color:var(--tx3);
   cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
@@ -950,7 +957,10 @@ body{background:var(--bg);color:var(--tx)}
 
       <!-- ══ PEDIDO RÁPIDO ══ -->
       <div id="p-catalog" class="panel on">
-        <div class="cat-tabs" id="cat-tabs"></div>
+        <div class="cat-tabs-row">
+          <div class="cat-tabs" id="cat-tabs"></div>
+          <button class="espera-pin" id="espera-pin" onclick="APP.openEspera()">⏳<span class="espera-pin-n" id="espera-pin-n" style="display:none">0</span></button>
+        </div>
         <div class="catalog-body">
           <div class="pgrid" id="pgrid"></div>
           <div class="numpad" id="numpad">
@@ -2060,6 +2070,33 @@ body{background:var(--bg);color:var(--tx)}
   </div>
 </div>
 <!-- ══ ADVERTENCIA: ORDEN EN CURSO (estilo RePOS) ══ -->
+<!-- INSERTAR DINERO (RePOS) -->
+<div class="repos-modal-bg" id="insd-bg" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="repos-modal" style="max-width:560px;width:94%">
+    <div style="font-size:19px;font-weight:800;color:var(--bl);text-align:center;margin-bottom:18px">Insertar dinero</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <div style="font-size:15px;font-weight:800;color:var(--bl);flex-shrink:0">Explicación</div>
+      <input id="insd-exp" placeholder="Explicación" style="flex:1;border:none;border-bottom:2px solid var(--bl);font-size:15px;padding:4px 2px;outline:none;color:var(--bl)">
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:800;color:var(--bl);flex-shrink:0">Cantidad</div>
+      <input id="insd-cant" type="number" inputmode="decimal" placeholder="Cantidad" style="flex:1;border:none;border-bottom:2px solid var(--bl);font-size:15px;padding:4px 2px;outline:none;color:var(--bl)">
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="repos-btn-red" style="flex:1" onclick="document.getElementById('insd-bg').classList.remove('on')">REGRESAR</button>
+      <button class="repos-btn-blue" style="flex:1" onclick="APP.insdOk()">OK</button>
+    </div>
+  </div>
+</div>
+<div class="repos-modal-bg" id="insd-done" style="z-index:660" onclick="this.classList.remove('on')">
+  <div class="repos-modal" style="max-width:560px;width:94%">
+    <div style="border:1.5px solid var(--bl);border-radius:6px;padding:46px 16px;text-align:center">
+      <div style="font-size:18px;font-weight:800;color:var(--bl);margin-bottom:18px">orden completada</div>
+      <div id="insd-done-tot" style="font-size:18px;font-weight:800;color:var(--bl)"></div>
+      <div id="insd-done-ef" style="font-size:18px;font-weight:800;color:var(--bl)"></div>
+    </div>
+  </div>
+</div>
 <div id="order-warn-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
   z-index:600;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:18px;padding:22px 18px;width:100%;max-width:520px;
@@ -3326,13 +3363,12 @@ APP.renderCats = function(){
   // Asegurar que activeCat es válida
   if(cats.length && !APP.menuData[APP.activeCat]) APP.activeCat = cats[0];
   const esperaN = (APP.pedidosEspera||[]).length;
-  // Badge ⏳ al final si hay pedidos en espera (igual que el RePOS)
-  const esperaBtn = esperaN>0
-    ? `<div class="ctab" style="color:var(--or);border-color:transparent;position:relative" onclick="APP.openEspera()">⏳<span style="position:absolute;top:4px;right:2px;background:#C62828;color:#fff;border-radius:8px;font-size:9px;padding:0 4px;font-weight:800;min-width:14px;text-align:center">${esperaN}</span></div>`
-    : '';
+  // Pin ⏳ fijo a la derecha de las pestañas (siempre visible, como RePOS)
+  const pinN=document.getElementById('espera-pin-n');
+  if(pinN){pinN.textContent=esperaN;pinN.style.display=esperaN>0?'':'none';}
   document.getElementById('cat-tabs').innerHTML=cats.map(c=>
     `<div class="ctab${c===APP.activeCat?' on':''}" data-cat="${c.replace(/"/g,'&quot;')}" onclick="APP.setCat('${c.replace(/'/g,"&#39;")}')">${c}</div>`
-  ).join('') + esperaBtn;
+  ).join('');
 };
 // Resalta la pestaña activa SIN reconstruir el HTML y la centra en la franja
 APP.highlightCat = function(c){
@@ -4383,8 +4419,35 @@ APP.pagoRapidoEfectivo = async function(){
 APP.openOtras = function(){document.getElementById('otras-sheet').classList.add('on');};
 APP.closeOtras = function(){document.getElementById('otras-sheet').classList.remove('on');};
 APP.otraInsertarDinero = function(){
-  APP.closeOtras();APP.showToast('Ingresa el monto en el campo Efectivo');
-  const inp=document.getElementById('pmi-efectivo');if(inp){inp.focus();inp.select();}
+  APP.closeOtras();
+  document.getElementById('insd-exp').value='';
+  document.getElementById('insd-cant').value='';
+  document.getElementById('insd-bg').classList.add('on');
+  setTimeout(()=>document.getElementById('insd-exp').focus(),60);
+};
+APP.insdOk = async function(){
+  const exp=document.getElementById('insd-exp').value.trim();
+  const cant=parseFloat(document.getElementById('insd-cant').value)||0;
+  if(cant<=0){APP.showToast('Ingresa una cantidad válida');return;}
+  document.getElementById('insd-bg').classList.remove('on');
+  // Registrar la inserción de dinero en caja (Firebase)
+  try{
+    if(APP.db&&APP.fb.push){
+      const now=new Date();
+      await APP.fb.push(APP.fb.ref(APP.db,'movimientos_caja'),{
+        tipo:'insercion', explicacion:exp||'', monto:cant,
+        cajero:APP.user||'CAJA',
+        time:now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),
+        timestamp:now.toISOString()
+      });
+    }
+  }catch(e){}
+  // Tarjeta de confirmación como RePOS
+  const card=document.getElementById('insd-done');
+  document.getElementById('insd-done-tot').textContent='TOTAL:'+APP.fmtNum(cant)+' $';
+  document.getElementById('insd-done-ef').textContent='Dinero en efectivo: '+APP.fmtNum(cant)+' $';
+  card.classList.add('on');
+  setTimeout(()=>card.classList.remove('on'),2800);
 };
 APP.otraDescuento = function(){APP.closeOtras();document.getElementById('disc-modal-sheet').classList.add('on');};
 APP.applyDiscount = function(){
