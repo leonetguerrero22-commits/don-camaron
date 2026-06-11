@@ -2408,12 +2408,13 @@ body{background:var(--bg);color:var(--tx)}
 </div>
 
 <!-- ══ SELECTOR CLIENTE ══ -->
-<div class="cli-sel-bg" id="cli-sel-bg">
+<div class="cli-sel-bg" id="cli-sel-bg" onclick="if(event.target===this)this.classList.remove('on')">
   <div class="cli-sel-panel">
     <div class="cli-sel-head">
       <div style="font-size:16px">🔍</div>
       <input class="cli-sel-search" id="cli-sel-inp" placeholder="Buscar" oninput="APP.filterCliSel(this.value)">
       <div style="font-size:22px;cursor:pointer" onclick="APP.openModal('cliente-modal')">👤+</div>
+      <div style="font-size:22px;cursor:pointer;margin-left:6px;color:#C62828;font-weight:700" onclick="document.getElementById('cli-sel-bg').classList.remove('on')">✕</div>
     </div>
     <div class="cli-sel-list" id="cli-sel-list"></div>
   </div>
@@ -4391,7 +4392,16 @@ APP.applyDiscount = function(){
   APP.renderOrder();APP.openPayScreen();APP.showToast('Descuento aplicado');
 };
 APP.otraImpuesto = function(){APP.closeOtras();APP.togglePayIva();APP.showToast(APP.payState.noIva?'Impuesto quitado':'Impuesto agregado');};
-APP.otraCliente = function(){APP.closeOtras();APP.openClienteSelector();};
+APP.otraCliente = function(){
+  APP.closeOtras();
+  const n=document.getElementById('pay-clients-n');
+  if(!n) return;
+  const fila=n.parentElement;
+  fila.scrollIntoView({behavior:'smooth',block:'center'});
+  fila.style.transition='background .3s';
+  fila.style.background='#FFF3C4';
+  setTimeout(()=>{fila.style.background='';},1600);
+};
 APP.otraMantenerOrden = function(){APP.closeOtras();APP.closePayScreen();APP.guardarEnEspera();};
 APP.completePay = async function(){
   if(!APP.db){APP.showToast('Sin conexi\xf3n Firebase');return;}
@@ -6672,6 +6682,60 @@ APP.odCuota = function(){
   APP.updateOrderCount&&APP.updateOrderCount();
   APP.openPayScreen();
 };
+</script>
+<script>
+/* ===== BOTÓN ATRÁS DE ANDROID: navegar dentro de la app ===== */
+APP.handleBack = function(){
+  const off=id=>{const e=document.getElementById(id);
+    if(e&&e.classList.contains('on')){e.classList.remove('on');return true}return false};
+  // 1. Modales y hojas superiores
+  for(const id of ['cg-bg','inote-bg','mdesc-bg','mped-bg','imp-bg','mos-otras-bg',
+                   'order-warn-bg','espera-bg','cli-sel-bg','delivery-bg',
+                   'otras-sheet','disc-modal-sheet','drawer'])
+    if(off(id)) return true;
+  const bgD=document.getElementById('drawer-bg');if(bgD)bgD.classList.remove('on');
+  const mb=document.querySelector('.modal-bg.on');
+  if(mb){mb.classList.remove('on');return true;}
+  const rm=document.querySelector('.repos-modal-bg.on');
+  if(rm){rm.classList.remove('on');return true;}
+  // 2. Overlay de orden completada
+  const od=document.getElementById('order-done-overlay');
+  if(od&&od.style.display!=='none'){
+    if(APP.closeOrderDoneOverlay)APP.closeOrderDoneOverlay();else od.style.display='none';
+    return true;}
+  // 3. Pantalla de fusión / cambio de mesa
+  const ms=document.getElementById('msel-screen');
+  if(ms&&ms.classList.contains('on')){ms.classList.remove('on');return true;}
+  // 4. Pantalla de pago
+  const ps=document.getElementById('pay-screen');
+  if(ps&&ps.classList.contains('on')){APP.closePayScreen();return true;}
+  // 5. Panel deslizante del pedido
+  const sl=document.getElementById('order-slide');
+  if(sl&&sl.classList.contains('open')){APP.closeOrderSlide();return true;}
+  // 6. Detalle de mesa -> grilla
+  const mos=document.getElementById('mesa-order-screen');
+  if(mos&&mos.classList.contains('on')){
+    mos.classList.remove('on');
+    APP.showPanel('p-ordenes-mesa','ordenes-mesa');
+    return true;}
+  // 7. Catálogo en modo mesa -> grilla (con advertencia si hay orden en curso)
+  const cat=document.getElementById('p-catalog');
+  if(APP._catalogMesa && cat && cat.classList.contains('on')){
+    APP.mesaCatalogRegresar();return true;}
+  // 8. Pedido rápido con orden en curso -> advertencia antes de limpiar
+  if(cat && cat.classList.contains('on') && APP.order && APP.order.length){
+    APP.showOrderWarn(()=>{});return true;}
+  return false;
+};
+(function(){
+  try{history.pushState({dc:1},'');}catch(e){}
+  window.addEventListener('popstate',function(){
+    let did=false;
+    try{did=APP.handleBack();}catch(e){}
+    try{history.pushState({dc:1},'');}catch(e){}
+    if(!did && APP.showToast) APP.showToast('Pulsa EXIT para salir de la app');
+  });
+})();
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
