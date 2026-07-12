@@ -409,8 +409,16 @@ window.fbInit=function(){
   const FB=window.FB;
   FB.onValue(FB.ref(FB.db,'nomina/state'),snap=>{
     const remote=snap.val();
+    const remoteVacio=!remote||!remote.empleados||!Object.keys(remote.empleados).length;
+    const localConDatos=state.empleados&&state.empleados.length>0;
+    // PROTECCIÓN: si la nube está vacía pero este teléfono tiene datos, mandan los datos locales
+    if(remoteVacio&&localConDatos){
+      _lastPush=JSON.stringify(state);
+      FB.set(FB.ref(FB.db,'nomina/state'),JSON.parse(_lastPush));
+      FBREADY=true;setCloudBadge(true);
+      return;
+    }
     if(remote==null){
-      // Primera vez: subir lo que haya en este teléfono a la nube
       _lastPush=JSON.stringify(state);
       FB.set(FB.ref(FB.db,'nomina/state'),JSON.parse(_lastPush));
       FBREADY=true;setCloudBadge(true);
