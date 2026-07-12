@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#ffffff">
+<title>Nómina · DON CAMARÓN</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;color:#1a1a1a;background:#f5f5f0;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid #e5e5e0;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+.topbar-icon{font-size:22px}
+.topbar-title{font-weight:700;font-size:16px;letter-spacing:-.2px}
+.topbar-sub{font-size:11px;color:#888;margin-top:1px}
+.save-badge{margin-left:auto;background:#EAF3DE;color:#27500A;border-radius:20px;padding:3px 10px;font-size:11px;display:none;align-items:center;gap:4px}
+.cloud-dot{margin-left:auto;font-size:15px;opacity:.3;filter:grayscale(1);flex-shrink:0}
+.cloud-dot.on{opacity:1;filter:none}
+.save-badge~.cloud-dot{margin-left:8px}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e5e5e0;overflow-x:auto;position:sticky;top:61px;z-index:99}
+.tab{flex:1;padding:11px 6px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:#888;text-align:center;white-space:nowrap;min-width:70px}
+.tab.active{border-bottom:2px solid #1a1a1a;color:#1a1a1a}
+.content{padding:14px 14px 80px}
+.page{display:none}.page.active{display:block}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+h3{font-size:15px;font-weight:600}
+.card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+label{display:block;font-size:12px;color:#777;margin-bottom:4px;margin-top:12px}
+input,select{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-size:14px;background:#fff;color:#1a1a1a;-webkit-appearance:none}
+input:focus,select:focus{outline:none;border-color:#1a1a1a}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:1px solid #ddd;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:#1a1a1a;-webkit-tap-highlight-color:transparent}
+.btn:active{opacity:.7}
+.btn.primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn.danger{color:#A32D2D;border-color:#F5C4B3;background:#fff}
+.btn.success{color:#27500A;border-color:#C0DD97;background:#fff}
+.btn.pdf{color:#993C1D;border-color:#F5C4B3;background:#fff}
+.btn.xls{color:#27500A;border-color:#C0DD97;background:#fff}
+.btn.sm{padding:7px 12px;font-size:12px}
+.emp-card{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:11px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.avatar{width:38px;height:38px;border-radius:50%;background:#CECBF6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#3C3489;flex-shrink:0}
+.emp-info{flex:1;min-width:0}
+.emp-name{font-weight:600;font-size:14px}
+.emp-sub{font-size:12px;color:#777;margin-top:2px}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-top:4px}
+.tag.ok{background:#EAF3DE;color:#27500A}
+.tag.aux{background:#E6F1FB;color:#0C447C}
+.tag.deuda{background:#FBE9E7;color:#A32D2D}
+.tag.bono{background:#FFF3DC;color:#8A5A00}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.stat{background:#f8f8f5;border-radius:10px;padding:10px 12px}
+.stat-label{font-size:11px;color:#888;margin-bottom:4px}
+.stat-value{font-size:18px;font-weight:700}
+.stat-value.green{color:#27500A}
+.stat-value.blue{color:#185FA5}
+.stat-value.red{color:#A32D2D}
+.divider{border:none;border-top:1px solid #f0f0ec;margin:12px 0}
+.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.extra-row{display:flex;align-items:center;gap:8px;margin-top:7px;padding:9px 12px;border:1px solid #eee;border-radius:10px;background:#f8f8f5}
+.extra-label{font-size:12px;flex:1;color:#666}
+.extra-val{font-size:13px;font-weight:700;color:#185FA5;white-space:nowrap}
+.extra-val.neg{color:#A32D2D}
+.extra-val.gris{color:#999;font-weight:600}
+.periodo-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pbtn{padding:7px 12px;border:1px solid #ddd;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#888;-webkit-tap-highlight-color:transparent}
+.pbtn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.export-bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;background:#fff;border-radius:12px;margin-bottom:12px;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.export-label{font-size:12px;color:#777;width:100%}
+.empty{text-align:center;padding:40px 20px;color:#aaa;font-size:14px}
+.empty-icon{font-size:36px;display:block;margin-bottom:10px}
+.info-bar{background:#E6F1FB;border-radius:10px;padding:10px 14px;font-size:12px;color:#0C447C;margin-top:8px}
+.check-label{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;color:#1a1a1a;cursor:pointer}
+.check-label input[type=checkbox]{width:18px;height:18px;flex-shrink:0}
+.bono-row{display:grid;grid-template-columns:1.3fr .8fr .9fr auto;gap:6px;margin-top:6px;align-items:center}
+.bono-row input,.bono-row select{padding:8px 10px;font-size:13px}
+.bono-check{display:flex;align-items:center;gap:10px;margin-top:7px;padding:9px 12px;border:1px solid #eee;border-radius:10px;background:#f8f8f5;font-size:13px;cursor:pointer}
+.bono-check input[type=checkbox]{width:18px;height:18px;flex-shrink:0}
+.bono-check .bc-info{flex:1}
+.bono-check .bc-monto{font-weight:700;color:#185FA5;white-space:nowrap}
+.aviso-card{background:#FFFBEB;border:1px solid #F6E2A9;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.aviso-title{font-size:13px;font-weight:700;color:#7A5A00;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.aviso-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff;border-radius:10px;margin-top:6px;font-size:13px}
+.aviso-row .av-txt{flex:1;min-width:0}
+.aviso-row .av-sub{font-size:11px;color:#999;margin-top:2px}
+.aviso-hoy{border:1px solid #F0B429}
+.vale-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8f8f5;border-radius:10px;margin-top:6px;font-size:13px}
+.vale-item .v-info{flex:1;min-width:0}
+.vale-item .v-monto{font-weight:700;color:#A32D2D;white-space:nowrap}
+.hist-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f2f2ee;font-size:12px}
+.hist-item:last-child{border-bottom:none}
+.hist-item .h-txt{flex:1;color:#555;min-width:0}
+.hist-item .h-fecha{font-size:11px;color:#aaa;white-space:nowrap}
+.hist-item .h-monto{font-weight:700;white-space:nowrap}
+.ben-item{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f8f8f5;border-radius:10px;margin-top:6px;font-size:13px}
+.ben-item .b-info{flex:1;min-width:0}
+.year-badge{display:inline-block;background:#E8E6FA;color:#3C3489;border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700}
+@media print{
+  .print-only{display:block!important}
+  body>*:not(.print-only){display:none!important}
+}
+.print-only{display:none}
+.recibo-p{font-family:Georgia,serif;max-width:400px;margin:0 auto;padding:20px;font-size:13px}
+.rp-header{text-align:center;margin-bottom:16px;border-bottom:2px solid #333;padding-bottom:12px}
+.rp-empresa{font-size:20px;font-weight:900;letter-spacing:1px}
+.rp-sub{font-size:11px;color:#666;margin-top:3px}
+.rp-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.rp-table td{padding:5px 0;vertical-align:top}
+.rp-table td:last-child{text-align:right;font-weight:600}
+.rp-table tr.sep td{border-top:1px solid #ccc;padding-top:8px;margin-top:4px}
+.rp-table tr.tot td{border-top:2px solid #333;font-weight:900;font-size:15px;padding-top:8px}
+.rp-table tr.auxr td{color:#185FA5}
+.rp-table tr.negr td{color:#A32D2D}
+.rp-table tr.infr td{color:#888;font-size:11px;font-weight:400}
+.rp-firmas{display:flex;justify-content:space-around;margin-top:36px}
+.rp-firma{border-top:1px solid #333;width:130px;text-align:center;font-size:10px;padding-top:4px;color:#555}
+.rp-footer{font-size:10px;color:#bbb;text-align:center;margin-top:16px;border-top:1px solid #eee;padding-top:10px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-icon">🦐</span>
+  <div>
+    <div class="topbar-title">DON CAMARÓN</div>
+    <div class="topbar-sub">Gestión de nómina semanal</div>
+  </div>
+  <div class="save-badge" id="save-badge">✓ Guardado</div>
+  <div class="cloud-dot" id="cloud-dot" title="Conexión con la nube">☁️</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="goTab('empleados')">👥 Empleados</div>
+  <div class="tab" onclick="goTab('nomina')">🧮 Nómina</div>
+  <div class="tab" onclick="goTab('vales')">💸 Vales</div>
+  <div class="tab" onclick="goTab('anuales')">🎁 Anuales</div>
+  <div class="tab" onclick="goTab('cargos')">💼 Cargos</div>
+  <div class="tab" onclick="goTab('recibos')">🧾 Recibos</div>
+</div>
+
+<div class="content">
+
+<!-- EMPLEADOS -->
+<div class="page active" id="page-empleados">
+  <div id="avisos-panel"></div>
+  <div class="section-header">
+    <h3>Empleados</h3>
+    <button class="btn primary" onclick="showFormEmp(-1)">+ Agregar</button>
+  </div>
+  <div id="form-emp" style="display:none" class="card">
+    <h3 id="form-emp-title">Nuevo empleado</h3>
+    <label>Nombre completo</label>
+    <input id="emp-nombre" type="text" placeholder="Ej. María López" autocomplete="off">
+    <label>Cargo</label>
+    <select id="emp-cargo"></select>
+    <div class="row2">
+      <div><label>Fecha de ingreso</label><input id="emp-ingreso" type="date"></div>
+      <div><label>Fecha de nacimiento</label><input id="emp-nac" type="date"></div>
+    </div>
+    <label>Documento / Cédula</label>
+    <input id="emp-doc" type="text" placeholder="Número de identificación" autocomplete="off">
+    <label class="check-label">
+      <input type="checkbox" id="emp-aux">
+      Aplica auxilio de transporte
+    </label>
+    <label>Próximas vacaciones programadas (opcional)</label>
+    <input id="emp-vac" type="date">
+    <p style="font-size:12px;color:#999;margin-top:6px">Si adelantas o cambias la fecha de sus vacaciones, ponla aquí y el aviso se guiará por esa fecha. Si la dejas vacía, se usa el aniversario de ingreso.</p>
+    <label>Bonos personalizados (transporte, comida, etc.)</label>
+    <div id="emp-bonos-list"></div>
+    <button class="btn sm" style="margin-top:8px" onclick="addBonoRow()">+ Agregar bono</button>
+    <div class="actions">
+      <button class="btn primary" onclick="saveEmp()">Guardar</button>
+      <button class="btn" onclick="document.getElementById('form-emp').style.display='none'">Cancelar</button>
+    </div>
+  </div>
+  <div id="lista-empleados"></div>
+</div>
+
+<!-- NÓMINA -->
+<div class="page" id="page-nomina">
+  <h3 style="margin-bottom:12px">Calcular nómina</h3>
+  <div class="card">
+    <label>Empleado</label>
+    <select id="nom-emp" onchange="onEmpChange()"></select>
+    <label>Período de pago</label>
+    <div class="periodo-btns">
+      <div class="pbtn active" data-tipo="semana1" onclick="selPeriodo(this)">Sem 1</div>
+      <div class="pbtn" data-tipo="semana2" onclick="selPeriodo(this)">Sem 2</div>
+      <div class="pbtn" data-tipo="semana3" onclick="selPeriodo(this)">Sem 3</div>
+      <div class="pbtn" data-tipo="semana4" onclick="selPeriodo(this)">Sem 4</div>
+      <div class="pbtn" data-tipo="personalizado" onclick="selPeriodo(this)">Personalizado</div>
+    </div>
+    <div class="row2" style="margin-top:10px">
+      <div><label>Desde</label><input id="nom-desde" type="date" oninput="calcNomina()"></div>
+      <div><label>Hasta</label><input id="nom-hasta" type="date" oninput="calcNomina()"></div>
+    </div>
+    <label>Días trabajados</label>
+    <input id="nom-dias" type="number" min="0" max="7" value="7" oninput="calcNomina()">
+  </div>
+
+  <div class="card">
+    <h3>Extras y recargos</h3>
+    <div class="row2">
+      <div><label>Días adicionales</label><input id="nom-dia-extra" type="number" min="0" value="0" oninput="calcNomina()"></div>
+      <div><label>Días dobles</label><input id="nom-dia-doble" type="number" min="0" value="0" oninput="calcNomina()"></div>
+    </div>
+    <div class="row2">
+      <div><label>Horas extra</label><input id="nom-horas-extra" type="number" min="0" value="0" oninput="calcNomina()"></div>
+      <div><label>% recargo HE</label><input id="nom-pct-he" type="number" value="25" oninput="calcNomina()"></div>
+    </div>
+    <div class="row2">
+      <div><label>Bonificación ($)</label><input id="nom-bono" type="number" min="0" value="0" oninput="calcNomina()"></div>
+      <div><label>Deducciones ($)</label><input id="nom-deduc" type="number" value="0" oninput="calcNomina()"></div>
+    </div>
+  </div>
+
+  <div class="card" id="nom-bonos-card" style="display:none">
+    <h3>🎁 Bonos del empleado</h3>
+    <p style="font-size:12px;color:#999;margin-top:6px">Marca los bonos que quieres incluir en este pago</p>
+    <div id="nom-bonos-list"></div>
+  </div>
+
+  <div class="card" id="nom-vales-card" style="display:none">
+    <h3>💸 Vales y préstamo</h3>
+    <div id="nom-vales-info"></div>
+    <label>Descontar en este pago ($)</label>
+    <input id="nom-desc-vales" type="number" min="0" value="0" oninput="calcNomina()">
+    <p style="font-size:12px;color:#999;margin-top:8px">Lo que no descuentes de los vales pasa al préstamo acumulado del empleado. Si descuentas más que los vales, el resto abona al préstamo.</p>
+  </div>
+
+  <div class="card" id="resumen-nomina" style="display:none">
+    <h3>Resumen del período</h3>
+    <div id="nom-detalle"></div>
+    <hr class="divider">
+    <div class="summary-grid">
+      <div class="stat"><div class="stat-label">Total devengado</div><div class="stat-value green" id="nom-total-dev">$0</div></div>
+      <div class="stat"><div class="stat-label">Neto a pagar</div><div class="stat-value blue" id="nom-total-pag">$0</div></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="generarRecibo()">🧾 Generar recibo</button>
+    </div>
+  </div>
+</div>
+
+<!-- VALES -->
+<div class="page" id="page-vales">
+  <h3 style="margin-bottom:12px">Vales y préstamos</h3>
+  <div class="card">
+    <h3>Registrar vale</h3>
+    <label>Empleado</label>
+    <select id="vale-emp"></select>
+    <div class="row2">
+      <div><label>Monto ($)</label><input id="vale-monto" type="number" min="0" placeholder="Ej. 20000"></div>
+      <div><label>Fecha</label><input id="vale-fecha" type="date"></div>
+    </div>
+    <label>Nota (opcional)</label>
+    <input id="vale-nota" type="text" placeholder="Ej. Adelanto para medicinas" autocomplete="off">
+    <div class="actions">
+      <button class="btn primary" onclick="registrarVale()">💸 Registrar vale</button>
+    </div>
+  </div>
+  <div id="lista-vales"></div>
+  <div class="card">
+    <h3>📜 Historial de movimientos</h3>
+    <div id="hist-vales"></div>
+  </div>
+</div>
+
+<!-- ANUALES (BENEFICIOS) -->
+<div class="page" id="page-anuales">
+  <h3 style="margin-bottom:12px">Registro anual de beneficios</h3>
+  <p style="font-size:12px;color:#999;margin-bottom:12px">Utilidades, prestaciones, vacaciones pagadas, bonos de fin de año… Registro aparte de la nómina, solo para constancia de que se recibió.</p>
+  <div class="card">
+    <h3>Registrar beneficio recibido</h3>
+    <label>Empleado</label>
+    <select id="ben-emp" onchange="benEmpChange()"></select>
+    <label>Tipo de beneficio</label>
+    <select id="ben-tipo" onchange="document.getElementById('ben-tipo-otro').style.display=this.value==='Otro'?'block':'none'">
+      <option>Utilidades</option>
+      <option>Prestaciones</option>
+      <option>Vacaciones pagadas</option>
+      <option>Bono fin de año</option>
+      <option>Aguinaldo</option>
+      <option>Otro</option>
+    </select>
+    <input id="ben-tipo-otro" type="text" placeholder="Escribe el nombre del beneficio" autocomplete="off" style="display:none;margin-top:8px">
+    <div class="row2">
+      <div><label>Monto ($)</label><input id="ben-monto" type="number" min="0" placeholder="Ej. 500000"></div>
+      <div><label>Fecha de pago</label><input id="ben-fecha" type="date"></div>
+    </div>
+    <label>Nota (opcional)</label>
+    <input id="ben-nota" type="text" placeholder="Ej. Pagado en efectivo" autocomplete="off">
+    <div id="ben-prestamo-box" style="display:none">
+      <div class="extra-row" style="background:#FBE9E7;margin-top:12px"><span class="extra-label" style="font-weight:700;color:#A32D2D">💸 Préstamo pendiente del empleado</span><span class="extra-val neg" id="ben-prestamo-saldo">$0</span></div>
+      <label>Abonar al préstamo con este pago ($)</label>
+      <input id="ben-abono" type="number" min="0" value="0">
+      <p style="font-size:12px;color:#999;margin-top:8px">Si con este dinero abona o cancela su préstamo, escribe el monto aquí. Se descuenta del saldo y queda registrado en el historial de vales.</p>
+    </div>
+    <div class="actions">
+      <button class="btn primary" onclick="saveBeneficio()">🎁 Registrar</button>
+    </div>
+  </div>
+  <div class="export-bar">
+    <div class="export-label">📥 Exportar registro anual</div>
+    <button class="btn xls" onclick="exportarExcelBeneficios()">📊 Excel</button>
+  </div>
+  <div id="lista-beneficios"></div>
+</div>
+
+<!-- CARGOS -->
+<div class="page" id="page-cargos">
+  <div class="section-header">
+    <h3>Cargos y sueldos</h3>
+    <button class="btn primary" onclick="document.getElementById('form-cargo').style.display='block'">+ Agregar</button>
+  </div>
+  <div id="form-cargo" style="display:none" class="card">
+    <h3>Nuevo cargo</h3>
+    <label>Nombre del cargo</label>
+    <input id="cargo-nombre" type="text" placeholder="Ej. Cocinero" autocomplete="off">
+    <label>Sueldo base mensual ($)</label>
+    <input id="cargo-sueldo" type="number" placeholder="Ej. 1500000">
+    <p style="font-size:12px;color:#999;margin-top:8px">El valor semanal y diario se calculan automáticamente</p>
+    <div class="actions">
+      <button class="btn primary" onclick="saveCargo()">Guardar</button>
+      <button class="btn" onclick="document.getElementById('form-cargo').style.display='none'">Cancelar</button>
+    </div>
+  </div>
+  <div id="lista-cargos"></div>
+  <div class="info-bar">
+    🚌 Auxilio de transporte 2024: <strong>$162.000/mes · $40.500/semana</strong>
+  </div>
+</div>
+
+<!-- RECIBOS -->
+<div class="page" id="page-recibos">
+  <div class="section-header">
+    <h3>Recibos generados</h3>
+    <button class="btn danger sm" onclick="if(confirm('¿Borrar todos los recibos?')){state.recibos=[];save();renderRecibos()}">🗑 Limpiar</button>
+  </div>
+  <div class="export-bar">
+    <div class="export-label">📥 Exportar nómina completa</div>
+    <button class="btn xls" onclick="exportarExcelTodos()">📊 Excel</button>
+    <button class="btn pdf" onclick="exportarPDFTodos()">📄 PDF</button>
+  </div>
+  <div id="lista-recibos"></div>
+</div>
+
+</div><!-- end content -->
+
+<div class="print-only" id="print-area"></div>
+
+<script>
+const AUX_MES=162000,AUX_SEM=Math.round(AUX_MES/4),KEY='nomina_dc_v3';
+const DIAS_AVISO_CUMPLE=7,DIAS_AVISO_VAC=30;
+let state={
+  cargos:[
+    {id:1,nombre:'Administrador',sueldo:2500000},
+    {id:2,nombre:'Cajero',sueldo:1500000},
+    {id:3,nombre:'Pescadero',sueldo:1300000},
+    {id:4,nombre:'Mesero',sueldo:1200000},
+    {id:5,nombre:'Cocinero',sueldo:1400000}
+  ],
+  empleados:[],recibos:[],vales:[],histVales:[],beneficios:[],
+  nextCId:6,nextEId:1,nextRId:1,nextVId:1,nextHId:1,nextBId:1,nextBoId:1
+};
+
+function load(){try{const d=localStorage.getItem(KEY);if(d)state=JSON.parse(d);}catch(e){}}
+function migrate(){
+  if(!state.cargos)state.cargos=[];
+  if(!state.empleados)state.empleados=[];
+  if(!state.recibos)state.recibos=[];
+  if(!state.vales)state.vales=[];
+  if(!state.histVales)state.histVales=[];
+  if(!state.beneficios)state.beneficios=[];
+  if(!state.nextCId)state.nextCId=1;
+  if(!state.nextEId)state.nextEId=1;
+  if(!state.nextRId)state.nextRId=1;
+  if(!state.nextVId)state.nextVId=1;
+  if(!state.nextHId)state.nextHId=1;
+  if(!state.nextBId)state.nextBId=1;
+  if(!state.nextBoId)state.nextBoId=1;
+  (state.empleados||[]).forEach(e=>{
+    if(e.prestamo==null)e.prestamo=0;
+    if(!e.bonos)e.bonos=[];
+    if(e.vacFecha==null)e.vacFecha='';
+  });
+}
+
+// ── SINCRONIZACIÓN FIREBASE (nodo nomina/, aparte de Control) ──
+let FBREADY=false,_lastPush='';
+function setCloudBadge(on){
+  const c=document.getElementById('cloud-dot');
+  c.classList.toggle('on',!!on);
+  c.title=on?'Conectado a la nube ✓':'Sin conexión con la nube';
+}
+function refreshActiveTab(){
+  const act=document.querySelector('.page.active');
+  if(!act)return;
+  const t=act.id.replace('page-','');
+  if(t==='empleados'){renderAvisos();renderEmpleados();}
+  if(t==='nomina')populateNomEmp();
+  if(t==='vales')renderVales();
+  if(t==='anuales')renderBeneficios();
+  if(t==='cargos')renderCargos();
+  if(t==='recibos')renderRecibos();
+}
+window.fbInit=function(){
+  const FB=window.FB;
+  FB.onValue(FB.ref(FB.db,'nomina/state'),snap=>{
+    const remote=snap.val();
+    if(remote==null){
+      // Primera vez: subir lo que haya en este teléfono a la nube
+      _lastPush=JSON.stringify(state);
+      FB.set(FB.ref(FB.db,'nomina/state'),JSON.parse(_lastPush));
+      FBREADY=true;setCloudBadge(true);
+      return;
+    }
+    FBREADY=true;setCloudBadge(true);
+    const rjson=JSON.stringify(remote);
+    if(rjson===_lastPush)return; // eco de nuestra propia escritura
+    state=remote;
+    migrate();
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+    refreshActiveTab();
+  },err=>{setCloudBadge(false);});
+};
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+  if(FBREADY&&window.FB){
+    try{
+      _lastPush=JSON.stringify(state);
+      window.FB.set(window.FB.ref(window.FB.db,'nomina/state'),JSON.parse(_lastPush));
+    }catch(e){}
+  }
+  showSaved();
+}
+function showSaved(){
+  const b=document.getElementById('save-badge');
+  b.textContent=FBREADY?'✓ Guardado en la nube':'✓ Guardado';
+  b.style.display='flex';clearTimeout(b._t);
+  b._t=setTimeout(()=>b.style.display='none',2000);
+}
+
+let editEmpIdx=-1,periodoTipo='semana1';
+const pLabel={
+  semana1:'Semana 1 (1–7)',semana2:'Semana 2 (8–14)',
+  semana3:'Semana 3 (15–21)',semana4:'Semana 4 (22–fin)',
+  personalizado:'Período personalizado'
+};
+
+function fmt(n){return '$'+Math.round(n).toLocaleString('es-CO')}
+function initials(n){return n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()}
+function cargoById(id){return state.cargos.find(c=>c.id==id)||{nombre:'–',sueldo:0}}
+function hoyISO(){return new Date().toISOString().split('T')[0]}
+function empById(id){return state.empleados.find(e=>e.id===id)}
+function valesPendEmp(id){return state.vales.filter(v=>v.empId===id)}
+function totalValesEmp(id){return valesPendEmp(id).reduce((s,v)=>s+v.monto,0)}
+function fechaBonita(iso){
+  if(!iso)return '–';
+  const p=iso.split('-');
+  const d=new Date(+p[0],+p[1]-1,+p[2]);
+  return d.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function goTab(t){
+  const orden=['empleados','nomina','vales','anuales','cargos','recibos'];
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',orden[i]===t);
+  });
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+t).classList.add('active');
+  if(t==='empleados'){renderAvisos();renderEmpleados();}
+  if(t==='nomina'){populateNomEmp();setFechasSemana();}
+  if(t==='vales')renderVales();
+  if(t==='anuales')renderBeneficios();
+  if(t==='cargos')renderCargos();
+  if(t==='recibos')renderRecibos();
+}
+
+function getWeekRange(offset){
+  const now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
+  const starts=[1,8,15,22],ends=[7,14,21,new Date(yr,mo+1,0).getDate()];
+  const i=Math.min(offset,3);
+  return{desde:new Date(yr,mo,starts[i]),hasta:new Date(yr,mo,ends[i])};
+}
+function toISO(d){return d.toISOString().split('T')[0]}
+
+function selPeriodo(el){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');periodoTipo=el.dataset.tipo;setFechasSemana();
+}
+function setFechasSemana(){
+  if(periodoTipo==='personalizado'){document.getElementById('nom-dias').max=31;calcNomina();return;}
+  const idx={semana1:0,semana2:1,semana3:2,semana4:3}[periodoTipo]??0;
+  const r=getWeekRange(idx);
+  document.getElementById('nom-desde').value=toISO(r.desde);
+  document.getElementById('nom-hasta').value=toISO(r.hasta);
+  const diff=Math.round((r.hasta-r.desde)/86400000)+1;
+  document.getElementById('nom-dias').value=Math.min(diff,7);
+  document.getElementById('nom-dias').max=diff;
+  calcNomina();
+}
+
+function populateCargoSelect(selId,val){
+  document.getElementById(selId).innerHTML=state.cargos.map(c=>`<option value="${c.id}" ${c.id==val?'selected':''}>${c.nombre} — ${fmt(c.sueldo)}/mes</option>`).join('');
+}
+function populateEmpSelect(selId){
+  const sel=document.getElementById(selId);
+  if(!state.empleados.length){sel.innerHTML='<option value="">Sin empleados registrados</option>';return;}
+  const prev=sel.value;
+  sel.innerHTML=state.empleados.map(e=>`<option value="${e.id}">${e.nombre} (${cargoById(e.cargoId).nombre})</option>`).join('');
+  if(prev)sel.value=prev;
+}
+function populateNomEmp(){
+  populateEmpSelect('nom-emp');
+  onEmpChange();
+}
+function onEmpChange(){
+  const empId=parseInt(document.getElementById('nom-emp').value);
+  const emp=empById(empId);
+  renderBonosNomina(emp);
+  renderValesNomina(emp);
+  calcNomina();
+}
+
+// ── AVISOS (cumpleaños · vacaciones · préstamos) ──────
+function proxAniv(fechaISO){
+  if(!fechaISO)return null;
+  const p=fechaISO.split('-');if(p.length<3)return null;
+  const m=+p[1],d=+p[2];
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  let a=new Date(hoy.getFullYear(),m-1,d);
+  if(a<hoy)a=new Date(hoy.getFullYear()+1,m-1,d);
+  return{fecha:a,dias:Math.round((a-hoy)/86400000)};
+}
+function avisoVacacion(e){
+  // Si hay fecha programada manualmente, esa manda
+  if(e.vacFecha){
+    const pf=e.vacFecha.split('-');
+    if(pf.length===3){
+      const f=new Date(+pf[0],+pf[1]-1,+pf[2]);
+      const hoy=new Date();hoy.setHours(0,0,0,0);
+      const dias=Math.round((f-hoy)/86400000);
+      if(dias<=DIAS_AVISO_VAC){
+        return{fecha:f,dias,anios:0,vencida:dias<0,anio:+pf[0],custom:true};
+      }
+    }
+    return null; // programadas pero todavía falta más de un mes
+  }
+  if(!e.ingreso)return null;
+  const p=e.ingreso.split('-');if(p.length<3)return null;
+  const yIn=+p[0],m=+p[1],d=+p[2];
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const yr=hoy.getFullYear();
+  const anivEste=new Date(yr,m-1,d);
+  if(anivEste<hoy){
+    // el aniversario de este año ya pasó
+    if(yr>yIn&&(e.vacOk||0)<yr){
+      return{fecha:anivEste,dias:Math.round((anivEste-hoy)/86400000),anios:yr-yIn,vencida:true,anio:yr};
+    }
+    const anivProx=new Date(yr+1,m-1,d);
+    const dias=Math.round((anivProx-hoy)/86400000);
+    if(dias<=DIAS_AVISO_VAC&&(e.vacOk||0)<yr+1){
+      return{fecha:anivProx,dias,anios:yr+1-yIn,vencida:false,anio:yr+1};
+    }
+    return null;
+  }
+  // aniversario de este año aún no llega
+  if((e.vacOk||0)>=yr)return null;
+  if(yr<=yIn)return null; // aún no cumple el primer año
+  const dias=Math.round((anivEste-hoy)/86400000);
+  if(dias<=DIAS_AVISO_VAC){
+    return{fecha:anivEste,dias,anios:yr-yIn,vencida:false,anio:yr};
+  }
+  return null;
+}
+function marcarVacacion(empId,anio){
+  const e=empById(empId);if(!e)return;
+  e.vacOk=Math.max(e.vacOk||0,anio);
+  e.vacFecha='';
+  save();renderAvisos();
+}
+function renderAvisos(){
+  const d=document.getElementById('avisos-panel');
+  const cumples=[],vacs=[],prests=[];
+  state.empleados.forEach(e=>{
+    if(e.nacimiento){
+      const a=proxAniv(e.nacimiento);
+      if(a&&a.dias<=DIAS_AVISO_CUMPLE){
+        const edad=a.fecha.getFullYear()-(+e.nacimiento.split('-')[0]);
+        cumples.push({e,dias:a.dias,fecha:a.fecha,edad});
+      }
+    }
+    const v=avisoVacacion(e);
+    if(v)vacs.push({e,...v});
+    if((e.prestamo||0)>0)prests.push(e);
+  });
+  cumples.sort((a,b)=>a.dias-b.dias);
+  vacs.sort((a,b)=>a.dias-b.dias);
+  if(!cumples.length&&!vacs.length&&!prests.length){d.innerHTML='';return;}
+  let html='<div class="aviso-card"><div class="aviso-title">🔔 Avisos</div>';
+  cumples.forEach(c=>{
+    const cuando=c.dias===0?'🎉 ¡HOY cumple años!':(c.dias===1?'Mañana':'En '+c.dias+' días')+' · '+c.fecha.toLocaleDateString('es-CO',{day:'numeric',month:'long'});
+    html+=`<div class="aviso-row ${c.dias===0?'aviso-hoy':''}">🎂<div class="av-txt"><strong>${c.e.nombre}</strong> cumple ${c.edad} años<div class="av-sub">${cuando}</div></div></div>`;
+  });
+  vacs.forEach(v=>{
+    let cuando;
+    if(v.custom){
+      const fTxt=v.fecha.toLocaleDateString('es-CO',{day:'numeric',month:'long'});
+      cuando=v.vencida
+        ?'⚠️ Estaban programadas para el '+fTxt+' — si ya las tomó, márcalas'
+        :(v.dias===0?'📅 ¡Programadas para HOY!':'📅 Programadas para el '+fTxt+' (en '+v.dias+' días)');
+    } else {
+      cuando=v.vencida
+        ?'⚠️ Pendientes desde el '+v.fecha.toLocaleDateString('es-CO',{day:'numeric',month:'long'})
+        :(v.dias===0?'¡Cumple hoy su aniversario!':'Cumple '+v.anios+(v.anios===1?' año':' años')+' el '+v.fecha.toLocaleDateString('es-CO',{day:'numeric',month:'long'})+' (en '+v.dias+' días)');
+    }
+    html+=`<div class="aviso-row">🏖<div class="av-txt"><strong>${v.e.nombre}</strong> — ${v.custom?'vacaciones programadas':'vacaciones por programar'}<div class="av-sub">${cuando}</div></div><button class="btn success sm" onclick="if(confirm('¿Marcar las vacaciones de ${v.e.nombre.replace(/'/g,'')} como programadas/tomadas?'))marcarVacacion(${v.e.id},${v.anio})">✓ Listo</button></div>`;
+  });
+  prests.forEach(e=>{
+    html+=`<div class="aviso-row">💸<div class="av-txt"><strong>${e.nombre}</strong> tiene préstamo pendiente<div class="av-sub">Saldo: ${fmt(e.prestamo)}</div></div></div>`;
+  });
+  html+='</div>';
+  d.innerHTML=html;
+}
+
+// ── EMPLEADOS ─────────────────────────────────────────
+function renderEmpleados(){
+  const d=document.getElementById('lista-empleados');
+  if(!state.empleados.length){
+    d.innerHTML='<div class="empty"><span class="empty-icon">👥</span>Sin empleados.<br>Agrega el primero.</div>';return;
+  }
+  d.innerHTML=state.empleados.map((e,i)=>{
+    const c=cargoById(e.cargoId);
+    const nBonos=(e.bonos||[]).length;
+    return`<div class="emp-card">
+      <div class="avatar">${initials(e.nombre)}</div>
+      <div class="emp-info">
+        <div class="emp-name">${e.nombre}</div>
+        <div class="emp-sub">${c.nombre} · ${fmt(Math.round(c.sueldo/4))}/sem</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span class="tag ok">Activo</span>
+          ${e.auxilio?'<span class="tag aux">🚌 Auxilio</span>':''}
+          ${nBonos?'<span class="tag bono">🎁 '+nBonos+(nBonos===1?' bono':' bonos')+'</span>':''}
+          ${(e.prestamo||0)>0?'<span class="tag deuda">💸 Préstamo '+fmt(e.prestamo)+'</span>':''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <button class="btn sm" onclick="showFormEmp(${i})">✏️</button>
+        <button class="btn danger sm" onclick="delEmp(${i})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addBonoRow(b){
+  const cont=document.getElementById('emp-bonos-list');
+  const row=document.createElement('div');
+  row.className='bono-row';
+  row.innerHTML=`
+    <input type="text" class="b-nom" placeholder="Nombre del bono" value="${b?b.nombre.replace(/"/g,'&quot;'):''}" autocomplete="off">
+    <input type="number" class="b-monto" placeholder="Monto" min="0" value="${b?b.monto:''}">
+    <select class="b-freq">
+      <option value="semanal" ${b&&b.freq==='semanal'?'selected':''}>Semanal</option>
+      <option value="mensual" ${b&&b.freq==='mensual'?'selected':''}>Mensual</option>
+    </select>
+    <button class="btn danger sm" onclick="this.parentElement.remove()">🗑</button>`;
+  cont.appendChild(row);
+}
+
+function showFormEmp(i){
+  editEmpIdx=i;
+  document.getElementById('emp-bonos-list').innerHTML='';
+  if(i<0){
+    document.getElementById('form-emp-title').textContent='Nuevo empleado';
+    document.getElementById('emp-nombre').value='';
+    document.getElementById('emp-doc').value='';
+    document.getElementById('emp-ingreso').value='';
+    document.getElementById('emp-nac').value='';
+    document.getElementById('emp-vac').value='';
+    document.getElementById('emp-aux').checked=false;
+    populateCargoSelect('emp-cargo');
+  } else {
+    const e=state.empleados[i];
+    document.getElementById('form-emp-title').textContent='Editar empleado';
+    document.getElementById('emp-nombre').value=e.nombre;
+    document.getElementById('emp-doc').value=e.doc||'';
+    document.getElementById('emp-ingreso').value=e.ingreso||'';
+    document.getElementById('emp-nac').value=e.nacimiento||'';
+    document.getElementById('emp-vac').value=e.vacFecha||'';
+    document.getElementById('emp-aux').checked=!!e.auxilio;
+    populateCargoSelect('emp-cargo',e.cargoId);
+    (e.bonos||[]).forEach(b=>addBonoRow(b));
+  }
+  document.getElementById('form-emp').style.display='block';
+  document.getElementById('emp-nombre').focus();
+}
+function saveEmp(){
+  const nom=document.getElementById('emp-nombre').value.trim();
+  if(!nom){alert('Ingresa el nombre del empleado');return;}
+  const bonos=[];
+  document.querySelectorAll('#emp-bonos-list .bono-row').forEach(row=>{
+    const bn=row.querySelector('.b-nom').value.trim();
+    const bm=parseFloat(row.querySelector('.b-monto').value);
+    const bf=row.querySelector('.b-freq').value;
+    if(bn&&bm>0)bonos.push({id:state.nextBoId++,nombre:bn,monto:bm,freq:bf});
+  });
+  const prev=editEmpIdx>=0?state.empleados[editEmpIdx]:null;
+  const obj={
+    id:prev?prev.id:state.nextEId++,
+    nombre:nom,
+    cargoId:parseInt(document.getElementById('emp-cargo').value),
+    ingreso:document.getElementById('emp-ingreso').value,
+    nacimiento:document.getElementById('emp-nac').value,
+    vacFecha:document.getElementById('emp-vac').value,
+    doc:document.getElementById('emp-doc').value,
+    auxilio:document.getElementById('emp-aux').checked,
+    bonos,
+    prestamo:prev?(prev.prestamo||0):0,
+    vacOk:prev?(prev.vacOk||0):0
+  };
+  if(editEmpIdx>=0)state.empleados[editEmpIdx]=obj;
+  else state.empleados.push(obj);
+  document.getElementById('form-emp').style.display='none';
+  save();renderEmpleados();renderAvisos();
+}
+function delEmp(i){
+  const e=state.empleados[i];
+  if(confirm('¿Eliminar empleado "'+e.nombre+'"?')){
+    state.vales=state.vales.filter(v=>v.empId!==e.id);
+    state.empleados.splice(i,1);save();renderEmpleados();renderAvisos();
+  }
+}
+
+// ── CARGOS ────────────────────────────────────────────
+function renderCargos(){
+  const d=document.getElementById('lista-cargos');
+  if(!state.cargos.length){d.innerHTML='<div class="empty">Sin cargos</div>';return;}
+  d.innerHTML=state.cargos.map((c,i)=>`
+    <div class="emp-card">
+      <div class="avatar" style="background:#E1F5EE;color:#085041">💼</div>
+      <div class="emp-info">
+        <div class="emp-name">${c.nombre}</div>
+        <div class="emp-sub">${fmt(c.sueldo)}/mes · ${fmt(Math.round(c.sueldo/4))}/sem · ${fmt(Math.round(c.sueldo/30))}/día</div>
+      </div>
+      <button class="btn danger sm" onclick="delCargo(${i})">🗑</button>
+    </div>`).join('');
+}
+function saveCargo(){
+  const nom=document.getElementById('cargo-nombre').value.trim();
+  const sueldo=parseFloat(document.getElementById('cargo-sueldo').value);
+  if(!nom||!sueldo){alert('Completa nombre y sueldo');return;}
+  state.cargos.push({id:state.nextCId++,nombre:nom,sueldo});
+  document.getElementById('cargo-nombre').value='';
+  document.getElementById('cargo-sueldo').value='';
+  document.getElementById('form-cargo').style.display='none';
+  save();renderCargos();
+}
+function delCargo(i){
+  if(confirm('¿Eliminar cargo "'+state.cargos[i].nombre+'"?')){
+    state.cargos.splice(i,1);save();renderCargos();
+  }
+}
+
+// ── VALES Y PRÉSTAMOS ─────────────────────────────────
+function registrarVale(){
+  const empId=parseInt(document.getElementById('vale-emp').value);
+  const emp=empById(empId);
+  if(!emp){alert('Selecciona un empleado');return;}
+  const monto=parseFloat(document.getElementById('vale-monto').value);
+  if(!monto||monto<=0){alert('Ingresa un monto válido');return;}
+  const fecha=document.getElementById('vale-fecha').value||hoyISO();
+  const nota=document.getElementById('vale-nota').value.trim();
+  state.vales.push({id:state.nextVId++,empId,fecha,monto,nota});
+  state.histVales.unshift({id:state.nextHId++,empId,fecha,tipo:'vale',monto,nota:'Vale registrado'+(nota?' · '+nota:'')});
+  document.getElementById('vale-monto').value='';
+  document.getElementById('vale-nota').value='';
+  save();renderVales();renderAvisos();
+}
+function anularVale(id){
+  const v=state.vales.find(x=>x.id===id);if(!v)return;
+  if(!confirm('¿Anular este vale de '+fmt(v.monto)+'?'))return;
+  state.vales=state.vales.filter(x=>x.id!==id);
+  state.histVales.unshift({id:state.nextHId++,empId:v.empId,fecha:hoyISO(),tipo:'anulado',monto:v.monto,nota:'Vale del '+fechaBonita(v.fecha)+' anulado'});
+  save();renderVales();renderAvisos();
+}
+function abonarPrestamo(empId){
+  const emp=empById(empId);if(!emp)return;
+  const saldo=emp.prestamo||0;
+  if(saldo<=0){alert(emp.nombre+' no tiene préstamo pendiente');return;}
+  const val=prompt('Saldo del préstamo de '+emp.nombre+': '+fmt(saldo)+'\n\n¿Cuánto abona?');
+  if(val===null)return;
+  const monto=parseFloat(val);
+  if(!monto||monto<=0){alert('Monto inválido');return;}
+  const abono=Math.min(monto,saldo);
+  emp.prestamo=saldo-abono;
+  state.histVales.unshift({id:state.nextHId++,empId,fecha:hoyISO(),tipo:'abono',monto:abono,nota:'Abono al préstamo · queda '+fmt(emp.prestamo)});
+  save();renderVales();renderAvisos();renderEmpleados();
+}
+function renderVales(){
+  populateEmpSelect('vale-emp');
+  if(!document.getElementById('vale-fecha').value)document.getElementById('vale-fecha').value=hoyISO();
+  const d=document.getElementById('lista-vales');
+  if(!state.empleados.length){
+    d.innerHTML='<div class="empty"><span class="empty-icon">💸</span>Sin empleados registrados.</div>';
+  } else {
+    d.innerHTML=state.empleados.map(e=>{
+      const pend=valesPendEmp(e.id);
+      const totV=pend.reduce((s,v)=>s+v.monto,0);
+      const prest=e.prestamo||0;
+      if(!pend.length&&prest<=0)return '';
+      return`<div class="card">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar">${initials(e.nombre)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:14px">${e.nombre}</div>
+            <div style="font-size:12px;color:#777">Vales pendientes: <strong style="color:#A32D2D">${fmt(totV)}</strong> · Préstamo: <strong style="color:#A32D2D">${fmt(prest)}</strong></div>
+          </div>
+          ${prest>0?`<button class="btn success sm" onclick="abonarPrestamo(${e.id})">💵 Abonar</button>`:''}
+        </div>
+        ${pend.map(v=>`<div class="vale-item">💸<div class="v-info">${fechaBonita(v.fecha)}${v.nota?' · '+v.nota:''}</div><span class="v-monto">${fmt(v.monto)}</span><button class="btn danger sm" onclick="anularVale(${v.id})">🗑</button></div>`).join('')}
+      </div>`;
+    }).join('')||'<div class="empty"><span class="empty-icon">✅</span>Nadie tiene vales ni préstamos pendientes.</div>';
+  }
+  const h=document.getElementById('hist-vales');
+  if(!state.histVales.length){h.innerHTML='<div class="empty" style="padding:20px">Sin movimientos aún</div>';return;}
+  const icon={vale:'💸',abono:'💵',descuento:'✂️',liquidado:'📋',anulado:'🚫'};
+  h.innerHTML=state.histVales.slice(0,20).map(m=>{
+    const e=empById(m.empId);
+    return`<div class="hist-item"><span>${icon[m.tipo]||'•'}</span><div class="h-txt"><strong>${e?e.nombre:'(eliminado)'}</strong> · ${m.nota}</div><span class="h-monto" style="color:${m.tipo==='abono'||m.tipo==='descuento'?'#27500A':'#A32D2D'}">${fmt(m.monto)}</span><span class="h-fecha">${fechaBonita(m.fecha)}</span></div>`;
+  }).join('');
+}
+
+// ── BENEFICIOS ANUALES ────────────────────────────────
+function benEmpChange(){
+  const emp=empById(parseInt(document.getElementById('ben-emp').value));
+  const box=document.getElementById('ben-prestamo-box');
+  const inp=document.getElementById('ben-abono');
+  if(!emp||(emp.prestamo||0)<=0){box.style.display='none';inp.value=0;return;}
+  box.style.display='block';
+  document.getElementById('ben-prestamo-saldo').textContent=fmt(emp.prestamo);
+  inp.value=0;
+  inp.max=emp.prestamo;
+}
+function saveBeneficio(){
+  const empId=parseInt(document.getElementById('ben-emp').value);
+  const emp=empById(empId);
+  if(!emp){alert('Selecciona un empleado');return;}
+  let tipo=document.getElementById('ben-tipo').value;
+  if(tipo==='Otro'){
+    tipo=document.getElementById('ben-tipo-otro').value.trim();
+    if(!tipo){alert('Escribe el nombre del beneficio');return;}
+  }
+  const monto=parseFloat(document.getElementById('ben-monto').value);
+  if(!monto||monto<=0){alert('Ingresa un monto válido');return;}
+  const fecha=document.getElementById('ben-fecha').value||hoyISO();
+  const nota=document.getElementById('ben-nota').value.trim();
+  let abono=Math.max(0,parseFloat(document.getElementById('ben-abono').value)||0);
+  abono=Math.min(abono,emp.prestamo||0);
+  const ben={id:state.nextBId++,empId,tipo,monto,fecha,nota,anio:+fecha.split('-')[0],abono};
+  state.beneficios.unshift(ben);
+  if(abono>0){
+    emp.prestamo=(emp.prestamo||0)-abono;
+    state.histVales.unshift({id:state.nextHId++,empId,fecha,tipo:'abono',monto:abono,nota:'Abono al préstamo desde '+tipo+' · queda '+fmt(emp.prestamo)});
+  }
+  document.getElementById('ben-monto').value='';
+  document.getElementById('ben-nota').value='';
+  document.getElementById('ben-tipo-otro').value='';
+  save();renderBeneficios();renderAvisos();
+  let msg='✅ Registrado: '+tipo+' de '+emp.nombre+' ('+fmt(monto)+')';
+  if(abono>0)msg+='\n💸 Abonó '+fmt(abono)+' al préstamo. Saldo restante: '+fmt(emp.prestamo)+'\n💵 Neto entregado: '+fmt(monto-abono);
+  alert(msg);
+}
+function delBeneficio(id){
+  if(confirm('¿Eliminar este registro?')){
+    state.beneficios=state.beneficios.filter(b=>b.id!==id);
+    save();renderBeneficios();
+  }
+}
+function renderBeneficios(){
+  populateEmpSelect('ben-emp');
+  benEmpChange();
+  if(!document.getElementById('ben-fecha').value)document.getElementById('ben-fecha').value=hoyISO();
+  const d=document.getElementById('lista-beneficios');
+  if(!state.beneficios.length){
+    d.innerHTML='<div class="empty"><span class="empty-icon">🎁</span>Sin registros anuales aún.</div>';return;
+  }
+  const porEmp={};
+  state.beneficios.forEach(b=>{
+    if(!porEmp[b.empId])porEmp[b.empId]=[];
+    porEmp[b.empId].push(b);
+  });
+  d.innerHTML=Object.keys(porEmp).map(empId=>{
+    const e=empById(parseInt(empId));
+    const items=porEmp[empId].sort((a,b)=>b.fecha.localeCompare(a.fecha));
+    const total=items.reduce((s,b)=>s+b.monto,0);
+    return`<div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="avatar">${e?initials(e.nombre):'?'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px">${e?e.nombre:'(empleado eliminado)'}</div>
+          <div style="font-size:12px;color:#777">${items.length} registro${items.length===1?'':'s'} · Total: ${fmt(total)}</div>
+        </div>
+      </div>
+      ${items.map(b=>`<div class="ben-item"><span class="year-badge">${b.anio}</span><div class="b-info"><strong>${b.tipo}</strong> · ${fechaBonita(b.fecha)}${b.nota?'<div style="font-size:11px;color:#999">'+b.nota+'</div>':''}${(b.abono||0)>0?'<div style="font-size:11px;color:#A32D2D">💸 Abonó '+fmt(b.abono)+' al préstamo · entregado '+fmt(b.monto-b.abono)+'</div>':''}</div><span style="font-weight:700;color:#27500A;white-space:nowrap">${fmt(b.monto)}</span><button class="btn danger sm" onclick="delBeneficio(${b.id})">🗑</button></div>`).join('')}
+    </div>`;
+  }).join('');
+}
+function exportarExcelBeneficios(){
+  if(!state.beneficios.length){alert('No hay registros para exportar');return;}
+  const rows=[['Año','Empleado','Beneficio','Monto','Abono a préstamo','Neto entregado','Fecha de pago','Nota']];
+  [...state.beneficios].sort((a,b)=>b.fecha.localeCompare(a.fecha)).forEach(b=>{
+    const e=empById(b.empId);
+    const ab=Math.round(b.abono||0);
+    rows.push([b.anio,e?e.nombre:'(eliminado)',b.tipo,Math.round(b.monto),ab,Math.round(b.monto)-ab,b.fecha,b.nota||'']);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:8},{wch:24},{wch:20},{wch:14},{wch:16},{wch:16},{wch:14},{wch:30}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Beneficios');
+  XLSX.writeFile(wb,'beneficios_anuales_don_camaron_'+new Date().toISOString().split('T')[0]+'.xlsx');
+}
+
+// ── NÓMINA ────────────────────────────────────────────
+function renderBonosNomina(emp){
+  const card=document.getElementById('nom-bonos-card');
+  const list=document.getElementById('nom-bonos-list');
+  if(!emp||!(emp.bonos||[]).length){card.style.display='none';list.innerHTML='';return;}
+  card.style.display='block';
+  list.innerHTML=emp.bonos.map(b=>`
+    <label class="bono-check">
+      <input type="checkbox" data-bid="${b.id}" ${b.freq==='semanal'?'checked':''} onchange="calcNomina()">
+      <div class="bc-info">${b.nombre}<div style="font-size:11px;color:#999">${b.freq==='semanal'?'Semanal':'Mensual'}</div></div>
+      <span class="bc-monto">${fmt(b.monto)}</span>
+    </label>`).join('');
+}
+function renderValesNomina(emp){
+  const card=document.getElementById('nom-vales-card');
+  const info=document.getElementById('nom-vales-info');
+  const inp=document.getElementById('nom-desc-vales');
+  if(!emp){card.style.display='none';inp.value=0;return;}
+  const totV=totalValesEmp(emp.id);
+  const prest=emp.prestamo||0;
+  const deuda=totV+prest;
+  if(deuda<=0){card.style.display='none';inp.value=0;return;}
+  card.style.display='block';
+  const pend=valesPendEmp(emp.id);
+  info.innerHTML=`
+    ${pend.map(v=>`<div class="extra-row"><span class="extra-label">Vale del ${fechaBonita(v.fecha)}${v.nota?' · '+v.nota:''}</span><span class="extra-val neg">${fmt(v.monto)}</span></div>`).join('')}
+    ${prest>0?`<div class="extra-row"><span class="extra-label">Préstamo acumulado anterior</span><span class="extra-val neg">${fmt(prest)}</span></div>`:''}
+    <div class="extra-row" style="background:#FBE9E7"><span class="extra-label" style="font-weight:700;color:#A32D2D">Deuda total</span><span class="extra-val neg">${fmt(deuda)}</span></div>`;
+  inp.value=totV;
+  inp.max=deuda;
+}
+function calcNomina(){
+  const empId=parseInt(document.getElementById('nom-emp').value);
+  const emp=empById(empId);
+  if(!emp){document.getElementById('resumen-nomina').style.display='none';return;}
+  const cargo=cargoById(emp.cargoId);
+  const sueldoMes=cargo.sueldo,sueldoSem=sueldoMes/4;
+  const dias=Math.max(0,parseInt(document.getElementById('nom-dias').value)||0);
+  const diasExtra=Math.max(0,parseInt(document.getElementById('nom-dia-extra').value)||0);
+  const diasDoble=Math.max(0,parseInt(document.getElementById('nom-dia-doble').value)||0);
+  const horasExtra=Math.max(0,parseInt(document.getElementById('nom-horas-extra').value)||0);
+  const pctHE=parseFloat(document.getElementById('nom-pct-he').value)||25;
+  const bono=Math.max(0,parseFloat(document.getElementById('nom-bono').value)||0);
+  const deduc=Math.max(0,parseFloat(document.getElementById('nom-deduc').value)||0);
+  const auxilio=emp.auxilio?AUX_SEM:0;
+
+  // Bonos personalizados marcados
+  const bonosPers=[];
+  document.querySelectorAll('#nom-bonos-list input[type=checkbox]:checked').forEach(cb=>{
+    const b=(emp.bonos||[]).find(x=>x.id==cb.dataset.bid);
+    if(b)bonosPers.push({...b});
+  });
+  const pagoBonosPers=bonosPers.reduce((s,b)=>s+b.monto,0);
+
+  // Vales y préstamo
+  const totVales=totalValesEmp(emp.id);
+  const prestamoAntes=emp.prestamo||0;
+  const deudaTotal=totVales+prestamoAntes;
+  let descVales=Math.max(0,parseFloat(document.getElementById('nom-desc-vales').value)||0);
+  descVales=Math.min(descVales,deudaTotal);
+  const prestamoDespues=deudaTotal-descVales;
+
+  const valorDia=sueldoSem/7,valorHora=valorDia/8;
+  const baseCalc=valorDia*dias;
+  const pagoExtra=diasExtra*valorDia;
+  const pagoDoble=diasDoble*valorDia*2;
+  const pagoHE=horasExtra*valorHora*(1+pctHE/100);
+  const totalDev=baseCalc+pagoExtra+pagoDoble+pagoHE+bono+auxilio+pagoBonosPers;
+  const totalPag=totalDev-deduc-descVales;
+
+  document.getElementById('resumen-nomina').style.display='block';
+  document.getElementById('nom-detalle').innerHTML=`
+    <div class="extra-row"><span class="extra-label">Sueldo semanal (${dias}/7 días)</span><span class="extra-val">${fmt(baseCalc)}</span></div>
+    ${auxilio>0?`<div class="extra-row"><span class="extra-label">🚌 Auxilio transporte semanal</span><span class="extra-val">${fmt(auxilio)}</span></div>`:''}
+    ${bonosPers.map(b=>`<div class="extra-row"><span class="extra-label">🎁 ${b.nombre} (${b.freq})</span><span class="extra-val">+${fmt(b.monto)}</span></div>`).join('')}
+    ${diasExtra>0?`<div class="extra-row"><span class="extra-label">Días adicionales (${diasExtra})</span><span class="extra-val">+${fmt(pagoExtra)}</span></div>`:''}
+    ${diasDoble>0?`<div class="extra-row"><span class="extra-label">Días dobles (${diasDoble})</span><span class="extra-val">+${fmt(pagoDoble)}</span></div>`:''}
+    ${horasExtra>0?`<div class="extra-row"><span class="extra-label">Horas extra (${horasExtra}h +${pctHE}%)</span><span class="extra-val">+${fmt(pagoHE)}</span></div>`:''}
+    ${bono>0?`<div class="extra-row"><span class="extra-label">Bonificación</span><span class="extra-val">+${fmt(bono)}</span></div>`:''}
+    ${deduc>0?`<div class="extra-row"><span class="extra-label">Deducciones</span><span class="extra-val neg">-${fmt(deduc)}</span></div>`:''}
+    ${descVales>0?`<div class="extra-row"><span class="extra-label">💸 Descuento vales/préstamo</span><span class="extra-val neg">-${fmt(descVales)}</span></div>`:''}
+    ${deudaTotal>0?`<div class="extra-row"><span class="extra-label">Préstamo que queda pendiente</span><span class="extra-val gris">${fmt(prestamoDespues)}</span></div>`:''}`;
+  document.getElementById('nom-total-dev').textContent=fmt(totalDev);
+  document.getElementById('nom-total-pag').textContent=fmt(totalPag);
+  window._nom={emp,cargo,sueldoMes,sueldoSem,dias,diasExtra,diasDoble,horasExtra,pctHE,bono,deduc,auxilio,valorDia,valorHora,baseCalc,pagoExtra,pagoDoble,pagoHE,bonosPers,pagoBonosPers,descVales,deudaAntes:deudaTotal,prestamoDespues,totalDev,totalPag,periodoTipo};
+}
+
+function generarRecibo(){
+  if(!window._nom){alert('Calcula la nómina primero');return;}
+  const n=window._nom;
+  const emp=empById(n.emp.id);
+  const r={
+    id:state.nextRId++,
+    empNombre:n.emp.nombre,
+    cargo:n.cargo.nombre,
+    desde:document.getElementById('nom-desde').value,
+    hasta:document.getElementById('nom-hasta').value,
+    n:{...n,emp:{id:n.emp.id,nombre:n.emp.nombre}},
+    fecha:new Date().toLocaleDateString('es-CO'),
+    periodo:periodoTipo
+  };
+  // Liquidar vales: lo descontado se salda, lo no descontado pasa al préstamo
+  if(emp){
+    const pend=valesPendEmp(emp.id);
+    const totV=pend.reduce((s,v)=>s+v.monto,0);
+    const deuda=totV+(emp.prestamo||0);
+    const desc=Math.min(n.descVales||0,deuda);
+    pend.forEach(v=>{
+      state.histVales.unshift({id:state.nextHId++,empId:emp.id,fecha:hoyISO(),tipo:'liquidado',monto:v.monto,nota:'Vale del '+fechaBonita(v.fecha)+' liquidado en recibo #'+String(r.id).padStart(4,'0')});
+    });
+    if(desc>0){
+      state.histVales.unshift({id:state.nextHId++,empId:emp.id,fecha:hoyISO(),tipo:'descuento',monto:desc,nota:'Descontado en nómina (recibo #'+String(r.id).padStart(4,'0')+')'});
+    }
+    emp.prestamo=deuda-desc;
+    state.vales=state.vales.filter(v=>v.empId!==emp.id);
+  }
+  state.recibos.unshift(r);save();
+  renderAvisos();
+  window._nom=null;
+  alert('✅ Recibo #'+String(r.id).padStart(4,'0')+' generado.\nVe a la pestaña Recibos para exportarlo.');
+  goTab('recibos');
+}
+
+function renderRecibos(){
+  const d=document.getElementById('lista-recibos');
+  if(!state.recibos.length){
+    d.innerHTML='<div class="empty"><span class="empty-icon">🧾</span>Sin recibos aún.<br>Genera uno desde Nómina.</div>';return;
+  }
+  d.innerHTML=state.recibos.map(r=>`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div class="avatar">${initials(r.empNombre)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px">${r.empNombre}</div>
+          <div style="font-size:12px;color:#777">${r.cargo} · ${pLabel[r.periodo]||r.periodo}</div>
+          <div style="font-size:11px;color:#aaa">${r.desde} → ${r.hasta}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-weight:700;color:#185FA5;font-size:15px">${fmt(r.n.totalPag)}</div>
+          <div style="font-size:10px;color:#aaa">${r.fecha}</div>
+          <div style="font-size:10px;color:#aaa">#${String(r.id).padStart(4,'0')}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn sm" onclick="imprimirRecibo(${r.id})">🖨 Imprimir</button>
+        <button class="btn pdf sm" onclick="exportarPDFRecibo(${r.id})">📄 PDF</button>
+        <button class="btn xls sm" onclick="exportarExcelRecibo(${r.id})">📊 Excel</button>
+        <button class="btn danger sm" onclick="delRecibo(${r.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+function delRecibo(id){
+  if(confirm('¿Eliminar este recibo?')){
+    state.recibos=state.recibos.filter(r=>r.id!==id);save();renderRecibos();
+  }
+}
+
+// ── IMPRIMIR ──────────────────────────────────────────
+function imprimirRecibo(id){
+  const r=state.recibos.find(x=>x.id===id);if(!r)return;
+  const n=r.n;
+  const bonosPers=n.bonosPers||[];
+  const descVales=n.descVales||0;
+  const prestDesp=n.prestamoDespues||0;
+  document.getElementById('print-area').innerHTML=`
+  <div class="recibo-p">
+    <div class="rp-header">
+      <div class="rp-empresa">DON CAMARON 🦐</div>
+      <div class="rp-sub">Comprobante de pago semanal</div>
+      <div class="rp-sub">Recibo N° ${String(r.id).padStart(4,'0')} &nbsp;|&nbsp; Emitido: ${r.fecha}</div>
+    </div>
+    <table class="rp-table">
+      <tr><td style="color:#666">Empleado</td><td>${r.empNombre}</td></tr>
+      <tr><td style="color:#666">Cargo</td><td>${r.cargo}</td></tr>
+      <tr><td style="color:#666">Período</td><td>${pLabel[r.periodo]||r.periodo}</td></tr>
+      <tr><td style="color:#666">Fechas</td><td>${r.desde} al ${r.hasta}</td></tr>
+      <tr><td style="color:#666">Días trabajados</td><td>${n.dias} de 7</td></tr>
+      <tr><td style="color:#666">Sueldo mensual</td><td>${fmt(n.sueldoMes)}</td></tr>
+    </table>
+    <hr style="margin:10px 0;border:none;border-top:1px solid #ddd">
+    <table class="rp-table">
+      <tr class="sep"><td colspan="2" style="color:#555;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">Devengos</td></tr>
+      <tr><td>Sueldo semanal base (${n.dias}/7 días)</td><td>${fmt(n.baseCalc)}</td></tr>
+      ${n.auxilio>0?`<tr class="auxr"><td>Auxilio de transporte semanal</td><td>${fmt(n.auxilio)}</td></tr>`:''}
+      ${bonosPers.map(b=>`<tr class="auxr"><td>Bono: ${b.nombre} (${b.freq})</td><td>+${fmt(b.monto)}</td></tr>`).join('')}
+      ${n.diasExtra>0?`<tr><td>Días adicionales (${n.diasExtra})</td><td>+${fmt(n.pagoExtra)}</td></tr>`:''}
+      ${n.diasDoble>0?`<tr><td>Días dobles (${n.diasDoble})</td><td>+${fmt(n.pagoDoble)}</td></tr>`:''}
+      ${n.horasExtra>0?`<tr><td>Horas extra (${n.horasExtra}h +${n.pctHE}%)</td><td>+${fmt(n.pagoHE)}</td></tr>`:''}
+      ${n.bono>0?`<tr><td>Bonificación</td><td>+${fmt(n.bono)}</td></tr>`:''}
+      <tr class="sep"><td>Total devengado</td><td>${fmt(n.totalDev)}</td></tr>
+      ${n.deduc>0?`<tr class="negr"><td>Deducciones</td><td>-${fmt(n.deduc)}</td></tr>`:''}
+      ${descVales>0?`<tr class="negr"><td>Descuento vales/préstamo</td><td>-${fmt(descVales)}</td></tr>`:''}
+      <tr class="tot"><td>NETO A PAGAR</td><td>${fmt(n.totalPag)}</td></tr>
+      ${prestDesp>0?`<tr class="infr"><td>Préstamo pendiente después de este pago</td><td>${fmt(prestDesp)}</td></tr>`:''}
+    </table>
+    <div class="rp-firmas">
+      <div class="rp-firma">Firma empleado<br>${r.empNombre}</div>
+      <div class="rp-firma">Empleador<br>DON CAMARÓN</div>
+    </div>
+    <div class="rp-footer">Documento válido como comprobante de pago · DON CAMARÓN</div>
+  </div>`;
+  window.print();
+}
+
+// ── EXCEL INDIVIDUAL ──────────────────────────────────
+function exportarExcelRecibo(id){
+  const r=state.recibos.find(x=>x.id===id);if(!r)return;
+  const n=r.n;
+  const bonosPers=n.bonosPers||[];
+  const descVales=n.descVales||0;
+  const prestDesp=n.prestamoDespues||0;
+  const rows=[
+    ['DON CAMARÓN - Comprobante de Pago'],[''],
+    ['Recibo N°',String(r.id).padStart(4,'0')],
+    ['Fecha emisión',r.fecha],
+    ['Empleado',r.empNombre],
+    ['Cargo',r.cargo],
+    ['Período',pLabel[r.periodo]||r.periodo],
+    ['Desde',r.desde],['Hasta',r.hasta],
+    ['Días trabajados',n.dias+' de 7'],
+    ['Sueldo mensual',Math.round(n.sueldoMes)],
+    [''],['=== DEVENGOS ==='],
+    ['Sueldo semanal base',Math.round(n.baseCalc)],
+    ...(n.auxilio>0?[['Auxilio de transporte semanal',Math.round(n.auxilio)]]:[]),
+    ...bonosPers.map(b=>['Bono: '+b.nombre+' ('+b.freq+')',Math.round(b.monto)]),
+    ...(n.diasExtra>0?[['Días adicionales ('+n.diasExtra+')',Math.round(n.pagoExtra)]]:[]),
+    ...(n.diasDoble>0?[['Días dobles ('+n.diasDoble+')',Math.round(n.pagoDoble)]]:[]),
+    ...(n.horasExtra>0?[['Horas extra ('+n.horasExtra+'h +'+n.pctHE+'%)',Math.round(n.pagoHE)]]:[]),
+    ...(n.bono>0?[['Bonificación',Math.round(n.bono)]]:[]),
+    ['Total devengado',Math.round(n.totalDev)],
+    [''],
+    ...(n.deduc>0?[['Deducciones',-Math.round(n.deduc)]]:[]),
+    ...(descVales>0?[['Descuento vales/préstamo',-Math.round(descVales)]]:[]),
+    ['NETO A PAGAR',Math.round(n.totalPag)],
+    ...(prestDesp>0?[[''],['Préstamo pendiente después de este pago',Math.round(prestDesp)]]:[]),
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:35},{wch:20}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Recibo');
+  XLSX.writeFile(wb,'recibo_'+String(r.id).padStart(4,'0')+'_'+r.empNombre.replace(/\s+/g,'_')+'.xlsx');
+}
+
+// ── EXCEL TODOS ───────────────────────────────────────
+function exportarExcelTodos(){
+  if(!state.recibos.length){alert('No hay recibos para exportar');return;}
+  const rows=[['#','Empleado','Cargo','Período','Desde','Hasta','Días','Sueldo mensual','Base semanal','Auxilio transp.','Bonos pers.','Días extra','Días doble','Horas extra','Bonificación','Total devengado','Deducciones','Desc. vales/prést.','Neto a pagar','Préstamo pendiente','Fecha emisión']];
+  state.recibos.forEach(r=>{
+    const n=r.n;
+    rows.push([
+      String(r.id).padStart(4,'0'),r.empNombre,r.cargo,
+      pLabel[r.periodo]||r.periodo,r.desde,r.hasta,n.dias,
+      Math.round(n.sueldoMes),Math.round(n.baseCalc),Math.round(n.auxilio),
+      Math.round(n.pagoBonosPers||0),
+      Math.round(n.pagoExtra),Math.round(n.pagoDoble),Math.round(n.pagoHE),
+      Math.round(n.bono),Math.round(n.totalDev),Math.round(n.deduc),
+      Math.round(n.descVales||0),
+      Math.round(n.totalPag),Math.round(n.prestamoDespues||0),r.fecha
+    ]);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:6},{wch:24},{wch:16},{wch:20},{wch:12},{wch:12},{wch:6},{wch:16},{wch:16},{wch:14},{wch:12},{wch:12},{wch:12},{wch:12},{wch:14},{wch:16},{wch:14},{wch:16},{wch:16},{wch:16},{wch:14}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Nomina');
+  XLSX.writeFile(wb,'nomina_don_camaron_'+new Date().toISOString().split('T')[0]+'.xlsx');
+}
+
+// ── PDF INDIVIDUAL ────────────────────────────────────
+function exportarPDFRecibo(id){
+  const r=state.recibos.find(x=>x.id===id);if(!r)return;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a5'});
+  const n=r.n,W=148,mg=14;let y=18;
+  const bonosPers=n.bonosPers||[];
+  const descVales=n.descVales||0;
+  const prestDesp=n.prestamoDespues||0;
+  doc.setFont('helvetica','bold');doc.setFontSize(16);
+  doc.text('DON CAMARON',W/2,y,{align:'center'});y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(100);
+  doc.text('Comprobante de pago semanal',W/2,y,{align:'center'});y+=5;
+  doc.text('Recibo N\u00b0 '+String(r.id).padStart(4,'0')+'   |   Emitido: '+r.fecha,W/2,y,{align:'center'});y+=8;
+  doc.setDrawColor(180);doc.line(mg,y,W-mg,y);y+=7;
+  const info=[['Empleado',r.empNombre],['Cargo',r.cargo],['Periodo',pLabel[r.periodo]||r.periodo],['Fechas',r.desde+' al '+r.hasta],['Dias trabajados',n.dias+' de 7'],['Sueldo mensual',fmt(n.sueldoMes)]];
+  doc.setFontSize(9);
+  info.forEach(([k,v])=>{
+    doc.setFont('helvetica','normal');doc.setTextColor(120);doc.text(k,mg,y);
+    doc.setFont('helvetica','bold');doc.setTextColor(30);doc.text(String(v),W-mg,y,{align:'right'});y+=6;
+  });
+  y+=2;doc.setDrawColor(180);doc.line(mg,y,W-mg,y);y+=6;
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(90);
+  doc.text('DEVENGOS',mg,y);y+=5;
+  doc.setFontSize(9);
+  const devs=[['Sueldo semanal base ('+n.dias+'/7 dias)',Math.round(n.baseCalc)]];
+  if(n.auxilio>0)devs.push(['Auxilio de transporte semanal',Math.round(n.auxilio)]);
+  bonosPers.forEach(b=>devs.push(['Bono: '+b.nombre+' ('+b.freq+')',Math.round(b.monto)]));
+  if(n.diasExtra>0)devs.push(['Dias adicionales ('+n.diasExtra+')',Math.round(n.pagoExtra)]);
+  if(n.diasDoble>0)devs.push(['Dias dobles ('+n.diasDoble+')',Math.round(n.pagoDoble)]);
+  if(n.horasExtra>0)devs.push(['Horas extra ('+n.horasExtra+'h +'+n.pctHE+'%)',Math.round(n.pagoHE)]);
+  if(n.bono>0)devs.push(['Bonificacion',Math.round(n.bono)]);
+  devs.forEach(([k,v])=>{
+    doc.setFont('helvetica','normal');doc.setTextColor(50);doc.text(k,mg,y);
+    doc.text(fmt(v),W-mg,y,{align:'right'});y+=5.5;
+  });
+  y+=1;doc.setDrawColor(160);doc.line(mg,y,W-mg,y);y+=5;
+  doc.setTextColor(60);doc.text('Total devengado',mg,y);doc.text(fmt(Math.round(n.totalDev)),W-mg,y,{align:'right'});y+=6;
+  if(n.deduc>0){
+    doc.setTextColor(163,45,45);
+    doc.text('Deducciones',mg,y);doc.text('-'+fmt(Math.round(n.deduc)),W-mg,y,{align:'right'});y+=6;
+  }
+  if(descVales>0){
+    doc.setTextColor(163,45,45);
+    doc.text('Descuento vales/prestamo',mg,y);doc.text('-'+fmt(Math.round(descVales)),W-mg,y,{align:'right'});y+=6;
+  }
+  y+=1;doc.setDrawColor(30);doc.setLineWidth(0.5);doc.line(mg,y,W-mg,y);y+=7;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(20);
+  doc.text('NETO A PAGAR',mg,y);doc.text(fmt(Math.round(n.totalPag)),W-mg,y,{align:'right'});y+=7;
+  if(prestDesp>0){
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(130);
+    doc.text('Prestamo pendiente despues de este pago: '+fmt(Math.round(prestDesp)),mg,y);y+=6;
+  }
+  y+=9;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80);
+  const lx1=mg+5,lx2=W-mg-5,ly=y+12;
+  doc.line(lx1,ly,lx1+38,ly);doc.line(lx2-38,ly,lx2,ly);
+  doc.text('Firma empleado',lx1+19,ly+4,{align:'center'});
+  doc.text('Empleador DON CAMARON',lx2-19,ly+4,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(160);
+  doc.text('Documento valido como comprobante de pago · DON CAMARON',W/2,ly+12,{align:'center'});
+  doc.save('recibo_'+String(r.id).padStart(4,'0')+'_'+r.empNombre.replace(/\s+/g,'_')+'.pdf');
+}
+
+// ── PDF TODOS ─────────────────────────────────────────
+function exportarPDFTodos(){
+  if(!state.recibos.length){alert('No hay recibos para exportar');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,mg=14;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);
+  doc.text('DON CAMARON',W/2,18,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(80);
+  doc.text('Reporte de Nomina Semanal · '+new Date().toLocaleDateString('es-CO'),W/2,25,{align:'center'});
+  doc.text('Total de recibos: '+state.recibos.length,W/2,31,{align:'center'});
+  doc.setDrawColor(180);doc.line(mg,34,W-mg,34);
+  let y=42;
+  const cols=['N\u00b0','Empleado','Cargo','Periodo','Dias','Devengado','Descuentos','Neto a pagar'];
+  const cw=[10,42,28,32,10,28,18,30];
+  doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(80);
+  let cx=mg;cols.forEach((c,i)=>{doc.text(c,cx,y);cx+=cw[i];});
+  y+=2;doc.setLineWidth(0.3);doc.line(mg,y,W-mg,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setTextColor(30);doc.setFontSize(8);
+  state.recibos.forEach((r,idx)=>{
+    if(y>270){doc.addPage();y=18;}
+    if(idx%2===0){doc.setFillColor(248,248,245);doc.rect(mg,y-3.5,W-mg*2,6,'F');}
+    const n=r.n;
+    const descTot=Math.round(n.deduc)+Math.round(n.descVales||0);
+    const row=['#'+String(r.id).padStart(3,'0'),r.empNombre.slice(0,20),r.cargo.slice(0,14),(pLabel[r.periodo]||r.periodo).slice(0,16),String(n.dias),fmt(Math.round(n.totalDev)),fmt(descTot),fmt(Math.round(n.totalPag))];
+    cx=mg;row.forEach((v,i)=>{doc.text(v,cx,y,{maxWidth:cw[i]-1});cx+=cw[i];});
+    y+=6;
+  });
+  y+=5;doc.setLineWidth(0.5);doc.setDrawColor(30);doc.line(mg,y,W-mg,y);y+=7;
+  const totalPag=state.recibos.reduce((s,r)=>s+Math.round(r.n.totalPag),0);
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(20);
+  doc.text('TOTAL NOMINA:',W-mg-55,y);
+  doc.text(fmt(totalPag),W-mg,y,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(160);
+  doc.text('DON CAMARON · Reporte generado el '+new Date().toLocaleDateString('es-CO'),W/2,y+10,{align:'center'});
+  doc.save('nomina_don_camaron_'+new Date().toISOString().split('T')[0]+'.pdf');
+}
+
+// ── INIT ──────────────────────────────────────────────
+load();
+migrate();
+renderEmpleados();
+renderAvisos();
+populateCargoSelect('emp-cargo');
+setFechasSemana();
+</script>
+
+<!-- FIREBASE (proyecto control-doncamaron · nodo nomina/ separado) -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getDatabase,ref,set,onValue}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+try{
+  const fbApp=initializeApp({
+    apiKey:"AIzaSyCPdCbIVOOqKxGwLaNDKqvshy4cNCgppEk",
+    authDomain:"control-doncamaron.firebaseapp.com",
+    databaseURL:"https://control-doncamaron-default-rtdb.firebaseio.com",
+    projectId:"control-doncamaron",
+    storageBucket:"control-doncamaron.firebasestorage.app",
+    messagingSenderId:"249136168622",
+    appId:"1:249136168622:web:2bfc899c21c144a2b9773f"
+  });
+  const db=getDatabase(fbApp);
+  window.FB={db,ref,set,onValue};
+  window.fbInit();
+}catch(e){console.error('Firebase no disponible:',e);}
+</script>
+</body>
+</html>
