@@ -65,6 +65,27 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
 .periodo-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .pbtn{padding:7px 12px;border:1px solid #ddd;border-radius:10px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#888;-webkit-tap-highlight-color:transparent}
 .pbtn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.mode-toggle{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.mbtn{flex:1;text-align:center;padding:9px;border-radius:9px;font-size:13px;font-weight:600;color:#888;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mbtn.active{background:#1a1a1a;color:#fff}
+.nt-row{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.nt-row.pagado{opacity:.55;background:#f4f8ef}
+.nt-head{display:flex;align-items:center;gap:10px}
+.nt-head input[type=checkbox]{width:20px;height:20px;flex-shrink:0}
+.nt-nombre{flex:1;min-width:0}
+.nt-nombre .n1{font-weight:600;font-size:14px}
+.nt-nombre .n2{font-size:11px;color:#888;margin-top:1px}
+.nt-neto{font-weight:700;color:#185FA5;font-size:15px;white-space:nowrap}
+.nt-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.nt-body label{margin-top:0;font-size:11px}
+.nt-body input{padding:8px 10px;font-size:13px}
+.nt-deuda{font-size:11px;color:#A32D2D;margin-top:6px;font-weight:600}
+.pagado-tag{background:#EAF3DE;color:#27500A;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap}
+.user-chip{margin-left:8px;background:#E8E6FA;color:#3C3489;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:500;padding:20px}
+.overlay.on{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;max-height:80vh;overflow-y:auto}
+.user-btn{display:flex;align-items:center;gap:10px;width:100%;padding:12px;border:1px solid #eee;border-radius:12px;background:#f8f8f5;font-size:14px;font-weight:600;margin-top:8px;cursor:pointer;text-align:left}
 .export-bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;background:#fff;border-radius:12px;margin-bottom:12px;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .export-label{font-size:12px;color:#777;width:100%}
 .empty{text-align:center;padding:40px 20px;color:#aaa;font-size:14px}
@@ -127,6 +148,7 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
   </div>
   <div class="save-badge" id="save-badge">✓ Guardado</div>
   <div class="cloud-dot" id="cloud-dot" title="Conexión con la nube">☁️</div>
+  <div class="user-chip" id="user-chip" onclick="openUserOverlay()">👤 —</div>
 </div>
 
 <div class="tabs">
@@ -181,20 +203,46 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
 <div class="page" id="page-nomina">
   <h3 style="margin-bottom:12px">Calcular nómina</h3>
   <div class="card">
-    <label>Empleado</label>
-    <select id="nom-emp" onchange="onEmpChange()"></select>
-    <label>Período de pago</label>
+    <label style="margin-top:0">Período de pago</label>
     <div class="periodo-btns">
-      <div class="pbtn active" data-tipo="semana1" onclick="selPeriodo(this)">Sem 1</div>
-      <div class="pbtn" data-tipo="semana2" onclick="selPeriodo(this)">Sem 2</div>
-      <div class="pbtn" data-tipo="semana3" onclick="selPeriodo(this)">Sem 3</div>
-      <div class="pbtn" data-tipo="semana4" onclick="selPeriodo(this)">Sem 4</div>
+      <div class="pbtn active" data-tipo="actual" onclick="selPeriodo(this)">📅 Esta semana</div>
+      <div class="pbtn" data-tipo="pasada" onclick="selPeriodo(this)">Semana pasada</div>
       <div class="pbtn" data-tipo="personalizado" onclick="selPeriodo(this)">Personalizado</div>
     </div>
     <div class="row2" style="margin-top:10px">
-      <div><label>Desde</label><input id="nom-desde" type="date" oninput="calcNomina()"></div>
-      <div><label>Hasta</label><input id="nom-hasta" type="date" oninput="calcNomina()"></div>
+      <div><label>Desde</label><input id="nom-desde" type="date" oninput="onFechasChange()"></div>
+      <div><label>Hasta</label><input id="nom-hasta" type="date" oninput="onFechasChange()"></div>
     </div>
+    <div class="info-bar" id="nom-periodo-label" style="margin-top:10px">Semana</div>
+  </div>
+
+  <div class="mode-toggle">
+    <div class="mbtn active" id="mbtn-todos" onclick="setNomModo('todos')">📋 Todos</div>
+    <div class="mbtn" id="mbtn-uno" onclick="setNomModo('uno')">🔍 Uno a uno</div>
+  </div>
+
+  <!-- MODO TODOS (pago masivo) -->
+  <div id="nom-modo-todos">
+    <div id="nom-todos-lista"></div>
+    <div class="card" id="nom-todos-resumen" style="display:none">
+      <h3>Resumen global de la semana</h3>
+      <div class="summary-grid">
+        <div class="stat"><div class="stat-label">Empleados a pagar</div><div class="stat-value" id="nt-cant">0</div></div>
+        <div class="stat"><div class="stat-label">Total devengado</div><div class="stat-value green" id="nt-dev">$0</div></div>
+        <div class="stat"><div class="stat-label">Desc. vales/préstamos</div><div class="stat-value red" id="nt-desc">$0</div></div>
+        <div class="stat"><div class="stat-label">TOTAL NETO</div><div class="stat-value blue" id="nt-neto">$0</div></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" style="width:100%" onclick="generarTodos()">🧾 Generar todos los recibos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODO UNO A UNO -->
+  <div id="nom-modo-uno" style="display:none">
+  <div class="card">
+    <label style="margin-top:0">Empleado</label>
+    <select id="nom-emp" onchange="onEmpChange()"></select>
     <label>Días trabajados</label>
     <input id="nom-dias" type="number" min="0" max="7" value="7" oninput="calcNomina()">
   </div>
@@ -241,6 +289,7 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
       <button class="btn primary" onclick="generarRecibo()">🧾 Generar recibo</button>
     </div>
   </div>
+  </div><!-- fin modo uno a uno -->
 </div>
 
 <!-- VALES -->
@@ -338,6 +387,7 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
     <h3>Recibos generados</h3>
     <button class="btn danger sm" onclick="if(confirm('¿Borrar todos los recibos?')){state.recibos=[];save();renderRecibos()}">🗑 Limpiar</button>
   </div>
+  <div id="recibos-resumen"></div>
   <div class="export-bar">
     <div class="export-label">📥 Exportar nómina completa</div>
     <button class="btn xls" onclick="exportarExcelTodos()">📊 Excel</button>
@@ -347,6 +397,19 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
 </div>
 
 </div><!-- end content -->
+
+<div class="overlay" id="user-overlay">
+  <div class="modal-box">
+    <h3>👤 ¿Quién está usando la app?</h3>
+    <p style="font-size:12px;color:#999;margin-top:6px">Cada vale, recibo y registro quedará con tu nombre.</p>
+    <div id="user-list"></div>
+    <label>Agregar usuario nuevo</label>
+    <input id="user-new" type="text" placeholder="Ej. Erwing" autocomplete="off">
+    <div class="actions">
+      <button class="btn primary" onclick="addUser()">+ Agregar y entrar</button>
+    </div>
+  </div>
+</div>
 
 <div class="print-only" id="print-area"></div>
 
@@ -373,6 +436,7 @@ function migrate(){
   if(!state.vales)state.vales=[];
   if(!state.histVales)state.histVales=[];
   if(!state.beneficios)state.beneficios=[];
+  if(!state.usuarios)state.usuarios=[];
   if(!state.nextCId)state.nextCId=1;
   if(!state.nextEId)state.nextEId=1;
   if(!state.nextRId)state.nextRId=1;
@@ -399,7 +463,7 @@ function refreshActiveTab(){
   if(!act)return;
   const t=act.id.replace('page-','');
   if(t==='empleados'){renderAvisos();renderEmpleados();}
-  if(t==='nomina')populateNomEmp();
+  if(t==='nomina'){renderNominaTodos();populateNomEmp();}
   if(t==='vales')renderVales();
   if(t==='anuales')renderBeneficios();
   if(t==='cargos')renderCargos();
@@ -450,12 +514,22 @@ function showSaved(){
   b._t=setTimeout(()=>b.style.display='none',2000);
 }
 
-let editEmpIdx=-1,periodoTipo='semana1';
+let editEmpIdx=-1,periodoTipo='actual',nomModo='todos';
 const pLabel={
   semana1:'Semana 1 (1–7)',semana2:'Semana 2 (8–14)',
   semana3:'Semana 3 (15–21)',semana4:'Semana 4 (22–fin)',
-  personalizado:'Período personalizado'
+  personalizado:'Período personalizado',
+  actual:'Semana',pasada:'Semana'
 };
+function parseISO(iso){const p=iso.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function labelPeriodo(dIso,hIso){
+  if(!dIso||!hIso)return 'Período';
+  const d=parseISO(dIso),h=parseISO(hIso);
+  const mD=d.toLocaleDateString('es-CO',{month:'long'}),mH=h.toLocaleDateString('es-CO',{month:'long'});
+  if(mD===mH)return 'Semana del '+d.getDate()+' al '+h.getDate()+' de '+mH;
+  return 'Semana del '+d.getDate()+' de '+mD+' al '+h.getDate()+' de '+mH;
+}
+function rLabel(r){return r.periodoLabel||pLabel[r.periodo]||r.periodo;}
 
 function fmt(n){return '$'+Math.round(n).toLocaleString('es-CO')}
 function initials(n){return n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()}
@@ -479,35 +553,47 @@ function goTab(t){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+t).classList.add('active');
   if(t==='empleados'){renderAvisos();renderEmpleados();}
-  if(t==='nomina'){populateNomEmp();setFechasSemana();}
+  if(t==='nomina')setFechasSemana();
   if(t==='vales')renderVales();
   if(t==='anuales')renderBeneficios();
   if(t==='cargos')renderCargos();
   if(t==='recibos')renderRecibos();
 }
 
-function getWeekRange(offset){
-  const now=new Date(),yr=now.getFullYear(),mo=now.getMonth();
-  const starts=[1,8,15,22],ends=[7,14,21,new Date(yr,mo+1,0).getDate()];
-  const i=Math.min(offset,3);
-  return{desde:new Date(yr,mo,starts[i]),hasta:new Date(yr,mo,ends[i])};
+function getSemana(offset){
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const lunes=new Date(hoy);
+  lunes.setDate(hoy.getDate()-((hoy.getDay()+6)%7)+offset*7);
+  const domingo=new Date(lunes);domingo.setDate(lunes.getDate()+6);
+  return{desde:lunes,hasta:domingo};
 }
-function toISO(d){return d.toISOString().split('T')[0]}
+function toISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 
 function selPeriodo(el){
   document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');periodoTipo=el.dataset.tipo;setFechasSemana();
 }
 function setFechasSemana(){
-  if(periodoTipo==='personalizado'){document.getElementById('nom-dias').max=31;calcNomina();return;}
-  const idx={semana1:0,semana2:1,semana3:2,semana4:3}[periodoTipo]??0;
-  const r=getWeekRange(idx);
-  document.getElementById('nom-desde').value=toISO(r.desde);
-  document.getElementById('nom-hasta').value=toISO(r.hasta);
-  const diff=Math.round((r.hasta-r.desde)/86400000)+1;
-  document.getElementById('nom-dias').value=Math.min(diff,7);
-  document.getElementById('nom-dias').max=diff;
-  calcNomina();
+  if(periodoTipo!=='personalizado'){
+    const r=getSemana(periodoTipo==='pasada'?-1:0);
+    document.getElementById('nom-desde').value=toISO(r.desde);
+    document.getElementById('nom-hasta').value=toISO(r.hasta);
+    const d=document.getElementById('nom-dias');
+    d.value=7;d.max=7;
+  } else {
+    document.getElementById('nom-dias').max=31;
+  }
+  onFechasChange();
+}
+function onFechasChange(){
+  const lbl=labelPeriodo(document.getElementById('nom-desde').value,document.getElementById('nom-hasta').value);
+  document.getElementById('nom-periodo-label').textContent='📅 '+lbl;
+  renderNominaTodos();
+  populateNomEmp();
+}
+function yaPagado(empId){
+  const d=document.getElementById('nom-desde').value,h=document.getElementById('nom-hasta').value;
+  return state.recibos.some(r=>r.n&&r.n.emp&&r.n.emp.id===empId&&r.desde===d&&r.hasta===h);
 }
 
 function populateCargoSelect(selId,val){
@@ -521,8 +607,20 @@ function populateEmpSelect(selId){
   if(prev)sel.value=prev;
 }
 function populateNomEmp(){
-  populateEmpSelect('nom-emp');
+  const sel=document.getElementById('nom-emp');
+  if(!state.empleados.length){sel.innerHTML='<option value="">Sin empleados registrados</option>';onEmpChange();return;}
+  const prev=sel.value;
+  sel.innerHTML=state.empleados.map(e=>`<option value="${e.id}">${yaPagado(e.id)?'✓ ':''}${e.nombre} (${cargoById(e.cargoId).nombre})${yaPagado(e.id)?' · YA PAGADO':''}</option>`).join('');
+  if(prev)sel.value=prev;
   onEmpChange();
+}
+function setNomModo(m){
+  nomModo=m;
+  document.getElementById('mbtn-todos').classList.toggle('active',m==='todos');
+  document.getElementById('mbtn-uno').classList.toggle('active',m==='uno');
+  document.getElementById('nom-modo-todos').style.display=m==='todos'?'block':'none';
+  document.getElementById('nom-modo-uno').style.display=m==='uno'?'block':'none';
+  if(m==='todos')renderNominaTodos();else populateNomEmp();
 }
 function onEmpChange(){
   const empId=parseInt(document.getElementById('nom-emp').value);
@@ -780,8 +878,9 @@ function registrarVale(){
   if(!monto||monto<=0){alert('Ingresa un monto válido');return;}
   const fecha=document.getElementById('vale-fecha').value||hoyISO();
   const nota=document.getElementById('vale-nota').value.trim();
-  state.vales.push({id:state.nextVId++,empId,fecha,monto,nota});
-  state.histVales.unshift({id:state.nextHId++,empId,fecha,tipo:'vale',monto,nota:'Vale registrado'+(nota?' · '+nota:'')});
+  const u=usuarioActual();
+  state.vales.push({id:state.nextVId++,empId,fecha,monto,nota,por:u});
+  state.histVales.unshift({id:state.nextHId++,empId,fecha,tipo:'vale',monto,nota:'Vale registrado'+(nota?' · '+nota:''),por:u});
   document.getElementById('vale-monto').value='';
   document.getElementById('vale-nota').value='';
   save();renderVales();renderAvisos();
@@ -790,7 +889,7 @@ function anularVale(id){
   const v=state.vales.find(x=>x.id===id);if(!v)return;
   if(!confirm('¿Anular este vale de '+fmt(v.monto)+'?'))return;
   state.vales=state.vales.filter(x=>x.id!==id);
-  state.histVales.unshift({id:state.nextHId++,empId:v.empId,fecha:hoyISO(),tipo:'anulado',monto:v.monto,nota:'Vale del '+fechaBonita(v.fecha)+' anulado'});
+  state.histVales.unshift({id:state.nextHId++,empId:v.empId,fecha:hoyISO(),tipo:'anulado',monto:v.monto,nota:'Vale del '+fechaBonita(v.fecha)+' anulado',por:usuarioActual()});
   save();renderVales();renderAvisos();
 }
 function abonarPrestamo(empId){
@@ -803,7 +902,7 @@ function abonarPrestamo(empId){
   if(!monto||monto<=0){alert('Monto inválido');return;}
   const abono=Math.min(monto,saldo);
   emp.prestamo=saldo-abono;
-  state.histVales.unshift({id:state.nextHId++,empId,fecha:hoyISO(),tipo:'abono',monto:abono,nota:'Abono al préstamo · queda '+fmt(emp.prestamo)});
+  state.histVales.unshift({id:state.nextHId++,empId,fecha:hoyISO(),tipo:'abono',monto:abono,nota:'Abono al préstamo · queda '+fmt(emp.prestamo),por:usuarioActual()});
   save();renderVales();renderAvisos();renderEmpleados();
 }
 function renderVales(){
@@ -827,7 +926,7 @@ function renderVales(){
           </div>
           ${prest>0?`<button class="btn success sm" onclick="abonarPrestamo(${e.id})">💵 Abonar</button>`:''}
         </div>
-        ${pend.map(v=>`<div class="vale-item">💸<div class="v-info">${fechaBonita(v.fecha)}${v.nota?' · '+v.nota:''}</div><span class="v-monto">${fmt(v.monto)}</span><button class="btn danger sm" onclick="anularVale(${v.id})">🗑</button></div>`).join('')}
+        ${pend.map(v=>`<div class="vale-item">💸<div class="v-info">${fechaBonita(v.fecha)}${v.nota?' · '+v.nota:''}${v.por?' · 👤'+v.por:''}</div><span class="v-monto">${fmt(v.monto)}</span><button class="btn danger sm" onclick="anularVale(${v.id})">🗑</button></div>`).join('')}
       </div>`;
     }).join('')||'<div class="empty"><span class="empty-icon">✅</span>Nadie tiene vales ni préstamos pendientes.</div>';
   }
@@ -836,7 +935,7 @@ function renderVales(){
   const icon={vale:'💸',abono:'💵',descuento:'✂️',liquidado:'📋',anulado:'🚫'};
   h.innerHTML=state.histVales.slice(0,20).map(m=>{
     const e=empById(m.empId);
-    return`<div class="hist-item"><span>${icon[m.tipo]||'•'}</span><div class="h-txt"><strong>${e?e.nombre:'(eliminado)'}</strong> · ${m.nota}</div><span class="h-monto" style="color:${m.tipo==='abono'||m.tipo==='descuento'?'#27500A':'#A32D2D'}">${fmt(m.monto)}</span><span class="h-fecha">${fechaBonita(m.fecha)}</span></div>`;
+    return`<div class="hist-item"><span>${icon[m.tipo]||'•'}</span><div class="h-txt"><strong>${e?e.nombre:'(eliminado)'}</strong> · ${m.nota}${m.por?' · <span style=\"color:#3C3489\">👤'+m.por+'</span>':''}</div><span class="h-monto" style="color:${m.tipo==='abono'||m.tipo==='descuento'?'#27500A':'#A32D2D'}">${fmt(m.monto)}</span><span class="h-fecha">${fechaBonita(m.fecha)}</span></div>`;
   }).join('');
 }
 
@@ -866,11 +965,11 @@ function saveBeneficio(){
   const nota=document.getElementById('ben-nota').value.trim();
   let abono=Math.max(0,parseFloat(document.getElementById('ben-abono').value)||0);
   abono=Math.min(abono,emp.prestamo||0);
-  const ben={id:state.nextBId++,empId,tipo,monto,fecha,nota,anio:+fecha.split('-')[0],abono};
+  const ben={id:state.nextBId++,empId,tipo,monto,fecha,nota,anio:+fecha.split('-')[0],abono,por:usuarioActual()};
   state.beneficios.unshift(ben);
   if(abono>0){
     emp.prestamo=(emp.prestamo||0)-abono;
-    state.histVales.unshift({id:state.nextHId++,empId,fecha,tipo:'abono',monto:abono,nota:'Abono al préstamo desde '+tipo+' · queda '+fmt(emp.prestamo)});
+    state.histVales.unshift({id:state.nextHId++,empId,fecha,tipo:'abono',monto:abono,nota:'Abono al préstamo desde '+tipo+' · queda '+fmt(emp.prestamo),por:usuarioActual()});
   }
   document.getElementById('ben-monto').value='';
   document.getElementById('ben-nota').value='';
@@ -911,7 +1010,7 @@ function renderBeneficios(){
           <div style="font-size:12px;color:#777">${items.length} registro${items.length===1?'':'s'} · Total: ${fmt(total)}</div>
         </div>
       </div>
-      ${items.map(b=>`<div class="ben-item"><span class="year-badge">${b.anio}</span><div class="b-info"><strong>${b.tipo}</strong> · ${fechaBonita(b.fecha)}${b.nota?'<div style="font-size:11px;color:#999">'+b.nota+'</div>':''}${(b.abono||0)>0?'<div style="font-size:11px;color:#A32D2D">💸 Abonó '+fmt(b.abono)+' al préstamo · entregado '+fmt(b.monto-b.abono)+'</div>':''}</div><span style="font-weight:700;color:#27500A;white-space:nowrap">${fmt(b.monto)}</span><button class="btn danger sm" onclick="delBeneficio(${b.id})">🗑</button></div>`).join('')}
+      ${items.map(b=>`<div class="ben-item"><span class="year-badge">${b.anio}</span><div class="b-info"><strong>${b.tipo}</strong> · ${fechaBonita(b.fecha)}${b.por?' · 👤'+b.por:''}${b.nota?'<div style="font-size:11px;color:#999">'+b.nota+'</div>':''}${(b.abono||0)>0?'<div style="font-size:11px;color:#A32D2D">💸 Abonó '+fmt(b.abono)+' al préstamo · entregado '+fmt(b.monto-b.abono)+'</div>':''}</div><span style="font-weight:700;color:#27500A;white-space:nowrap">${fmt(b.monto)}</span><button class="btn danger sm" onclick="delBeneficio(${b.id})">🗑</button></div>`).join('')}
     </div>`;
   }).join('');
 }
@@ -931,6 +1030,129 @@ function exportarExcelBeneficios(){
 }
 
 // ── NÓMINA ────────────────────────────────────────────
+// ── MODO TODOS (pago masivo) ──────────────────────────
+function renderNominaTodos(){
+  const cont=document.getElementById('nom-todos-lista');
+  if(!cont)return;
+  if(!state.empleados.length){
+    cont.innerHTML='<div class="empty"><span class="empty-icon">👥</span>Sin empleados registrados.</div>';
+    document.getElementById('nom-todos-resumen').style.display='none';return;
+  }
+  cont.innerHTML=state.empleados.map(e=>{
+    const c=cargoById(e.cargoId);
+    const pagado=yaPagado(e.id);
+    const totV=totalValesEmp(e.id),prest=e.prestamo||0,deuda=totV+prest;
+    const bSem=(e.bonos||[]).filter(b=>b.freq==='semanal');
+    const bMen=(e.bonos||[]).filter(b=>b.freq==='mensual');
+    return`<div class="nt-row ${pagado?'pagado':''}" id="ntrow-${e.id}">
+      <div class="nt-head">
+        <input type="checkbox" id="nt-inc-${e.id}" ${pagado?'':'checked'} ${pagado?'disabled':''} onchange="calcTodos()">
+        <div class="nt-nombre">
+          <div class="n1">${e.nombre}</div>
+          <div class="n2">${c.nombre} · ${fmt(Math.round(c.sueldo/4))}/sem${e.auxilio?' · 🚌':''}${bSem.length?' · 🎁'+bSem.map(b=>b.nombre).join(', '):''}</div>
+        </div>
+        ${pagado?'<span class="pagado-tag">✓ Ya pagado</span>':`<span class="nt-neto" id="nt-neto-${e.id}">$0</span>`}
+      </div>
+      ${pagado?'':`
+      <div class="nt-body">
+        <div><label>Días</label><input type="number" id="nt-dias-${e.id}" min="0" max="7" value="7" oninput="calcTodos()"></div>
+        <div><label>Bonificación $</label><input type="number" id="nt-bono-${e.id}" min="0" placeholder="0" oninput="calcTodos()"></div>
+        <div><label>Desc. vale $</label><input type="number" id="nt-desc-${e.id}" min="0" value="${deuda>0?totV:0}" ${deuda>0?'':'disabled'} oninput="calcTodos()"></div>
+      </div>
+      ${deuda>0?`<div class="nt-deuda">💸 Debe ${fmt(deuda)} (vales ${fmt(totV)} + préstamo ${fmt(prest)}) — pregúntale cuánto abona y ajusta el descuento</div>`:''}
+      ${bMen.map(b=>`<label class="bono-check" style="margin-top:8px"><input type="checkbox" id="nt-bm-${e.id}-${b.id}" onchange="calcTodos()"><div class="bc-info">${b.nombre}<div style="font-size:11px;color:#999">Mensual — márcalo si lo pagas esta semana</div></div><span class="bc-monto">${fmt(b.monto)}</span></label>`).join('')}
+      `}
+    </div>`;
+  }).join('');
+  document.getElementById('nom-todos-resumen').style.display='block';
+  calcTodos();
+}
+function calcRowEmp(e){
+  const c=cargoById(e.cargoId);
+  const dias=Math.min(7,Math.max(0,parseInt((document.getElementById('nt-dias-'+e.id)||{}).value)||0));
+  const bonif=Math.max(0,parseFloat((document.getElementById('nt-bono-'+e.id)||{}).value)||0);
+  const totV=totalValesEmp(e.id),prest=e.prestamo||0,deuda=totV+prest;
+  let desc=Math.max(0,parseFloat((document.getElementById('nt-desc-'+e.id)||{}).value)||0);
+  desc=Math.min(desc,deuda);
+  const bonosPers=[];
+  (e.bonos||[]).forEach(b=>{
+    if(b.freq==='semanal')bonosPers.push({...b});
+    else{const cb=document.getElementById('nt-bm-'+e.id+'-'+b.id);if(cb&&cb.checked)bonosPers.push({...b});}
+  });
+  const pagoBonosPers=bonosPers.reduce((s,b)=>s+b.monto,0);
+  const sueldoSem=c.sueldo/4,valorDia=sueldoSem/7;
+  const baseCalc=valorDia*dias;
+  const auxilio=e.auxilio?AUX_SEM:0;
+  const totalDev=baseCalc+auxilio+bonif+pagoBonosPers;
+  const totalPag=totalDev-desc;
+  return{emp:e,cargo:c,sueldoMes:c.sueldo,sueldoSem,dias,diasExtra:0,diasDoble:0,horasExtra:0,pctHE:25,bono:bonif,deduc:0,auxilio,valorDia,valorHora:valorDia/8,baseCalc,pagoExtra:0,pagoDoble:0,pagoHE:0,bonosPers,pagoBonosPers,descVales:desc,deudaAntes:deuda,prestamoDespues:deuda-desc,totalDev,totalPag,periodoTipo};
+}
+function calcTodos(){
+  let cant=0,dev=0,desc=0,neto=0;
+  state.empleados.forEach(e=>{
+    if(yaPagado(e.id))return;
+    const inc=document.getElementById('nt-inc-'+e.id);
+    const span=document.getElementById('nt-neto-'+e.id);
+    if(!inc||!span)return;
+    const r=calcRowEmp(e);
+    span.textContent=fmt(r.totalPag);
+    const row=document.getElementById('ntrow-'+e.id);
+    row.style.opacity=inc.checked?'1':'.45';
+    if(inc.checked){cant++;dev+=r.totalDev;desc+=r.descVales;neto+=r.totalPag;}
+  });
+  document.getElementById('nt-cant').textContent=cant;
+  document.getElementById('nt-dev').textContent=fmt(dev);
+  document.getElementById('nt-desc').textContent=fmt(desc);
+  document.getElementById('nt-neto').textContent=fmt(neto);
+}
+function liquidarVales(emp,descVales,reciboId){
+  const pend=valesPendEmp(emp.id);
+  const totV=pend.reduce((s,v)=>s+v.monto,0);
+  const deuda=totV+(emp.prestamo||0);
+  const desc=Math.min(descVales||0,deuda);
+  const u=usuarioActual();
+  pend.forEach(v=>{
+    state.histVales.unshift({id:state.nextHId++,empId:emp.id,fecha:hoyISO(),tipo:'liquidado',monto:v.monto,nota:'Vale del '+fechaBonita(v.fecha)+' liquidado en recibo #'+String(reciboId).padStart(4,'0'),por:u});
+  });
+  if(desc>0){
+    state.histVales.unshift({id:state.nextHId++,empId:emp.id,fecha:hoyISO(),tipo:'descuento',monto:desc,nota:'Descontado en nómina (recibo #'+String(reciboId).padStart(4,'0')+')',por:u});
+  }
+  emp.prestamo=deuda-desc;
+  state.vales=state.vales.filter(v=>v.empId!==emp.id);
+}
+function generarTodos(){
+  const desde=document.getElementById('nom-desde').value,hasta=document.getElementById('nom-hasta').value;
+  if(!desde||!hasta){alert('Revisa las fechas del período');return;}
+  const lista=[];
+  state.empleados.forEach(e=>{
+    if(yaPagado(e.id))return;
+    const inc=document.getElementById('nt-inc-'+e.id);
+    if(inc&&inc.checked)lista.push(calcRowEmp(e));
+  });
+  if(!lista.length){alert('No hay empleados seleccionados por pagar');return;}
+  const totNeto=lista.reduce((s,r)=>s+r.totalPag,0);
+  if(!confirm('Se generarán '+lista.length+' recibos de la '+labelPeriodo(desde,hasta)+'\nTOTAL NETO: '+fmt(totNeto)+'\n\n¿Confirmas?'))return;
+  const lbl=labelPeriodo(desde,hasta),u=usuarioActual();
+  lista.forEach(n=>{
+    const r={
+      id:state.nextRId++,
+      empNombre:n.emp.nombre,
+      cargo:n.cargo.nombre,
+      desde,hasta,
+      n:{...n,emp:{id:n.emp.id,nombre:n.emp.nombre}},
+      fecha:new Date().toLocaleDateString('es-CO'),
+      periodo:periodoTipo,
+      periodoLabel:lbl,
+      por:u
+    };
+    liquidarVales(n.emp,n.descVales,r.id);
+    state.recibos.unshift(r);
+  });
+  save();renderAvisos();
+  alert('✅ '+lista.length+' recibos generados.\nTotal neto: '+fmt(totNeto));
+  goTab('recibos');
+}
+
 function renderBonosNomina(emp){
   const card=document.getElementById('nom-bonos-card');
   const list=document.getElementById('nom-bonos-list');
@@ -1021,31 +1243,20 @@ function generarRecibo(){
   if(!window._nom){alert('Calcula la nómina primero');return;}
   const n=window._nom;
   const emp=empById(n.emp.id);
+  if(emp&&yaPagado(emp.id)&&!confirm('⚠️ '+emp.nombre+' YA tiene un recibo de este período.\n¿Generar otro de todas formas?'))return;
+  const desde=document.getElementById('nom-desde').value,hasta=document.getElementById('nom-hasta').value;
   const r={
     id:state.nextRId++,
     empNombre:n.emp.nombre,
     cargo:n.cargo.nombre,
-    desde:document.getElementById('nom-desde').value,
-    hasta:document.getElementById('nom-hasta').value,
+    desde,hasta,
     n:{...n,emp:{id:n.emp.id,nombre:n.emp.nombre}},
     fecha:new Date().toLocaleDateString('es-CO'),
-    periodo:periodoTipo
+    periodo:periodoTipo,
+    periodoLabel:labelPeriodo(desde,hasta),
+    por:usuarioActual()
   };
-  // Liquidar vales: lo descontado se salda, lo no descontado pasa al préstamo
-  if(emp){
-    const pend=valesPendEmp(emp.id);
-    const totV=pend.reduce((s,v)=>s+v.monto,0);
-    const deuda=totV+(emp.prestamo||0);
-    const desc=Math.min(n.descVales||0,deuda);
-    pend.forEach(v=>{
-      state.histVales.unshift({id:state.nextHId++,empId:emp.id,fecha:hoyISO(),tipo:'liquidado',monto:v.monto,nota:'Vale del '+fechaBonita(v.fecha)+' liquidado en recibo #'+String(r.id).padStart(4,'0')});
-    });
-    if(desc>0){
-      state.histVales.unshift({id:state.nextHId++,empId:emp.id,fecha:hoyISO(),tipo:'descuento',monto:desc,nota:'Descontado en nómina (recibo #'+String(r.id).padStart(4,'0')+')'});
-    }
-    emp.prestamo=deuda-desc;
-    state.vales=state.vales.filter(v=>v.empId!==emp.id);
-  }
+  if(emp)liquidarVales(emp,n.descVales,r.id);
   state.recibos.unshift(r);save();
   renderAvisos();
   window._nom=null;
@@ -1054,22 +1265,42 @@ function generarRecibo(){
 }
 
 function renderRecibos(){
+  const res=document.getElementById('recibos-resumen');
   const d=document.getElementById('lista-recibos');
   if(!state.recibos.length){
+    res.innerHTML='';
     d.innerHTML='<div class="empty"><span class="empty-icon">🧾</span>Sin recibos aún.<br>Genera uno desde Nómina.</div>';return;
   }
+  // Resumen por semana (período desde→hasta)
+  const grupos={},orden=[];
+  state.recibos.forEach(r=>{
+    const k=r.desde+'|'+r.hasta;
+    if(!grupos[k]){grupos[k]={label:rLabel(r),desde:r.desde,cant:0,total:0,desc:0};orden.push(k);}
+    grupos[k].cant++;
+    grupos[k].total+=Math.round(r.n.totalPag);
+    grupos[k].desc+=Math.round(r.n.deduc||0)+Math.round(r.n.descVales||0);
+  });
+  orden.sort((a,b)=>grupos[b].desde.localeCompare(grupos[a].desde));
+  const totalGeneral=state.recibos.reduce((s,r)=>s+Math.round(r.n.totalPag),0);
+  res.innerHTML=`<div class="card">
+    <h3>💰 Total de nómina por semana</h3>
+    ${orden.slice(0,6).map(k=>{const g=grupos[k];
+      return`<div class="extra-row"><span class="extra-label"><strong style="color:#1a1a1a">${g.label}</strong><br>${g.cant} recibo${g.cant===1?'':'s'}${g.desc>0?' · desc. '+fmt(g.desc):''}</span><span class="extra-val" style="font-size:15px">${fmt(g.total)}</span></div>`;
+    }).join('')}
+    <div class="extra-row" style="background:#E6F1FB"><span class="extra-label" style="font-weight:700;color:#0C447C">TOTAL ACUMULADO (${state.recibos.length} recibos)</span><span class="extra-val" style="font-size:15px">${fmt(totalGeneral)}</span></div>
+  </div>`;
   d.innerHTML=state.recibos.map(r=>`
     <div class="card" style="margin-bottom:10px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
         <div class="avatar">${initials(r.empNombre)}</div>
         <div style="flex:1;min-width:0">
           <div style="font-weight:600;font-size:14px">${r.empNombre}</div>
-          <div style="font-size:12px;color:#777">${r.cargo} · ${pLabel[r.periodo]||r.periodo}</div>
+          <div style="font-size:12px;color:#777">${r.cargo} · ${rLabel(r)}</div>
           <div style="font-size:11px;color:#aaa">${r.desde} → ${r.hasta}</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div style="font-weight:700;color:#185FA5;font-size:15px">${fmt(r.n.totalPag)}</div>
-          <div style="font-size:10px;color:#aaa">${r.fecha}</div>
+          <div style="font-size:10px;color:#aaa">${r.fecha}${r.por?' · 👤'+r.por:''}</div>
           <div style="font-size:10px;color:#aaa">#${String(r.id).padStart(4,'0')}</div>
         </div>
       </div>
@@ -1104,7 +1335,7 @@ function imprimirRecibo(id){
     <table class="rp-table">
       <tr><td style="color:#666">Empleado</td><td>${r.empNombre}</td></tr>
       <tr><td style="color:#666">Cargo</td><td>${r.cargo}</td></tr>
-      <tr><td style="color:#666">Período</td><td>${pLabel[r.periodo]||r.periodo}</td></tr>
+      <tr><td style="color:#666">Período</td><td>${rLabel(r)}</td></tr>
       <tr><td style="color:#666">Fechas</td><td>${r.desde} al ${r.hasta}</td></tr>
       <tr><td style="color:#666">Días trabajados</td><td>${n.dias} de 7</td></tr>
       <tr><td style="color:#666">Sueldo mensual</td><td>${fmt(n.sueldoMes)}</td></tr>
@@ -1147,7 +1378,7 @@ function exportarExcelRecibo(id){
     ['Fecha emisión',r.fecha],
     ['Empleado',r.empNombre],
     ['Cargo',r.cargo],
-    ['Período',pLabel[r.periodo]||r.periodo],
+    ['Período',rLabel(r)],
     ['Desde',r.desde],['Hasta',r.hasta],
     ['Días trabajados',n.dias+' de 7'],
     ['Sueldo mensual',Math.round(n.sueldoMes)],
@@ -1181,7 +1412,7 @@ function exportarExcelTodos(){
     const n=r.n;
     rows.push([
       String(r.id).padStart(4,'0'),r.empNombre,r.cargo,
-      pLabel[r.periodo]||r.periodo,r.desde,r.hasta,n.dias,
+      rLabel(r),r.desde,r.hasta,n.dias,
       Math.round(n.sueldoMes),Math.round(n.baseCalc),Math.round(n.auxilio),
       Math.round(n.pagoBonosPers||0),
       Math.round(n.pagoExtra),Math.round(n.pagoDoble),Math.round(n.pagoHE),
@@ -1212,7 +1443,7 @@ function exportarPDFRecibo(id){
   doc.text('Comprobante de pago semanal',W/2,y,{align:'center'});y+=5;
   doc.text('Recibo N\u00b0 '+String(r.id).padStart(4,'0')+'   |   Emitido: '+r.fecha,W/2,y,{align:'center'});y+=8;
   doc.setDrawColor(180);doc.line(mg,y,W-mg,y);y+=7;
-  const info=[['Empleado',r.empNombre],['Cargo',r.cargo],['Periodo',pLabel[r.periodo]||r.periodo],['Fechas',r.desde+' al '+r.hasta],['Dias trabajados',n.dias+' de 7'],['Sueldo mensual',fmt(n.sueldoMes)]];
+  const info=[['Empleado',r.empNombre],['Cargo',r.cargo],['Periodo',rLabel(r)],['Fechas',r.desde+' al '+r.hasta],['Dias trabajados',n.dias+' de 7'],['Sueldo mensual',fmt(n.sueldoMes)]];
   doc.setFontSize(9);
   info.forEach(([k,v])=>{
     doc.setFont('helvetica','normal');doc.setTextColor(120);doc.text(k,mg,y);
@@ -1285,7 +1516,7 @@ function exportarPDFTodos(){
     if(idx%2===0){doc.setFillColor(248,248,245);doc.rect(mg,y-3.5,W-mg*2,6,'F');}
     const n=r.n;
     const descTot=Math.round(n.deduc)+Math.round(n.descVales||0);
-    const row=['#'+String(r.id).padStart(3,'0'),r.empNombre.slice(0,20),r.cargo.slice(0,14),(pLabel[r.periodo]||r.periodo).slice(0,16),String(n.dias),fmt(Math.round(n.totalDev)),fmt(descTot),fmt(Math.round(n.totalPag))];
+    const row=['#'+String(r.id).padStart(3,'0'),r.empNombre.slice(0,20),r.cargo.slice(0,14),rLabel(r).slice(0,16),String(n.dias),fmt(Math.round(n.totalDev)),fmt(descTot),fmt(Math.round(n.totalPag))];
     cx=mg;row.forEach((v,i)=>{doc.text(v,cx,y,{maxWidth:cw[i]-1});cx+=cw[i];});
     y+=6;
   });
@@ -1299,6 +1530,64 @@ function exportarPDFTodos(){
   doc.save('nomina_don_camaron_'+new Date().toISOString().split('T')[0]+'.pdf');
 }
 
+// ── USUARIOS ──────────────────────────────────────────
+function usuarioActual(){try{return localStorage.getItem('nomina_dc_user')||'';}catch(e){return '';}}
+function renderUserChip(){
+  const u=usuarioActual();
+  document.getElementById('user-chip').textContent='👤 '+(u||'¿Quién?');
+}
+function openUserOverlay(){
+  const l=document.getElementById('user-list');
+  l.innerHTML=(state.usuarios||[]).map(u=>`<button class="user-btn" onclick="selectUser('${u.nombre.replace(/'/g,'')}')"><span style="font-size:18px">👤</span>${u.nombre}</button>`).join('')||'<p style="font-size:13px;color:#999;margin-top:10px">Aún no hay usuarios. Agrega el primero abajo.</p>';
+  document.getElementById('user-overlay').classList.add('on');
+}
+function selectUser(nombre){
+  try{localStorage.setItem('nomina_dc_user',nombre);}catch(e){}
+  renderUserChip();
+  document.getElementById('user-overlay').classList.remove('on');
+}
+function addUser(){
+  const n=document.getElementById('user-new').value.trim();
+  if(!n){alert('Escribe el nombre');return;}
+  if(!(state.usuarios||[]).some(u=>u.nombre.toLowerCase()===n.toLowerCase())){
+    state.usuarios.push({nombre:n});
+    save();
+  }
+  document.getElementById('user-new').value='';
+  selectUser(n);
+}
+
+// ── PWA (icono en pantalla de inicio) ─────────────────
+function setupPWA(){
+  try{
+    function makeIcon(size){
+      const c=document.createElement('canvas');c.width=c.height=size;
+      const x=c.getContext('2d');
+      x.fillStyle='#FFF3EC';x.fillRect(0,0,size,size);
+      x.fillStyle='#FF6B35';x.font='bold '+(size*0.16)+'px sans-serif';
+      x.textAlign='center';
+      x.font=(size*0.58)+'px serif';x.textBaseline='middle';
+      x.fillText('🦐',size/2,size/2-size*0.06);
+      x.fillStyle='#1a1a1a';x.font='bold '+(size*0.14)+'px sans-serif';x.textBaseline='alphabetic';
+      x.fillText('NÓMINA',size/2,size*0.88);
+      return c.toDataURL('image/png');
+    }
+    const mf={
+      name:'Nómina Don Camarón',short_name:'Nómina DC',
+      start_url:location.href.split('#')[0],scope:location.href.substring(0,location.href.lastIndexOf('/')+1),
+      display:'standalone',background_color:'#f5f5f0',theme_color:'#ffffff',
+      icons:[{src:makeIcon(192),sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:makeIcon(512),sizes:'512x512',type:'image/png',purpose:'any maskable'}]
+    };
+    const link=document.createElement('link');
+    link.rel='manifest';
+    link.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(mf));
+    document.head.appendChild(link);
+    const ap=document.createElement('link');
+    ap.rel='apple-touch-icon';ap.href=makeIcon(180);
+    document.head.appendChild(ap);
+  }catch(e){}
+}
+
 // ── INIT ──────────────────────────────────────────────
 load();
 migrate();
@@ -1306,6 +1595,9 @@ renderEmpleados();
 renderAvisos();
 populateCargoSelect('emp-cargo');
 setFechasSemana();
+renderUserChip();
+setupPWA();
+if(!usuarioActual())openUserOverlay();
 </script>
 
 <!-- FIREBASE (proyecto control-doncamaron · nodo nomina/ separado) -->
