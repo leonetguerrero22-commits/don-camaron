@@ -144,7 +144,7 @@ input:focus,select:focus{outline:none;border-color:#1a1a1a}
   <span class="topbar-icon">🦐</span>
   <div>
     <div class="topbar-title">DON CAMARÓN</div>
-    <div class="topbar-sub">Gestión de nómina semanal</div>
+    <div class="topbar-sub">Gestión de nómina semanal · <strong>v2.6</strong></div>
   </div>
   <div class="save-badge" id="save-badge">✓ Guardado</div>
   <div class="cloud-dot" id="cloud-dot" title="Conexión con la nube">☁️</div>
@@ -1031,6 +1031,14 @@ function exportarExcelBeneficios(){
 
 // ── NÓMINA ────────────────────────────────────────────
 // ── MODO TODOS (pago masivo) ──────────────────────────
+let incluirPagados={};
+function reincluir(id){
+  const e=empById(id);if(!e)return;
+  if(confirm(e.nombre+' ya tiene recibo de este período.\n\n¿Volver a incluirlo para pagarle? (Se generará otro recibo)')){
+    incluirPagados[id]=true;
+    renderNominaTodos();
+  }
+}
 function renderNominaTodos(){
   const cont=document.getElementById('nom-todos-lista');
   if(!cont)return;
@@ -1040,20 +1048,30 @@ function renderNominaTodos(){
   }
   cont.innerHTML=state.empleados.map(e=>{
     const c=cargoById(e.cargoId);
-    const pagado=yaPagado(e.id);
+    const pagado=yaPagado(e.id)&&!incluirPagados[e.id];
     const totV=totalValesEmp(e.id),prest=e.prestamo||0,deuda=totV+prest;
     const bSem=(e.bonos||[]).filter(b=>b.freq==='semanal');
     const bMen=(e.bonos||[]).filter(b=>b.freq==='mensual');
-    return`<div class="nt-row ${pagado?'pagado':''}" id="ntrow-${e.id}">
-      <div class="nt-head">
-        <input type="checkbox" id="nt-inc-${e.id}" ${pagado?'':'checked'} ${pagado?'disabled':''} onchange="calcTodos()">
+    if(pagado){
+      return`<div class="nt-row pagado" onclick="reincluir(${e.id})">
+        <div class="nt-head">
+          <div class="nt-nombre">
+            <div class="n1">${e.nombre}</div>
+            <div class="n2">${c.nombre} · ${fmt(Math.round(c.sueldo/4))}/sem · Toca para volver a pagarle</div>
+          </div>
+          <span class="pagado-tag">✓ Ya pagado</span>
+        </div>
+      </div>`;
+    }
+    return`<div class="nt-row" id="ntrow-${e.id}">
+      <label class="nt-head">
+        <input type="checkbox" id="nt-inc-${e.id}" checked onchange="calcTodos()">
         <div class="nt-nombre">
           <div class="n1">${e.nombre}</div>
           <div class="n2">${c.nombre} · ${fmt(Math.round(c.sueldo/4))}/sem${e.auxilio?' · 🚌':''}${bSem.length?' · 🎁'+bSem.map(b=>b.nombre).join(', '):''}</div>
         </div>
-        ${pagado?'<span class="pagado-tag">✓ Ya pagado</span>':`<span class="nt-neto" id="nt-neto-${e.id}">$0</span>`}
-      </div>
-      ${pagado?'':`
+        <span class="nt-neto" id="nt-neto-${e.id}">$0</span>
+      </label>
       <div class="nt-body">
         <div><label>Días</label><input type="number" id="nt-dias-${e.id}" min="0" max="7" value="7" oninput="calcTodos()"></div>
         <div><label>Bonificación $</label><input type="number" id="nt-bono-${e.id}" min="0" placeholder="0" oninput="calcTodos()"></div>
@@ -1061,7 +1079,6 @@ function renderNominaTodos(){
       </div>
       ${deuda>0?`<div class="nt-deuda">💸 Debe ${fmt(deuda)} (vales ${fmt(totV)} + préstamo ${fmt(prest)}) — pregúntale cuánto abona y ajusta el descuento</div>`:''}
       ${bMen.map(b=>`<label class="bono-check" style="margin-top:8px"><input type="checkbox" id="nt-bm-${e.id}-${b.id}" onchange="calcTodos()"><div class="bc-info">${b.nombre}<div style="font-size:11px;color:#999">Mensual — márcalo si lo pagas esta semana</div></div><span class="bc-monto">${fmt(b.monto)}</span></label>`).join('')}
-      `}
     </div>`;
   }).join('');
   document.getElementById('nom-todos-resumen').style.display='block';
@@ -1090,7 +1107,7 @@ function calcRowEmp(e){
 function calcTodos(){
   let cant=0,dev=0,desc=0,neto=0;
   state.empleados.forEach(e=>{
-    if(yaPagado(e.id))return;
+    if(yaPagado(e.id)&&!incluirPagados[e.id])return;
     const inc=document.getElementById('nt-inc-'+e.id);
     const span=document.getElementById('nt-neto-'+e.id);
     if(!inc||!span)return;
@@ -1125,7 +1142,7 @@ function generarTodos(){
   if(!desde||!hasta){alert('Revisa las fechas del período');return;}
   const lista=[];
   state.empleados.forEach(e=>{
-    if(yaPagado(e.id))return;
+    if(yaPagado(e.id)&&!incluirPagados[e.id])return;
     const inc=document.getElementById('nt-inc-'+e.id);
     if(inc&&inc.checked)lista.push(calcRowEmp(e));
   });
@@ -1148,6 +1165,7 @@ function generarTodos(){
     liquidarVales(n.emp,n.descVales,r.id);
     state.recibos.unshift(r);
   });
+  incluirPagados={};
   save();renderAvisos();
   alert('✅ '+lista.length+' recibos generados.\nTotal neto: '+fmt(totNeto));
   goTab('recibos');
@@ -1275,7 +1293,7 @@ function renderRecibos(){
   const grupos={},orden=[];
   state.recibos.forEach(r=>{
     const k=r.desde+'|'+r.hasta;
-    if(!grupos[k]){grupos[k]={label:rLabel(r),desde:r.desde,cant:0,total:0,desc:0};orden.push(k);}
+    if(!grupos[k]){grupos[k]={label:rLabel(r),desde:r.desde,hasta:r.hasta,cant:0,total:0,desc:0};orden.push(k);}
     grupos[k].cant++;
     grupos[k].total+=Math.round(r.n.totalPag);
     grupos[k].desc+=Math.round(r.n.deduc||0)+Math.round(r.n.descVales||0);
@@ -1285,7 +1303,7 @@ function renderRecibos(){
   res.innerHTML=`<div class="card">
     <h3>💰 Total de nómina por semana</h3>
     ${orden.slice(0,6).map(k=>{const g=grupos[k];
-      return`<div class="extra-row"><span class="extra-label"><strong style="color:#1a1a1a">${g.label}</strong><br>${g.cant} recibo${g.cant===1?'':'s'}${g.desc>0?' · desc. '+fmt(g.desc):''}</span><span class="extra-val" style="font-size:15px">${fmt(g.total)}</span></div>`;
+      return`<div class="extra-row" style="flex-wrap:wrap"><span class="extra-label"><strong style="color:#1a1a1a">${g.label}</strong><br>${g.cant} recibo${g.cant===1?'':'s'}${g.desc>0?' · desc. '+fmt(g.desc):''}</span><span class="extra-val" style="font-size:15px">${fmt(g.total)}</span><button class="btn pdf sm" style="width:100%;margin-top:8px" onclick="exportarListaPago('${g.desde}','${g.hasta}')">📄 Lista de pago (para quien paga)</button></div>`;
     }).join('')}
     <div class="extra-row" style="background:#E6F1FB"><span class="extra-label" style="font-weight:700;color:#0C447C">TOTAL ACUMULADO (${state.recibos.length} recibos)</span><span class="extra-val" style="font-size:15px">${fmt(totalGeneral)}</span></div>
   </div>`;
@@ -1363,6 +1381,53 @@ function imprimirRecibo(id){
     <div class="rp-footer">Documento válido como comprobante de pago · DON CAMARÓN</div>
   </div>`;
   window.print();
+}
+
+// ── LISTA DE PAGO (PDF para quien paga) ───────────────
+function exportarListaPago(desde,hasta){
+  const recs=state.recibos.filter(r=>r.desde===desde&&r.hasta===hasta);
+  if(!recs.length){alert('No hay recibos de ese período');return;}
+  recs.sort((a,b)=>a.empNombre.localeCompare(b.empNombre));
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const W=210,mg=12;
+  doc.setFont('helvetica','bold');doc.setFontSize(17);
+  doc.text('DON CAMARON',W/2,17,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(70);
+  doc.text('LISTA DE PAGO DE NOMINA',W/2,24,{align:'center'});
+  doc.setFontSize(9);
+  doc.text(labelPeriodo(desde,hasta)+'  ·  Emitida: '+new Date().toLocaleDateString('es-CO'),W/2,30,{align:'center'});
+  doc.setDrawColor(160);doc.line(mg,34,W-mg,34);
+  let y=42;
+  const cols=['N\u00b0','Nombre','Cedula','Cargo','Dias','A pagar','Firma'];
+  const cw=[8,52,26,34,10,26,30];
+  doc.setFontSize(8.5);doc.setFont('helvetica','bold');doc.setTextColor(80);
+  let cx=mg;cols.forEach((c,i)=>{doc.text(c,cx,y);cx+=cw[i];});
+  y+=2;doc.setLineWidth(0.3);doc.line(mg,y,W-mg,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setTextColor(25);
+  let total=0,num=1;
+  recs.forEach(r=>{
+    if(y>272){doc.addPage();y=20;}
+    const emp=empById(r.n.emp.id);
+    const ced=(emp&&emp.doc)?String(emp.doc):'\u2014';
+    total+=Math.round(r.n.totalPag);
+    const row=[String(num++),r.empNombre.slice(0,30),ced.slice(0,14),r.cargo.slice(0,20),String(r.n.dias),fmt(Math.round(r.n.totalPag))];
+    cx=mg;row.forEach((v,i)=>{doc.text(v,cx,y,{maxWidth:cw[i]-1});cx+=cw[i];});
+    doc.setDrawColor(150);doc.line(cx+1,y+1,cx+cw[6]-4,y+1); // línea de firma
+    y+=10;
+  });
+  y+=2;doc.setLineWidth(0.5);doc.setDrawColor(30);doc.line(mg,y,W-mg,y);y+=8;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);
+  doc.text('TOTAL A PAGAR ('+recs.length+' personas):',mg,y);
+  doc.text(fmt(total),W-mg,y,{align:'right'});
+  y+=14;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90);
+  doc.line(mg+8,y+10,mg+70,y+10);doc.line(W-mg-70,y+10,W-mg-8,y+10);
+  doc.text('Entregado por',mg+39,y+14,{align:'center'});
+  doc.text('Autorizado por',W-mg-39,y+14,{align:'center'});
+  doc.setFontSize(7);doc.setTextColor(170);
+  doc.text('DON CAMARON · Documento interno de pago',W/2,290,{align:'center'});
+  doc.save('lista_pago_'+desde+'.pdf');
 }
 
 // ── EXCEL INDIVIDUAL ──────────────────────────────────
