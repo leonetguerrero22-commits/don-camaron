@@ -588,6 +588,7 @@ select.inp{appearance:none;-webkit-appearance:none}
     <div class="cats" id="ct-filtros"></div>
     <div id="ct-lista"></div>
     <button class="btn" id="btn-nueva-cta" onclick="APP.modalCuenta(null)">＋ Nueva cuenta</button>
+    <button class="btn sec" onclick="APP.resumenCtasMes()">📊 Resumen de facturas del mes</button>
   </div>
 </div>
 
@@ -605,6 +606,7 @@ select.inp{appearance:none;-webkit-appearance:none}
   <div class="wrap">
     <div class="card"><div class="lbl">Saldos por método</div><div id="dp-saldos"></div></div>
     <button class="btn" onclick="APP.modalMovManual()">± Movimiento manual</button>
+    <button class="btn" style="margin-top:8px;background:var(--noche);box-shadow:0 4px 14px rgba(59,91,165,.25)" onclick="APP.auditarDisponible()">🩺 Auditar saldos · buscar dinero fantasma</button>
     <div class="card" style="margin-top:12px"><div class="lbl">Historial de movimientos</div><div id="dp-movs"><div class="cargando">Cargando…</div></div></div>
     <button class="btn sec" onclick="APP.abrirCuentas()">← Volver a cuentas</button>
   </div>
@@ -1412,12 +1414,14 @@ APP.modalMov = function(tipo){
     });
     h += '</div>';
     h += '<div class="flabel">Categoría</div><select class="inp" id="mv-cat"></select>';
+    h += '<div class="flabel">🔗 ¿Es pago o abono a una factura por pagar? (opcional)</div><select class="inp" id="mv-cta"><option value="">No · gasto normal</option></select>';
+    h += '<div class="sub" id="mv-cta-info" style="font-size:11px;color:var(--gris);margin-top:2px"></div>';
     h += '<div class="flabel">¿Quién autoriza? (opcional)</div><input class="inp" id="mv-autoriza" type="text" placeholder="Ej: Wilder">';
   }
   h += '<button class="btn '+(esIn?'verde':'')+'" id="mv-guardar" style="margin-top:16px'+(esIn?'':';background:var(--rojo);box-shadow:0 4px 14px rgba(192,57,43,.25)')+'" onclick="APP.guardarMov(\''+tipo+'\')">'+(esIn?'＋ Registrar ingreso':'－ Registrar egreso')+'</button>';
   h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar</button>';
   abrirModal(esIn ? '＋ Ingreso a caja' : '－ Egreso de caja', h);
-  if(!esIn){ APP._tipoGastoSel = 'compras'; llenarCategorias('mv-cat','compras',null); }
+  if(!esIn){ APP._tipoGastoSel = 'compras'; llenarCategorias('mv-cat','compras',null); llenarCtasEgreso(); }
 };
 APP._tipoGastoSel = 'compras';
 function llenarCategorias(selectId, tipo, seleccionada){
@@ -1496,6 +1500,7 @@ APP.guardarMov = function(tipo){
   var tGasto = APP._tipoGastoSel||'compras';
   var banco = (document.getElementById('mv-banco')||{}).value||'';
   var ref = ((document.getElementById('mv-ref')||{}).value||'').trim();
+  var ctaPagoId = tipo === 'egreso' ? (((document.getElementById('mv-cta')||{}).value)||'') : '';
   if(!monto){ toast('Ingresa el monto'); return; }
   if(!motivo.trim()){ toast('Escribe el motivo'); return; }
   /* detector de referencias duplicadas dentro del turno */
@@ -1524,6 +1529,7 @@ APP.guardarMov = function(tipo){
   if(tipo === 'egreso'){ if(cat) mov.categoria = cat; if(tGasto) mov.tipoGasto = tGasto; }
   if(autoriza.trim()) mov.autoriza = autoriza.trim();
   db.ref('caja/turnos/'+APP.turnoActivo+'/movimientos').push(mov).then(function(){
+    if(ctaPagoId) registrarAbonoDesdeCaja(ctaPagoId, monto);
     var montoTx = mov.moneda === 'USD' ? '$'+monto+' USD' : (mov.moneda === 'VES' ? 'Bs '+monto : fmtCOP(monto));
     log(tipo, montoTx+' · '+motivo+(ref?' · ref '+ref:'')+' ('+APP.turnoActivo+')');
     toast(tipo==='ingreso' ? '✅ Ingreso registrado' : '✅ Egreso registrado');
@@ -2329,20 +2335,33 @@ APP.reabrirTurno = function(i){
   var d = APP._histCache[i];
   if(!d || !d.cierre) return;
   var clave = d.fecha+'_'+d.turno;
-  var tN = d.turno === 'man' ? '☀️ Mañana' : '🌙 Noche';
-  if(!confirm('¿Reabrir el turno '+tN+' del '+d.fecha+'?\n\n• La cajera podrá volver a registrar ingresos y egresos\n• Habrá que hacerle el cierre otra vez\n• El Disponible NO se revierte solo: si hace falta, ajústalo con un movimiento manual\n\nEl cierre actual queda guardado como respaldo.')) return;
+  var tN = d.turno === 'man' ? '\u2600\ufe0f Ma\u00f1ana' : '🌙 Noche';
+  if(!confirm('\u00bfReabrir el turno '+tN+' del '+d.fecha+'?\\n\\n\u2022 La cajera podr\u00e1 volver a registrar ingresos y egresos\\n\u2022 Habr\u00e1 que hacerle el cierre otra vez\\n\u2022 El Disponible se revierte AUTOM\u00c1TICAMENTE: se resta lo que este cierre sum\u00f3, para que al cerrar de nuevo no se cuente doble\\n\\nEl cierre actual queda guardado como respaldo.')) return;
+  /* Revertir del Disponible lo que este cierre sum\u00f3 (misma f\u00f3rmula del cierre, signo contrario) */
+  var ci = d.cierre, cn = ci.conteo||{}, ap = d.apertura||{};
+  var deltasRev = {
+    efcop: -((cn.ef_cop||0) - (ap.fondoCOP||0)),
+    efusd: -((cn.ef_usd||0) - (ap.fondoUSD||0)),
+    efves: -(cn.ef_ves||0),
+    bancol: -((cn.bancol||0)+(cn.nequi||0)),
+    zelle: -(cn.zelle||0),
+    bs: -(cn.bs||0),
+    otros: -(cn.otros||0)
+  };
   var upd = {};
   upd['caja/turnos/'+clave+'/estado'] = 'abierta';
   upd['caja/turnos/'+clave+'/cierre'] = null;
   upd['caja/turnos/'+clave+'/reabierto'] = {
-    por: APP.user.nombre, ts: Date.now(), cierrePrevio: d.cierre
+    por: APP.user.nombre, ts: Date.now(), cierrePrevio: d.cierre, disponibleRevertido: true
   };
   db.ref().update(upd).then(function(){
-    log('turno-reabierto', clave+' · por '+APP.user.nombre+' · tenía venta '+fmtCOP(d.cierre.ventaTurno||0));
-    toast('🔓 Turno reabierto · ya se puede editar');
+    return moverDisponible(deltasRev, 'ajuste', '🔓 Reapertura del turno '+clave+': se revierte el cierre anterior');
+  }).then(function(){
+    log('turno-reabierto', clave+' \u00b7 por '+APP.user.nombre+' \u00b7 ten\u00eda venta '+fmtCOP(d.cierre.ventaTurno||0)+' \u00b7 Disponible revertido');
+    toast('🔓 Turno reabierto \u00b7 Disponible revertido');
     APP.cerrarModal();
     APP.abrirHistorial();
-  }).catch(function(e){ toast('⚠️ No se pudo reabrir: '+String(e && e.message || e).slice(0,50)); });
+  }).catch(function(e){ toast('\u26a0\ufe0f No se pudo reabrir: '+String(e && e.message || e).slice(0,50)); });
 };
 
 /* ── Corregir un cierre ya firmado (solo admin) ── */
@@ -3229,12 +3248,18 @@ APP.abrirInformes = function(){
   renderPeriodos();
   cargarInformes();
 };
-APP.perInf = function(d){ APP._perInf = d; renderPeriodos(); cargarInformes(); };
+APP.perInf = function(d){ APP._infModo = 'dias'; APP._perInf = d; renderPeriodos(); cargarInformes(); };
+APP._infModo = 'dias';
+APP._infMes = '';
+APP._infDesde = '';
+APP._infHasta = '';
 function renderPeriodos(){
   var h = '';
   PERIODOS_INF.forEach(function(p){
-    h += '<button class="'+(APP._perInf===p.d?'on':'')+'" onclick="APP.perInf('+p.d+')">'+p.tx+'</button>';
+    h += '<button class="'+(APP._infModo==='dias'&&APP._perInf===p.d?'on':'')+'" onclick="APP.perInf('+p.d+')">'+p.tx+'</button>';
   });
+  h += '<button class="'+(APP._infModo==='mes'?'on':'')+'" onclick="APP.perInfMes()">📅 Mes exacto</button>';
+  h += '<button class="'+(APP._infModo==='rango'?'on':'')+'" onclick="APP.perInfRango()">🗓\ufe0f Rango</button>';
   document.getElementById('inf-periodos').innerHTML = h;
 }
 function fechaHace(dias){
@@ -3259,21 +3284,63 @@ function barras(items, color){
 }
 function cargarInformes(){
   var cont = document.getElementById('inf-cont');
-  cont.innerHTML = '<div class="cargando">Calculando…</div>';
-  var desde = fechaHace(APP._perInf);
-  document.getElementById('inf-sub').textContent = (APP._perInf===1 ? 'Hoy '+desde : 'Del '+desde+' a hoy');
-  db.ref('caja/turnos').orderByKey().startAt(desde).once('value').then(function(snap){
+  cont.innerHTML = '<div class="cargando">Calculando\u2026</div>';
+  var r = rangoInformes();
+  document.getElementById('inf-sub').textContent = r.tx;
+  db.ref('caja/turnos').orderByKey().startAt(r.desde).once('value').then(function(snap){
     var val = snap.val()||{};
     var cierres = [];
     Object.keys(val).forEach(function(k){
       var d = val[k];
-      if(d && d.estado === 'cerrada' && d.cierre && (d.fecha||'') >= desde) cierres.push(d);
+      if(d && d.estado === 'cerrada' && d.cierre && (d.fecha||'') >= r.desde && (d.fecha||'') <= r.hasta) cierres.push(d);
     });
-    renderInformes(cierres, desde);
+    renderInformes(cierres, r.desde);
   }).catch(function(e){
-    cont.innerHTML = '<div class="vacio">⚠️ No se pudieron cargar los datos<br>'+escapa(String(e && e.message || e).slice(0,60))+'</div>';
+    cont.innerHTML = '<div class="vacio">\u26a0\ufe0f No se pudieron cargar los datos<br>'+escapa(String(e && e.message || e).slice(0,60))+'</div>';
   });
 }
+/* Rango de fechas segun el modo elegido */
+function rangoInformes(){
+  if(APP._infModo === 'mes' && APP._infMes){
+    var m = APP._infMes;
+    var y = parseInt(m.slice(0,4),10), mm = parseInt(m.slice(5,7),10);
+    var ult = new Date(y, mm, 0).getDate();
+    return {desde: m+'-01', hasta: m+'-'+String(ult).padStart(2,'0'), tx: '📅 Mes '+m+' \u00b7 del 1 al '+ult};
+  }
+  if(APP._infModo === 'rango' && APP._infDesde && APP._infHasta){
+    return {desde: APP._infDesde, hasta: APP._infHasta, tx: 'Del '+APP._infDesde+' al '+APP._infHasta};
+  }
+  var desde = fechaHace(APP._perInf);
+  return {desde: desde, hasta: '9999-12-31', tx: (APP._perInf===1 ? 'Hoy '+desde : 'Del '+desde+' a hoy')};
+}
+APP.perInfMes = function(){
+  var hoy = fechaOperativa().slice(0,7);
+  var h = '<div class="flabel">Elige el mes</div><input class="inp" id="pi-mes" type="month" value="'+(APP._infMes||hoy)+'">';
+  h += '<button class="btn" onclick="APP.aplicarInfMes()">Ver ventas del mes</button>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar</button>';
+  abrirModal('📅 Ventas de un mes exacto', h);
+};
+APP.aplicarInfMes = function(){
+  var v = (document.getElementById('pi-mes')||{}).value||'';
+  if(!v){ toast('Elige el mes'); return; }
+  APP._infModo = 'mes'; APP._infMes = v;
+  APP.cerrarModal(); renderPeriodos(); cargarInformes();
+};
+APP.perInfRango = function(){
+  var h = '<div class="flabel">Desde</div><input class="inp" id="pi-desde" type="date" value="'+(APP._infDesde||'')+'">';
+  h += '<div class="flabel">Hasta</div><input class="inp" id="pi-hasta" type="date" value="'+(APP._infHasta||'')+'">';
+  h += '<button class="btn" onclick="APP.aplicarInfRango()">Ver el per\u00edodo</button>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar</button>';
+  abrirModal('🗓\ufe0f Per\u00edodo personalizado', h);
+};
+APP.aplicarInfRango = function(){
+  var d = (document.getElementById('pi-desde')||{}).value||'';
+  var ht = (document.getElementById('pi-hasta')||{}).value||'';
+  if(!d || !ht){ toast('Completa las dos fechas'); return; }
+  if(ht < d){ toast('La fecha final es menor que la inicial'); return; }
+  APP._infModo = 'rango'; APP._infDesde = d; APP._infHasta = ht;
+  APP.cerrarModal(); renderPeriodos(); cargarInformes();
+};
 function renderInformes(cierres, desde){
   var cont = document.getElementById('inf-cont');
   if(!cierres.length){
@@ -3323,7 +3390,7 @@ function renderInformes(cierres, desde){
   h += '<div class="k"><div class="v">'+fmtCOP(difTotal)+'</div><div class="t">Dif. acumulada vs POS</div></div>';
   h += '</div>';
   /* Ventas por día (últimos 14 máx en gráfico) */
-  var diasG = dias.slice(-14);
+  var diasG = dias.slice(-31);
   var maxDia = 0;
   diasG.forEach(function(f){ if(porDia[f] > maxDia) maxDia = porDia[f]; });
   h += '<div class="card"><div class="lbl">📅 Ventas por día</div>';
@@ -3405,15 +3472,15 @@ function moverDisponible(deltas, tipo, detalle){
   var limpio = {};
   Object.keys(deltas).forEach(function(k){ if(deltas[k]) limpio[k] = Math.round(deltas[k]*100)/100; });
   if(!Object.keys(limpio).length) return Promise.resolve();
-  return db.ref('disponible/saldos').once('value').then(function(snap){
-    var v = snap.val()||{};
+  /* Transacci\u00f3n: dos dispositivos guardando a la vez ya no se pisan */
+  return db.ref('disponible/saldos').transaction(function(v){
+    v = v||{};
     Object.keys(limpio).forEach(function(k){ v[k] = Math.round(((v[k]||0)+limpio[k])*100)/100; });
-    var upd = {};
-    upd['disponible/saldos'] = v;
-    upd['disponible/movs/'+db.ref('disponible/movs').push().key] = {
+    return v;
+  }).then(function(){
+    return db.ref('disponible/movs').push({
       tipo:tipo, detalle:detalle, deltas:limpio, ts:Date.now(), fecha:fechaOperativa(), usuario:APP.user.nombre
-    };
-    return db.ref().update(upd);
+    });
   });
 }
 
@@ -3669,7 +3736,7 @@ APP.detalleCuenta = function(id){
       h += '<div class="abono-row"><div><b>+'+fmtMon(a.metodo, a.monto)+'</b> · '+met.tx;
       if(monDe(a.metodo) !== 'COP') h += ' <span class="sub">(≈ '+fmtCOP(a.montoCOP||0)+')</span>';
       if(a.ref) h += ' · ref '+escapa(a.ref);
-      h += '<br><span class="sub">'+escapa(a.fecha||'')+' · '+horaStr(a.ts)+' · recibió '+escapa(a.usuario||'')+(a.nota?' · '+escapa(a.nota):'')+'</span></div>';
+      h += '<br><span class="sub">'+escapa(a.fecha||'')+' · '+horaStr(a.ts)+' · recibió '+escapa(a.usuario||'')+(a.origen==='caja'?' · 💵 desde caja del turno':'')+(a.nota?' · '+escapa(a.nota):'')+'</span></div>';
       if(a.foto) h += '<img src="'+a.foto+'" style="width:42px;height:42px;object-fit:cover;border-radius:10px;border:1px solid var(--linea);cursor:pointer" onclick="APP.verFotoAbono(\''+id+'\',\''+k+'\')" alt="comprobante">';
       h += '</div>';
     });
@@ -3942,7 +4009,7 @@ function renderDisponible(){
     if(k === 'otros' && !v) return;
     total += aCOP(k, v);
     var neg = v < 0;
-    h += '<div class="disp-card"><div class="tx"><b>'+METS_DISP[k].tx+'</b>';
+    h += '<div class="disp-card" style="cursor:pointer" onclick="APP.verHistMetodo(\''+k+'\')"><div class="tx"><b>'+METS_DISP[k].tx+'</b> <span style="font-size:10px;color:var(--gris)">ver historial \u203a</span>';
     if(monDe(k) !== 'COP') h += '<span>≈ '+fmtCOP(aCOP(k, v))+' COP</span>';
     h += '</div><div class="val" style="color:'+(neg?'var(--rojo)':'var(--tinta)')+'">'+fmtMon(k, v)+(neg?'<small>⚠️ negativo</small>':'')+'</div></div>';
   });
@@ -4070,6 +4137,240 @@ APP.guardarMovManual = function(){
     toast('⚠️ No se guardó: '+String(e && e.message || e).slice(0,50));
   });
 };
+
+
+/* \u2550\u2550\u2550 HISTORIAL POR M\u00c9TODO + AUDITOR\u00cdA DEL DISPONIBLE \u2550\u2550\u2550 */
+function chartLineaSVG(vals){
+  if(!vals || vals.length < 2) return '';
+  var w = 300, hh = 90;
+  var min = Math.min.apply(null, vals.concat([0]));
+  var max = Math.max.apply(null, vals.concat([0]));
+  if(max === min) max = min + 1;
+  var pts = vals.map(function(v,i){
+    var x = i/(vals.length-1)*w;
+    var y = hh - ((v-min)/(max-min))*hh;
+    return Math.round(x*10)/10 + ',' + Math.round(y*10)/10;
+  }).join(' ');
+  var y0 = hh - ((0-min)/(max-min))*hh;
+  return '<svg viewBox="0 0 '+w+' '+(hh+6)+'" style="width:100%;height:auto;margin-top:8px;background:#FBF9F4;border-radius:10px">'+
+    '<line x1="0" y1="'+y0+'" x2="'+w+'" y2="'+y0+'" stroke="#E8E1D5" stroke-width="1"/>'+
+    '<polyline points="'+pts+'" fill="none" stroke="#FF6B4A" stroke-width="2" stroke-linejoin="round"/></svg>';
+}
+APP.verHistMetodo = function(k){
+  var met = METS_DISP[k];
+  if(!met) return;
+  abrirModal(met.tx, '<div class="cargando">Cargando todos los movimientos\u2026</div>');
+  db.ref('disponible/movs').once('value').then(function(snap){
+    var movs = snap.val()||{};
+    var rows = [];
+    Object.keys(movs).forEach(function(id){
+      var m = movs[id];
+      var d = (m && m.deltas || {})[k];
+      if(d) rows.push({ts:m.ts||0, fecha:m.fecha||'', tipo:m.tipo||'', detalle:m.detalle||'', delta:d});
+    });
+    rows.sort(function(a,b){ return a.ts - b.ts; });
+    var run = 0, absSum = 0;
+    rows.forEach(function(r){ run = Math.round((run + r.delta)*100)/100; r.run = run; absSum += Math.abs(r.delta); });
+    var prom = rows.length ? absSum/rows.length : 0;
+    var actual = (APP.dispS||{})[k]||0;
+    var dif = Math.round((actual - run)*100)/100;
+    var h = '';
+    h += '<div class="tot-line big"><span>Saldo actual</span><b>'+fmtMon(k, actual)+'</b></div>';
+    h += '<div class="tot-line"><span>Suma de sus '+rows.length+' movimientos</span><b>'+fmtMon(k, run)+'</b></div>';
+    if(Math.abs(dif) > 0.01){
+      h += '<div class="vacio" style="color:var(--rojo);padding:10px">\u26a0\ufe0f Hay <b>'+fmtMon(k, dif)+'</b> SIN respaldo en movimientos.<br>Usa 🩺 Auditar saldos.</div>';
+    }
+    h += chartLineaSVG(rows.map(function(r){ return r.run; }));
+    if(rows.length > 1) h += '<div style="font-size:10px;color:var(--gris);margin-top:2px">Evoluci\u00f3n del saldo, del movimiento m\u00e1s viejo al m\u00e1s reciente</div>';
+    h += '<div class="lbl" style="margin-top:12px">Movimientos \u00b7 m\u00e1s recientes primero</div>';
+    if(!rows.length) h += '<div class="vacio">Sin movimientos de este m\u00e9todo</div>';
+    var IC = {cierre:'🔒', 'abono-cobrar':'🧾', 'abono-pagar':'📤', retiro:'\u2796', ingreso:'\u2795', traslado:'🔄', ajuste:'🛠\ufe0f'};
+    rows.slice().reverse().forEach(function(r){
+      var sos = prom > 0 && Math.abs(r.delta) > prom*3;
+      h += '<div class="abono-row" style="'+(sos ? 'border-left:3px solid var(--rojo);padding-left:8px;' : '')+'"><div>';
+      h += '<b style="color:'+(r.delta < 0 ? 'var(--rojo)' : 'var(--ok)')+'">'+(r.delta > 0 ? '+' : '')+fmtMon(k, r.delta)+'</b>'+(sos ? ' \u26a0\ufe0f monto at\u00edpico' : '')+'<br>';
+      h += '<span class="sub">'+(IC[r.tipo]||'\u2022')+' '+escapa(r.detalle)+'<br>'+escapa(r.fecha)+' \u00b7 '+horaStr(r.ts)+' \u00b7 qued\u00f3 en <b>'+fmtMon(k, r.run)+'</b></span>';
+      h += '</div></div>';
+    });
+    h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+    abrirModal(met.tx, h);
+  }).catch(function(e){
+    abrirModal(met.tx, '<div class="vacio">\u26a0\ufe0f '+escapa(String(e && e.message || e).slice(0,60))+'</div>');
+  });
+};
+APP._audDup = [];
+APP.auditarDisponible = function(){
+  abrirModal('🩺 Auditor\u00eda del Disponible', '<div class="cargando">Revisando todos los movimientos\u2026</div>');
+  Promise.all([
+    db.ref('disponible/movs').once('value'),
+    db.ref('disponible/saldos').once('value'),
+    db.ref('caja/turnos').once('value')
+  ]).then(function(res){
+    var movs = res[0].val()||{}, saldos = res[1].val()||{}, turnos = res[2].val()||{};
+    var lista = Object.keys(movs).map(function(id){ return movs[id]; });
+    var recon = {};
+    lista.forEach(function(m){
+      Object.keys(m.deltas||{}).forEach(function(k){ recon[k] = Math.round(((recon[k]||0) + m.deltas[k])*100)/100; });
+    });
+    var h = '';
+    h += '<div class="lbl">1\ufe0f\u20e3 \u00bfLos saldos cuadran con sus movimientos?</div>';
+    var okTodo = true;
+    Object.keys(METS_DISP).forEach(function(k){
+      var s = Math.round((saldos[k]||0)*100)/100, r = recon[k]||0, d = Math.round((s - r)*100)/100;
+      if(Math.abs(d) > 0.01){ okTodo = false; h += '<div class="tot-line"><span>'+METS_DISP[k].tx+'</span><b style="color:var(--rojo)">'+fmtMon(k, d)+' sin respaldo</b></div>'; }
+    });
+    if(okTodo) h += '<div class="vacio" style="color:var(--ok);padding:10px">\u2705 Todos los saldos est\u00e1n respaldados por movimientos.<br>Si hay dinero fantasma, est\u00e1 DENTRO de los movimientos \u2192 punto 2.</div>';
+    h += '<div class="lbl" style="margin-top:14px">2\ufe0f\u20e3 Cierres contados m\u00e1s de una vez</div>';
+    var grupos = {};
+    lista.forEach(function(m){
+      if(m.tipo !== 'cierre') return;
+      var mm = /Cierre (\d{4}-\d{2}-\d{2})/.exec(m.detalle||'');
+      if(!mm) return;
+      var t = (m.detalle||'').indexOf('ma\u00f1ana') >= 0 ? 'man' : 'noc';
+      var clave = mm[1]+'_'+t;
+      (grupos[clave] = grupos[clave]||[]).push(m);
+    });
+    APP._audDup = [];
+    var hayDup = false;
+    Object.keys(grupos).sort().forEach(function(clave){
+      var g = grupos[clave];
+      if(g.length < 2) return;
+      hayDup = true;
+      g.sort(function(a,b){ return (a.ts||0) - (b.ts||0); });
+      var extras = g.slice(1);
+      var deltasRev = {}, totCOP = 0;
+      extras.forEach(function(m){
+        Object.keys(m.deltas||{}).forEach(function(k){
+          deltasRev[k] = Math.round(((deltasRev[k]||0) - m.deltas[k])*100)/100;
+          totCOP += aCOP(k, m.deltas[k]);
+        });
+      });
+      var idx = APP._audDup.length;
+      APP._audDup.push({clave: clave, deltas: deltasRev, tot: totCOP});
+      var reab = turnos[clave] && turnos[clave].reabierto;
+      var tTx = clave.indexOf('_man') >= 0 ? '\u2600\ufe0f ma\u00f1ana' : '🌙 noche';
+      h += '<div class="card" style="border-color:var(--rojo);margin-top:8px"><b>🚨 '+clave.slice(0,10)+' \u00b7 '+tTx+'</b><br>';
+      h += '<span class="sub" style="font-size:12px">Este cierre se sum\u00f3 <b>'+g.length+' veces</b> al Disponible.<br>Dinero fantasma: <b style="color:var(--rojo)">'+fmtCOP(Math.round(totCOP))+'</b>';
+      if(reab) h += '<br>🔓 El turno fue reabierto y cerrado de nuevo: esa fue la causa.';
+      h += '</span>';
+      if(APP.user.rol === 'admin') h += '<button class="btn" style="margin-top:8px;background:var(--rojo);box-shadow:none" onclick="APP.corregirDuplicado('+idx+')">🛠\ufe0f Revertir lo duplicado \u00b7 '+fmtCOP(Math.round(totCOP))+'</button>';
+      h += '</div>';
+    });
+    if(!hayDup) h += '<div class="vacio" style="padding:10px">\u2705 Ning\u00fan cierre est\u00e1 duplicado.</div>';
+    h += '<div class="lbl" style="margin-top:14px">C\u00f3mo leer esto</div>';
+    h += '<div style="font-size:12px;color:var(--gris)">\u2022 Punto 1 en rojo: el saldo fue tocado sin dejar movimiento.<br>\u2022 Punto 2 en rojo: un turno reabierto se cont\u00f3 doble (ya qued\u00f3 corregido hacia adelante: al reabrir, el Disponible ahora se revierte solo).<br>\u2022 Toca cualquier m\u00e9todo en la pantalla del Disponible para ver su historial completo con saldo movimiento a movimiento y su gr\u00e1fica.</div>';
+    h += '<button class="btn sec" style="margin-top:12px" onclick="APP.cerrarModal()">Cerrar</button>';
+    abrirModal('🩺 Auditor\u00eda del Disponible', h);
+  }).catch(function(e){
+    abrirModal('🩺 Auditor\u00eda', '<div class="vacio">\u26a0\ufe0f '+escapa(String(e && e.message || e).slice(0,60))+'</div>');
+  });
+};
+APP.corregirDuplicado = function(idx){
+  var d = APP._audDup[idx];
+  if(!d) return;
+  if(APP.user.rol !== 'admin'){ toast('Solo el admin puede corregir'); return; }
+  if(!confirm('Se crear\u00e1 un ajuste que RESTA '+fmtCOP(Math.round(d.tot))+' del Disponible para revertir el cierre duplicado del '+d.clave.slice(0,10)+'.\\n\\nQueda registrado en el historial con tu nombre. \u00bfContinuar?')) return;
+  moverDisponible(d.deltas, 'ajuste', '🩺 Auditor\u00eda: se revierte cierre duplicado '+d.clave).then(function(){
+    log('auditoria', 'Revertido duplicado '+d.clave+' \u00b7 '+fmtCOP(Math.round(d.tot)));
+    toast('\u2705 Corregido \u00b7 el Disponible ya refleja la realidad');
+    APP.cerrarModal();
+    APP.auditarDisponible();
+  }).catch(function(e){ toast('\u26a0\ufe0f No se pudo: '+String(e && e.message || e).slice(0,50)); });
+};
+
+/* \u2550\u2550\u2550 RESUMEN DE FACTURAS DEL MES (contado / cr\u00e9dito / pendientes) \u2550\u2550\u2550 */
+APP.resumenCtasMes = function(){
+  var hoy = fechaOperativa().slice(0,7);
+  var h = '<div class="flabel">Mes a revisar</div><input class="inp" id="rcm-mes" type="month" value="'+hoy+'" onchange="APP.renderResumenCtas()">';
+  h += '<div id="rcm-cont" style="margin-top:10px"></div>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+  abrirModal('📊 Facturas del mes', h);
+  APP.renderResumenCtas();
+};
+APP.renderResumenCtas = function(){
+  var cont = document.getElementById('rcm-cont');
+  if(!cont) return;
+  var mes = (document.getElementById('rcm-mes')||{}).value || fechaOperativa().slice(0,7);
+  var g = {contado:[], credito:[], parcial:[], pend:[]};
+  var arrastre = 0, nArr = 0;
+  Object.keys(APP.ctas||{}).forEach(function(id){
+    var c = APP.ctas[id];
+    if(!c || c.tipo !== 'pagar') return;
+    var f = (c.fecha||'').slice(0,7);
+    if(f && f < mes && c.estado !== 'pagada'){ arrastre += Math.max(0, (c.monto||0)-(c.abonado||0)); nArr++; }
+    if(f !== mes) return;
+    var ab = c.abonos||{}, ult = '';
+    Object.keys(ab).forEach(function(k){ if((ab[k].fecha||'') > ult) ult = ab[k].fecha||''; });
+    if(c.estado === 'pagada'){
+      if(!ult || ult === c.fecha) g.contado.push(c); else g.credito.push(c);
+    } else if((c.abonado||0) > 0) g.parcial.push(c);
+    else g.pend.push(c);
+  });
+  function tot(arr, fn){ var s = 0; arr.forEach(function(c){ s += fn(c); }); return s; }
+  function lista(arr, fn){
+    if(!arr.length) return '<div style="font-size:12px;color:var(--gris);padding:4px 0">\u2014 ninguna</div>';
+    var h2 = '';
+    arr.forEach(function(c){ h2 += '<div class="tot-line"><span>'+escapa(c.nombre)+'</span><b>'+fn(c)+'</b></div>'; });
+    return h2;
+  }
+  var totContado = tot(g.contado, function(c){ return c.monto||0; });
+  var totCredito = tot(g.credito, function(c){ return c.monto||0; });
+  var totParcialAb = tot(g.parcial, function(c){ return c.abonado||0; });
+  var totParcialSaldo = tot(g.parcial, function(c){ return Math.max(0,(c.monto||0)-(c.abonado||0)); });
+  var totPend = tot(g.pend, function(c){ return c.monto||0; });
+  var h = '';
+  h += '<div class="lbl">💵 Pagadas de contado (mismo d\u00eda) \u00b7 '+g.contado.length+' \u00b7 '+fmtCOP(totContado)+'</div>'+lista(g.contado, function(c){ return fmtCOP(c.monto||0); });
+  h += '<div class="lbl" style="margin-top:12px">📆 A cr\u00e9dito, ya pagadas \u00b7 '+g.credito.length+' \u00b7 '+fmtCOP(totCredito)+'</div>'+lista(g.credito, function(c){ return fmtCOP(c.monto||0); });
+  h += '<div class="lbl" style="margin-top:12px">🟡 Abonadas, con saldo pendiente \u00b7 '+g.parcial.length+' \u00b7 deben '+fmtCOP(totParcialSaldo)+'</div>'+lista(g.parcial, function(c){ return 'abon\u00f3 '+fmtCOP(c.abonado||0)+' \u00b7 debe '+fmtCOP(Math.max(0,(c.monto||0)-(c.abonado||0))); });
+  h += '<div class="lbl" style="margin-top:12px">🔴 Sin ning\u00fan pago \u00b7 '+g.pend.length+' \u00b7 '+fmtCOP(totPend)+'</div>'+lista(g.pend, function(c){ return fmtCOP(c.monto||0); });
+  h += '<div class="tot-line big" style="margin-top:12px"><span>Total facturado en el mes</span><b>'+fmtCOP(totContado+totCredito+tot(g.parcial,function(c){return c.monto||0;})+totPend)+'</b></div>';
+  h += '<div class="tot-line"><span>Qued\u00f3 pendiente por pagar</span><b style="color:var(--rojo)">'+fmtCOP(totParcialSaldo+totPend)+'</b></div>';
+  if(nArr) h += '<div style="font-size:12px;color:var(--gris);margin-top:8px">\u26a0\ufe0f Adem\u00e1s arrastras '+nArr+' factura(s) de meses anteriores sin pagar: '+fmtCOP(arrastre)+'</div>';
+  cont.innerHTML = h;
+};
+
+/* \u2550\u2550\u2550 ABONO A FACTURA DESDE EL EGRESO DE CAJA \u2550\u2550\u2550
+   El dinero sale de la gaveta del turno, as\u00ed que NO toca el Disponible:
+   el cierre lo descuenta solo al contar menos efectivo. */
+function llenarCtasEgreso(){
+  var sel = document.getElementById('mv-cta');
+  if(!sel) return;
+  var ids = Object.keys(APP.ctas||{}).filter(function(id){
+    var c = APP.ctas[id];
+    return c && c.tipo === 'pagar' && c.estado !== 'pagada';
+  }).sort(function(a,b){ return (APP.ctas[b].creada||0) - (APP.ctas[a].creada||0); });
+  ids.forEach(function(id){
+    var c = APP.ctas[id];
+    var o = document.createElement('option');
+    o.value = id;
+    o.textContent = c.nombre+' \u00b7 debe '+fmtCOP(Math.max(0, (c.monto||0)-(c.abonado||0)));
+    sel.appendChild(o);
+  });
+  sel.onchange = function(){
+    var info = document.getElementById('mv-cta-info');
+    if(!info) return;
+    var c = APP.ctas[sel.value];
+    info.textContent = c ? 'El monto del egreso se abonar\u00e1 a esta factura. Si cubre todo el saldo, queda PAGADA.' : '';
+  };
+}
+function registrarAbonoDesdeCaja(id, montoCOP){
+  var c = APP.ctas[id];
+  if(!c) return;
+  var abono = {
+    monto: montoCOP, montoCOP: montoCOP, tasa: 1, metodo: 'efcop', origen: 'caja',
+    nota: 'Pagado con efectivo de la caja del turno',
+    ts: Date.now(), fecha: fechaOperativa(), usuario: APP.user.nombre
+  };
+  var nuevoAbonado = (c.abonado||0) + montoCOP;
+  var upd = {};
+  upd['cuentas/'+id+'/abonos/'+db.ref('cuentas/'+id+'/abonos').push().key] = abono;
+  upd['cuentas/'+id+'/abonado'] = nuevoAbonado;
+  if(nuevoAbonado >= (c.monto||0)) upd['cuentas/'+id+'/estado'] = 'pagada';
+  db.ref().update(upd).then(function(){
+    log('abono', 'pagar \u00b7 '+c.nombre+' \u00b7 '+fmtCOP(montoCOP)+' \u00b7 desde caja del turno');
+    toast(nuevoAbonado >= (c.monto||0) ? '🎉 Factura de '+c.nombre+' pagada por completo' : '\u2705 Abono a '+c.nombre+' \u00b7 saldo '+fmtCOP(Math.max(0, (c.monto||0)-nuevoAbonado)));
+  }).catch(function(){ toast('\u26a0\ufe0f Egreso guardado, pero el abono a la factura no se registr\u00f3'); });
+}
 
 init();
 </script>
