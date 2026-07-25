@@ -563,6 +563,7 @@ select.inp{appearance:none;-webkit-appearance:none}
   </div>
   <div class="wrap">
     <div class="cats" id="inf-periodos"></div>
+    <button class="btn" style="margin:2px 0 12px;background:var(--mar);box-shadow:0 4px 14px rgba(14,59,51,.25)" onclick="APP.cierreMes()">📄 Cierre de Mes para socios</button>
     <div id="inf-cont"><div class="cargando">Cargando datos…</div></div>
   </div>
 </div>
@@ -607,6 +608,7 @@ select.inp{appearance:none;-webkit-appearance:none}
     <div class="card"><div class="lbl">Saldos por método</div><div id="dp-saldos"></div></div>
     <button class="btn" onclick="APP.modalMovManual()">± Movimiento manual</button>
     <button class="btn" style="margin-top:8px;background:var(--noche);box-shadow:0 4px 14px rgba(59,91,165,.25)" onclick="APP.auditarDisponible()">🩺 Auditar saldos · buscar dinero fantasma</button>
+    <button class="btn" style="margin-top:8px;background:var(--mar);box-shadow:0 4px 14px rgba(14,59,51,.25)" onclick="APP.reconstruirDisponible()">♻️ Reconstruir saldos desde cero</button>
     <div class="card" style="margin-top:12px"><div class="lbl">Historial de movimientos</div><div id="dp-movs"><div class="cargando">Cargando…</div></div></div>
     <button class="btn sec" onclick="APP.abrirCuentas()">← Volver a cuentas</button>
   </div>
@@ -4371,6 +4373,419 @@ function registrarAbonoDesdeCaja(id, montoCOP){
     toast(nuevoAbonado >= (c.monto||0) ? '🎉 Factura de '+c.nombre+' pagada por completo' : '\u2705 Abono a '+c.nombre+' \u00b7 saldo '+fmtCOP(Math.max(0, (c.monto||0)-nuevoAbonado)));
   }).catch(function(){ toast('\u26a0\ufe0f Egreso guardado, pero el abono a la factura no se registr\u00f3'); });
 }
+
+
+/* ═══════════ CIERRE DE MES PARA SOCIOS (PDF + WhatsApp) ═══════════ */
+APP._cmMes = '';
+APP.cierreMes = function(){
+  var hoy = fechaOperativa().slice(0,7);
+  var h = '<div class="flabel">Mes a cerrar</div><input class="inp" id="cm-mes" type="month" value="'+(APP._cmMes||hoy)+'">';
+  h += '<div class="sub" style="font-size:12px;color:var(--gris);margin-top:6px">Se arma con todos los cierres de caja del mes, más las facturas por pagar. Si el mes va a medias, sale con lo que haya hasta hoy.</div>';
+  h += '<button class="btn" style="margin-top:12px" onclick="APP.generarCierreMes()">Generar cierre del mes</button>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar</button>';
+  abrirModal('\uD83D\uDCC4 Cierre de Mes', h);
+};
+
+function nombreMes(m){
+  var MM = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var y = m.slice(0,4), mm = parseInt(m.slice(5,7),10);
+  return MM[mm-1]+' '+y;
+}
+function mesAnterior(m){
+  var y = parseInt(m.slice(0,4),10), mm = parseInt(m.slice(5,7),10);
+  mm--; if(mm < 1){ mm = 12; y--; }
+  return y+'-'+String(mm).padStart(2,'0');
+}
+
+/* Agrega todos los cierres de un mes en un objeto de totales */
+function agregarMes(turnos, mes){
+  var desde = mes+'-01', hasta = mes+'-31';
+  var A = {
+    ventaTotal:0, egresosCaja:0, difPOS:0, dias:{}, nCierres:0,
+    metodos:{efcop:0, efusd:0, efves:0, bancol:0, zelle:0, bs:0, otros:0},
+    egrTipo:{compras:0, fijo:0, variable:0}, egrCat:{},
+    primerDia:'', ultimoDia:''
+  };
+  Object.keys(turnos).forEach(function(k){
+    var d = turnos[k];
+    if(!d || d.estado !== 'cerrada' || !d.cierre) return;
+    var f = d.fecha||'';
+    if(f < desde || f > hasta) return;
+    var ci = d.cierre, t = ci.tasas||{usd:4200, ves:0};
+    A.ventaTotal += (ci.ventaTurno||0);
+    A.egresosCaja += (ci.egresos||0);
+    A.difPOS += (ci.diferencia||0);
+    A.dias[f] = (A.dias[f]||0) + (ci.ventaTurno||0);
+    A.nCierres++;
+    if(!A.primerDia || f < A.primerDia) A.primerDia = f;
+    if(!A.ultimoDia || f > A.ultimoDia) A.ultimoDia = f;
+    var c = ci.conteo||{};
+    A.metodos.efcop += (c.ef_cop||0);
+    A.metodos.efusd += (c.ef_usd||0)*(t.usd||0);
+    A.metodos.efves += (c.ef_ves||0)*(t.ves||0);
+    A.metodos.bancol += (c.bancol||0)+(c.nequi||0);
+    A.metodos.zelle += (c.zelle||0)*(t.usd||0);
+    A.metodos.bs += (c.bs||0)*(t.ves||0);
+    A.metodos.otros += (c.otros||0);
+    var et = ci.egresosPorTipo||{};
+    Object.keys(et).forEach(function(x){
+      var kk = (x==='insumo') ? 'compras' : x;
+      A.egrTipo[kk] = (A.egrTipo[kk]||0) + (et[x]||0);
+    });
+    var ec = ci.egresosPorCategoria||{};
+    Object.keys(ec).forEach(function(x){ A.egrCat[x] = (A.egrCat[x]||0) + (ec[x]||0); });
+  });
+  return A;
+}
+
+/* Facturas por pagar del mes: pagadas y pendientes */
+function facturasMes(ctas, mes){
+  var R = {pagadasContado:0, pagadasCredito:0, abonado:0, saldoParcial:0, pendTotal:0,
+           nPagadas:0, nPend:0, arrastre:0, nArr:0, listaPend:[]};
+  Object.keys(ctas||{}).forEach(function(id){
+    var c = ctas[id];
+    if(!c || c.tipo !== 'pagar') return;
+    var f = (c.fecha||'').slice(0,7);
+    var saldo = Math.max(0, (c.monto||0)-(c.abonado||0));
+    if(f && f < mes && c.estado !== 'pagada'){ R.arrastre += saldo; R.nArr++; R.listaPend.push({n:c.nombre, s:saldo, viejo:true}); return; }
+    if(f !== mes) return;
+    var ab = c.abonos||{}, ult='';
+    Object.keys(ab).forEach(function(k){ if((ab[k].fecha||'') > ult) ult = ab[k].fecha||''; });
+    if(c.estado === 'pagada'){
+      R.nPagadas++;
+      if(!ult || ult === c.fecha) R.pagadasContado += (c.monto||0);
+      else R.pagadasCredito += (c.monto||0);
+    } else {
+      R.nPend++;
+      R.abonado += (c.abonado||0);
+      R.saldoParcial += saldo;
+      R.pendTotal += saldo;
+      R.listaPend.push({n:c.nombre, s:saldo, viejo:false});
+    }
+  });
+  return R;
+}
+
+APP._cmDatos = null;
+APP.generarCierreMes = function(){
+  var mes = (document.getElementById('cm-mes')||{}).value||fechaOperativa().slice(0,7);
+  APP._cmMes = mes;
+  abrirModal('\uD83D\uDCC4 Cierre de '+nombreMes(mes), '<div class="cargando">Reuniendo todo el mes\u2026</div>');
+  var prev = mesAnterior(mes);
+  Promise.all([
+    db.ref('caja/turnos').once('value'),
+    db.ref('cuentas').once('value')
+  ]).then(function(res){
+    var turnos = res[0].val()||{};
+    var ctas = res[1].val()||{};
+    var A = agregarMes(turnos, mes);
+    var Ap = agregarMes(turnos, prev);
+    var F = facturasMes(ctas, mes);
+    var costo = A.egrTipo.compras||0;
+    var ventas = A.ventaTotal;
+    var otrosGastos = (A.egrTipo.fijo||0)+(A.egrTipo.variable||0);
+    var utilidad = ventas - costo - otrosGastos;
+    var margen = ventas>0 ? Math.round(utilidad/ventas*100) : 0;
+    var costoPrev = Ap.egrTipo.compras||0;
+    var otrosPrev = (Ap.egrTipo.fijo||0)+(Ap.egrTipo.variable||0);
+    var utilidadPrev = Ap.ventaTotal - costoPrev - otrosPrev;
+    var diasArr = Object.keys(A.dias).sort();
+    var mejorDia = {f:'', v:0};
+    diasArr.forEach(function(f){ if(A.dias[f] > mejorDia.v) mejorDia = {f:f, v:A.dias[f]}; });
+    var nDias = diasArr.length;
+    var prom = nDias ? Math.round(ventas/nDias) : 0;
+    APP._cmDatos = {mes:mes, prev:prev, A:A, Ap:Ap, F:F, costo:costo, ventas:ventas,
+      otrosGastos:otrosGastos, utilidad:utilidad, margen:margen, utilidadPrev:utilidadPrev,
+      mejorDia:mejorDia, nDias:nDias, prom:prom};
+    renderCierreMesModal();
+  }).catch(function(e){
+    abrirModal('\uD83D\uDCC4 Cierre de Mes', '<div class="vacio">\u26A0\uFE0F '+escapa(String(e && e.message || e).slice(0,60))+'</div>');
+  });
+};
+
+function flechaComp(actual, prev){
+  if(!prev) return '';
+  var dif = actual - prev;
+  var pct = Math.round(dif/Math.abs(prev)*100);
+  if(Math.abs(pct) < 1) return ' <span style="color:var(--gris);font-size:11px">= igual</span>';
+  var col = dif >= 0 ? 'var(--ok)' : 'var(--rojo)';
+  var fl = dif >= 0 ? '\u25B2' : '\u25BC';
+  return ' <span style="color:'+col+';font-size:11px">'+fl+' '+Math.abs(pct)+'% vs mes anterior</span>';
+}
+
+function renderCierreMesModal(){
+  var D = APP._cmDatos; if(!D) return;
+  var A = D.A, F = D.F;
+  var h = '';
+  h += '<div class="tot-line big"><span>\uD83D\uDCB0 Ventas del mes</span><b style="color:var(--ok)">'+fmtCOP(D.ventas)+'</b></div>';
+  h += '<div style="text-align:right;margin:-6px 0 8px">'+flechaComp(D.ventas, D.Ap.ventaTotal)+'</div>';
+  h += '<div class="tot-line"><span>\uD83D\uDCE6 Costo (compras)</span><b style="color:var(--rojo)">- '+fmtCOP(D.costo)+'</b></div>';
+  h += '<div class="tot-line"><span>\uD83E\uDDFE Otros gastos (fijos+variables)</span><b style="color:var(--rojo)">- '+fmtCOP(D.otrosGastos)+'</b></div>';
+  h += '<div class="tot-line big"><span>\uD83D\uDCC8 Utilidad estimada</span><b style="color:'+(D.utilidad>=0?'var(--ok)':'var(--rojo)')+'">'+fmtCOP(D.utilidad)+'</b></div>';
+  h += '<div style="text-align:right;margin:-6px 0 4px"><span style="font-size:11px;color:var(--gris)">margen '+D.margen+'%</span>'+flechaComp(D.utilidad, D.utilidadPrev)+'</div>';
+  h += '<div class="sub" style="font-size:11px;color:var(--gris);margin-bottom:10px">'+D.nDias+' d\u00edas con cierre \u00b7 promedio '+fmtCOP(D.prom)+'/d\u00eda'+(D.mejorDia.f?' \u00b7 mejor d\u00eda '+D.mejorDia.f.slice(8,10)+'/'+D.mejorDia.f.slice(5,7)+' ('+fmtCOP(D.mejorDia.v)+')':'')+'</div>';
+
+  h += '<div class="lbl" style="margin-top:6px">\uD83E\uDDFE Facturas por pagar</div>';
+  h += '<div class="tot-line"><span>Pagadas de contado</span><b>'+fmtCOP(F.pagadasContado)+'</b></div>';
+  h += '<div class="tot-line"><span>Pagadas a cr\u00e9dito</span><b>'+fmtCOP(F.pagadasCredito)+'</b></div>';
+  h += '<div class="tot-line"><span>Pendientes del mes</span><b style="color:var(--rojo)">'+fmtCOP(F.pendTotal)+'</b></div>';
+  if(F.arrastre) h += '<div class="tot-line"><span>Arrastre de meses previos</span><b style="color:var(--rojo)">'+fmtCOP(F.arrastre)+'</b></div>';
+
+  var cats = Object.keys(A.egrCat).map(function(k){ return {n:k, v:A.egrCat[k]}; }).sort(function(a,b){ return b.v-a.v; });
+  if(cats.length){
+    h += '<div class="lbl" style="margin-top:12px">\uD83D\uDCCA Gastos por categor\u00eda</div>';
+    cats.forEach(function(c){ if(c.v>0) h += '<div class="tot-line"><span>'+escapa(c.n)+'</span><b>'+fmtCOP(c.v)+'</b></div>'; });
+  }
+
+  h += '<button class="btn" style="margin-top:16px" onclick="APP.pdfCierreMes()">\uD83D\uDCC4 Ver / Guardar PDF</button>';
+  h += '<button class="btn" style="margin-top:8px;background:#25D366;box-shadow:none" onclick="APP.waCierreMes()">\uD83D\uDCF2 Enviar resumen por WhatsApp</button>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+  abrirModal('\uD83D\uDCC4 Cierre de '+nombreMes(D.mes), h);
+}
+
+/* Texto para WhatsApp */
+APP.waCierreMes = function(){
+  var D = APP._cmDatos; if(!D) return;
+  var A = D.A, F = D.F;
+  var t = [];
+  t.push('\uD83E\uDD90 *DON CAMAR\u00d3N \u2014 CIERRE DE '+nombreMes(D.mes).toUpperCase()+'*');
+  t.push('_'+(A.primerDia||'')+' al '+(A.ultimoDia||'')+' \u00b7 '+D.nDias+' d\u00edas_');
+  t.push('');
+  t.push('\uD83D\uDCB0 *Ventas:* '+fmtCOP(D.ventas));
+  t.push('\uD83D\uDCE6 Costo (compras): -'+fmtCOP(D.costo));
+  t.push('\uD83E\uDDFE Otros gastos: -'+fmtCOP(D.otrosGastos));
+  t.push('\uD83D\uDCC8 *Utilidad estimada: '+fmtCOP(D.utilidad)+'* (margen '+D.margen+'%)');
+  if(D.Ap.ventaTotal){
+    var dv = D.ventas - D.Ap.ventaTotal;
+    t.push('   '+(dv>=0?'\u25B2':'\u25BC')+' '+fmtCOP(Math.abs(dv))+' vs '+nombreMes(D.prev));
+  }
+  t.push('');
+  t.push('\uD83D\uDCCA *Promedio:* '+fmtCOP(D.prom)+'/d\u00eda');
+  if(D.mejorDia.f) t.push('\uD83C\uDFC6 Mejor d\u00eda: '+D.mejorDia.f.slice(8,10)+'/'+D.mejorDia.f.slice(5,7)+' \u2192 '+fmtCOP(D.mejorDia.v));
+  t.push('');
+  t.push('\uD83E\uDDFE *FACTURAS*');
+  t.push('\u2705 Pagadas contado: '+fmtCOP(F.pagadasContado));
+  t.push('\uD83D\uDCC6 Pagadas cr\u00e9dito: '+fmtCOP(F.pagadasCredito));
+  t.push('\uD83D\uDD34 Pendientes del mes: '+fmtCOP(F.pendTotal));
+  if(F.arrastre) t.push('\u26A0\uFE0F Arrastre previo: '+fmtCOP(F.arrastre));
+  var cats = Object.keys(A.egrCat).map(function(k){ return {n:k, v:A.egrCat[k]}; }).sort(function(a,b){ return b.v-a.v; }).filter(function(c){ return c.v>0; });
+  if(cats.length){
+    t.push('');
+    t.push('\uD83D\uDCB8 *GASTOS POR CATEGOR\u00cdA*');
+    cats.slice(0,10).forEach(function(c){ t.push('\u2022 '+c.n+': '+fmtCOP(c.v)); });
+  }
+  t.push('');
+  t.push('_Generado el '+fechaOperativa()+' por '+APP.user.nombre+'_');
+  var msg = t.join('\n');
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+};
+
+/* PDF vía ventana de impresión (Guardar como PDF en el teléfono) */
+APP.pdfCierreMes = function(){
+  var D = APP._cmDatos; if(!D) return;
+  var A = D.A, F = D.F;
+  var cats = Object.keys(A.egrCat).map(function(k){ return {n:k, v:A.egrCat[k]}; }).sort(function(a,b){ return b.v-a.v; }).filter(function(c){ return c.v>0; });
+  var diasArr = Object.keys(A.dias).sort();
+  function row(a,b,col){ return '<tr><td>'+a+'</td><td class="r" style="'+(col?'color:'+col:'')+'"><b>'+b+'</b></td></tr>'; }
+  var comp = '';
+  if(D.Ap.ventaTotal){
+    var dv = D.ventas - D.Ap.ventaTotal;
+    var pct = Math.round(dv/Math.abs(D.Ap.ventaTotal)*100);
+    comp = '<p class="comp">'+(dv>=0?'\u25B2':'\u25BC')+' '+Math.abs(pct)+'% en ventas vs '+nombreMes(D.prev)+' ('+fmtCOP(D.Ap.ventaTotal)+')</p>';
+  }
+  var pendRows = '';
+  F.listaPend.slice(0,25).forEach(function(p){
+    pendRows += '<tr><td>'+escapa(p.n)+(p.viejo?' <span class="viejo">(mes previo)</span>':'')+'</td><td class="r">'+fmtCOP(p.s)+'</td></tr>';
+  });
+  var catRows = '';
+  cats.forEach(function(c){ catRows += '<tr><td>'+escapa(c.n)+'</td><td class="r">'+fmtCOP(c.v)+'</td></tr>'; });
+  var diasBars = '';
+  var maxD = 0; diasArr.forEach(function(f){ if(A.dias[f]>maxD) maxD=A.dias[f]; });
+  diasArr.forEach(function(f){
+    var pct = maxD>0 ? Math.max(3, Math.round(A.dias[f]/maxD*100)) : 0;
+    diasBars += '<div class="dcol" title="'+f+'"><div class="dbar" style="height:'+pct+'px"></div><span>'+f.slice(8,10)+'</span></div>';
+  });
+
+  var html = ''
+  + '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+  + '<title>Cierre '+nombreMes(D.mes)+' - Don Camaron</title><style>'
+  + '*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif}'
+  + 'body{color:#1C2B28;padding:22px;max-width:760px;margin:0 auto;background:#fff}'
+  + '.hd{background:linear-gradient(160deg,#0E3B33,#14524A);color:#fff;padding:26px;border-radius:16px;margin-bottom:18px}'
+  + '.hd .mini{font-size:11px;letter-spacing:2px;opacity:.8;text-transform:uppercase}'
+  + '.hd h1{font-size:26px;margin-top:4px}.hd .sub{opacity:.85;margin-top:4px;font-size:13px}'
+  + '.big{background:#FAF7F2;border:1px solid #E8E1D5;border-radius:14px;padding:18px;margin-bottom:14px}'
+  + '.big .util{font-size:34px;font-weight:800;color:'+(D.utilidad>=0?'#1E7D4E':'#C0392B')+'}'
+  + '.big .lb{font-size:12px;color:#7A8580;text-transform:uppercase;letter-spacing:1px}'
+  + '.comp{font-size:13px;color:#7A8580;margin-top:6px}'
+  + '.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}'
+  + '.kpi{background:#fff;border:1px solid #E8E1D5;border-radius:12px;padding:14px}'
+  + '.kpi .v{font-size:20px;font-weight:800}.kpi .t{font-size:11px;color:#7A8580;margin-top:2px}'
+  + 'h2{font-size:15px;margin:18px 0 8px;color:#0E3B33;border-bottom:2px solid #FF6B4A;padding-bottom:4px;display:inline-block}'
+  + 'table{width:100%;border-collapse:collapse;font-size:13px}'
+  + 'td{padding:7px 4px;border-bottom:1px solid #F0ECE3}.r{text-align:right}'
+  + '.viejo{color:#C0392B;font-size:10px}'
+  + '.chart{display:flex;align-items:flex-end;gap:3px;height:120px;padding:10px;background:#FAF7F2;border-radius:12px;margin-top:8px;overflow-x:auto}'
+  + '.dcol{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:22px}'
+  + '.dbar{width:14px;background:#FF6B4A;border-radius:3px 3px 0 0}'
+  + '.dcol span{font-size:8px;color:#7A8580;margin-top:3px}'
+  + '.foot{margin-top:24px;font-size:11px;color:#7A8580;text-align:center;border-top:1px solid #E8E1D5;padding-top:12px}'
+  + '.noprint{margin-top:20px;text-align:center}'
+  + '.noprint button{background:#FF6B4A;color:#fff;border:none;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer}'
+  + '@media print{.noprint{display:none}body{padding:0}}'
+  + '</style></head><body>'
+  + '<div class="hd"><div class="mini">\uD83E\uDD90 Don Camaron \u00b7 La Fria</div><h1>Cierre de '+nombreMes(D.mes)+'</h1><div class="sub">Resumen para socios \u00b7 '+(A.primerDia||'')+' al '+(A.ultimoDia||'')+' \u00b7 '+D.nDias+' dias operados</div></div>'
+  + '<div class="big"><div class="lb">Utilidad estimada del mes</div><div class="util">'+fmtCOP(D.utilidad)+'</div><div class="comp">Margen '+D.margen+'% sobre ventas'+(D.Ap.ventaTotal?' \u00b7 '+(D.utilidad-D.utilidadPrev>=0?'\u25B2':'\u25BC')+' '+fmtCOP(Math.abs(D.utilidad-D.utilidadPrev))+' vs '+nombreMes(D.prev):'')+'</div></div>'
+  + '<div class="grid">'
+  + '<div class="kpi"><div class="v" style="color:#1E7D4E">'+fmtCOP(D.ventas)+'</div><div class="t">Ventas totales</div></div>'
+  + '<div class="kpi"><div class="v" style="color:#C0392B">'+fmtCOP(D.costo)+'</div><div class="t">Costo (compras)</div></div>'
+  + '<div class="kpi"><div class="v" style="color:#C0392B">'+fmtCOP(D.otrosGastos)+'</div><div class="t">Otros gastos</div></div>'
+  + '<div class="kpi"><div class="v">'+fmtCOP(D.prom)+'</div><div class="t">Promedio por dia</div></div>'
+  + '</div>'
+  + comp
+  + '<h2>Ventas por dia</h2><div class="chart">'+diasBars+'</div>'
+  + '<h2>Ingresos por metodo</h2><table>'
+  + row('\uD83D\uDCB4 Efectivo COP', fmtCOP(A.metodos.efcop))
+  + row('\uD83C\uDFE6 Bancolombia / Nequi', fmtCOP(A.metodos.bancol))
+  + row('\uD83D\uDCB5 Efectivo USD', fmtCOP(A.metodos.efusd))
+  + row('\uD83D\uDCBB Zelle', fmtCOP(A.metodos.zelle))
+  + row('\uD83C\uDDFB\uD83C\uDDEA Bs transferencias', fmtCOP(A.metodos.bs))
+  + row('\uD83C\uDDFB\uD83C\uDDEA Efectivo Bs', fmtCOP(A.metodos.efves))
+  + (A.metodos.otros?row('\uD83C\uDFDB\uFE0F Otros', fmtCOP(A.metodos.otros)):'')
+  + '</table>'
+  + '<h2>Facturas por pagar</h2><table>'
+  + row('\u2705 Pagadas de contado', fmtCOP(F.pagadasContado), '#1E7D4E')
+  + row('\uD83D\uDCC6 Pagadas a credito', fmtCOP(F.pagadasCredito), '#1E7D4E')
+  + row('\uD83D\uDD34 Pendientes del mes', fmtCOP(F.pendTotal), '#C0392B')
+  + (F.arrastre?row('\u26A0\uFE0F Arrastre de meses previos', fmtCOP(F.arrastre), '#C0392B'):'')
+  + '</table>'
+  + (pendRows?'<h2>Detalle de pendientes</h2><table>'+pendRows+'</table>':'')
+  + (catRows?'<h2>Gastos por categoria</h2><table>'+catRows+'</table>':'')
+  + '<div class="foot">Generado el '+fechaOperativa()+' por '+escapa(APP.user.nombre)+' \u00b7 Don Camaron Control</div>'
+  + '<div class="noprint"><button onclick="window.print()">\uD83D\uDCC4 Guardar como PDF / Imprimir</button></div>'
+  + '</body></html>';
+
+  var w = window.open('', '_blank');
+  if(!w){ toast('\u26A0\uFE0F Permite las ventanas emergentes para ver el PDF'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+};
+
+
+/* ═══════════ RECONSTRUIR EL DISPONIBLE DESDE CERO ═══════════
+   Recalcula el saldo REAL de cada método sumando:
+     • cada cierre de caja UNA sola vez (aunque el turno se haya reabierto)
+     • movimientos manuales legítimos (retiro, ingreso, traslado)
+     • abonos y pagos de facturas
+   Ignora por completo los 'ajuste' (reversiones, auditorías, correcciones):
+   esos son justamente el enredo. Luego deja un único ajuste que lleva
+   cada método a su valor reconstruido. Muestra TODO antes de aplicar. */
+APP._reconData = null;
+APP.reconstruirDisponible = function(){
+  if(APP.user.rol !== 'admin'){ toast('Solo el admin puede reconstruir los saldos'); return; }
+  abrirModal('\u267B\ufe0f Reconstruir saldos', '<div class="cargando">Recalculando desde todos los cierres y movimientos\u2026</div>');
+  Promise.all([
+    db.ref('caja/turnos').once('value'),
+    db.ref('disponible/movs').once('value'),
+    db.ref('disponible/saldos').once('value')
+  ]).then(function(res){
+    var turnos = res[0].val()||{};
+    var movs = res[1].val()||{};
+    var saldos = res[2].val()||{};
+
+    var recon = {efcop:0, efusd:0, efves:0, bancol:0, zelle:0, bs:0, otros:0};
+    var det = {cierres:0, manuales:0, abonos:0, ignorados:0};
+
+    /* 1) Cada turno cerrado aporta UNA vez su sobrante (misma fórmula del cierre) */
+    Object.keys(turnos).forEach(function(k){
+      var d = turnos[k];
+      if(!d || d.estado !== 'cerrada' || !d.cierre) return;
+      var cn = d.cierre.conteo||{}, ap = d.apertura||{};
+      recon.efcop  += (cn.ef_cop||0) - (ap.fondoCOP||0);
+      recon.efusd  += (cn.ef_usd||0) - (ap.fondoUSD||0);
+      recon.efves  += (cn.ef_ves||0);
+      recon.bancol += (cn.bancol||0)+(cn.nequi||0);
+      recon.zelle  += (cn.zelle||0);
+      recon.bs     += (cn.bs||0);
+      recon.otros  += (cn.otros||0);
+      det.cierres++;
+    });
+
+    /* 2) Movimientos manuales y abonos legítimos (NO 'cierre', NO 'ajuste') */
+    Object.keys(movs).forEach(function(id){
+      var m = movs[id];
+      if(!m) return;
+      var t = m.tipo||'';
+      if(t === 'cierre'){ return; }           /* ya contado arriba desde los turnos */
+      if(t === 'ajuste'){ det.ignorados++; return; } /* reversiones/correcciones: el enredo */
+      /* retiro, ingreso, traslado, abono-cobrar, abono-pagar */
+      Object.keys(m.deltas||{}).forEach(function(dk){
+        if(recon[dk] === undefined) recon[dk] = 0;
+        recon[dk] += m.deltas[dk];
+      });
+      if(t === 'abono-cobrar' || t === 'abono-pagar') det.abonos++; else det.manuales++;
+    });
+
+    Object.keys(recon).forEach(function(k){ recon[k] = Math.round(recon[k]*100)/100; });
+
+    /* delta necesario para llevar el saldo actual al reconstruido */
+    var deltas = {};
+    Object.keys(METS_DISP).forEach(function(k){
+      var actual = Math.round((saldos[k]||0)*100)/100;
+      var d = Math.round((recon[k] - actual)*100)/100;
+      if(Math.abs(d) > 0.001) deltas[k] = d;
+    });
+
+    APP._reconData = {recon:recon, saldos:saldos, deltas:deltas, det:det};
+    renderReconModal();
+  }).catch(function(e){
+    abrirModal('\u267B\ufe0f Reconstruir', '<div class="vacio">\u26A0\uFE0F '+escapa(String(e && e.message || e).slice(0,60))+'</div>');
+  });
+};
+
+function renderReconModal(){
+  var R = APP._reconData; if(!R) return;
+  var h = '';
+  h += '<div class="sub" style="font-size:12px;color:var(--gris);margin-bottom:10px">Así quedaría cada método si se recalcula desde los '+R.det.cierres+' cierres + '+R.det.manuales+' movimientos manuales + '+R.det.abonos+' abonos. Se ignoran '+R.det.ignorados+' ajustes/reversiones (el enredo).</div>';
+  h += '<div class="lbl">Actual \u2192 Reconstruido</div>';
+  var hayCambio = false;
+  Object.keys(METS_DISP).forEach(function(k){
+    var actual = Math.round((R.saldos[k]||0)*100)/100;
+    var nuevo = R.recon[k]||0;
+    var d = Math.round((nuevo-actual)*100)/100;
+    if(k === 'otros' && !actual && !nuevo) return;
+    var col = Math.abs(d) < 0.01 ? 'var(--gris)' : (d>0 ? 'var(--ok)' : 'var(--rojo)');
+    if(Math.abs(d) >= 0.01) hayCambio = true;
+    h += '<div class="tot-line"><span>'+METS_DISP[k].tx+'</span><b style="color:'+col+'">'+fmtMon(k, nuevo)+'</b></div>';
+    h += '<div style="text-align:right;font-size:11px;color:var(--gris);margin:-4px 0 6px">antes '+fmtMon(k, actual)+(Math.abs(d)>=0.01?' \u00b7 '+(d>0?'+':'')+fmtMon(k, d):' \u00b7 sin cambio')+'</div>';
+  });
+  var totalRecon = 0;
+  Object.keys(R.recon).forEach(function(k){ totalRecon += aCOP(k, R.recon[k]); });
+  h += '<div class="tot-line big" style="margin-top:8px"><span>Total reconstruido (a COP)</span><b>'+fmtCOP(Math.round(totalRecon))+'</b></div>';
+
+  if(!hayCambio){
+    h += '<div class="vacio" style="color:var(--ok);padding:12px;margin-top:10px">\u2705 Los saldos ya coinciden con la reconstrucción. No hace falta corregir nada.</div>';
+    h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+  } else {
+    h += '<div class="vacio" style="padding:10px;margin-top:10px;font-size:12px">Al aplicar, se crea UN solo ajuste que deja cada método en su valor reconstruido. Tu historial de cierres, abonos y movimientos NO se toca \u2014 solo se corrige el saldo. Queda registrado con tu nombre.</div>';
+    h += '<button class="btn" style="background:var(--mar)" onclick="APP.aplicarReconstruccion()">\u267B\ufe0f Aplicar reconstrucci\u00f3n</button>';
+    h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar \u00b7 no cambiar nada</button>';
+  }
+  abrirModal('\u267B\ufe0f Reconstruir saldos', h);
+}
+
+APP.aplicarReconstruccion = function(){
+  var R = APP._reconData; if(!R) return;
+  if(APP.user.rol !== 'admin'){ toast('Solo el admin puede aplicar'); return; }
+  if(!Object.keys(R.deltas).length){ toast('No hay nada que corregir'); APP.cerrarModal(); return; }
+  if(!confirm('Se ajustar\u00e1n los saldos a su valor reconstruido desde los cierres y movimientos legítimos.\n\nEsto deja todo como debe estar y borra el efecto de las reversiones. \u00bfContinuar?')) return;
+  moverDisponible(R.deltas, 'ajuste', '\u267B\ufe0f Reconstrucci\u00f3n total de saldos desde cierres y movimientos').then(function(){
+    log('reconstruccion', 'Saldos reconstruidos por '+APP.user.nombre);
+    toast('\u2705 Listo \u00b7 los saldos quedaron reconstruidos');
+    APP.cerrarModal();
+    renderDisponible();
+    cargarMovsDisp();
+  }).catch(function(e){ toast('\u26A0\uFE0F No se pudo: '+String(e && e.message || e).slice(0,50)); });
+};
 
 init();
 </script>
