@@ -590,6 +590,7 @@ select.inp{appearance:none;-webkit-appearance:none}
     <div id="ct-lista"></div>
     <button class="btn" id="btn-nueva-cta" onclick="APP.modalCuenta(null)">＋ Nueva cuenta</button>
     <button class="btn sec" onclick="APP.resumenCtasMes()">📊 Resumen de facturas del mes</button>
+    <button class="btn sec" onclick="APP.verProveedores()">🏭 Ver deuda por proveedor</button>
   </div>
 </div>
 
@@ -992,6 +993,9 @@ function init(){
   db.ref('cuentas').on('value', function(snap){
     APP.ctas = snap.val()||{};
     if(APP._pantalla === 's-cuentas') renderCuentas();
+  });
+  db.ref('proveedores').on('value', function(snap){
+    APP.provs = snap.val()||{};
   });
   db.ref('disponible/saldos').on('value', function(snap){
     APP.dispS = snap.val()||{};
@@ -3451,6 +3455,7 @@ var METS_DISP = {
   otros:{tx:'🏛️ Otros', mon:'COP'}
 };
 APP.ctas = {};
+APP.provs = {};
 APP.dispS = {};
 APP._ctaTab = 'cobrar';
 APP._ctaFiltro = 'pend';
@@ -3607,7 +3612,8 @@ APP.modalCuenta = function(id){
   h += '<div class="flabel">'+(esCob?'Cliente que nos debe':'Proveedor al que debemos')+'</div><input class="inp" id="ct-nombre" type="text" value="'+escapa(c.nombre)+'" placeholder="'+(esCob?'Ej: Alcaldía La Fría':'Ej: Distribuidora Kola Fría')+'">';
   h += '<div class="flabel">Descripción (opcional)</div><input class="inp" id="ct-desc" type="text" value="'+escapa(c.descripcion||'')+'" placeholder="Ej: refrescos semana 07/07">';
   if(!esCob){
-    /* facturas de proveedores venezolanos: vienen en Bs con su equivalente en USD */
+    /* proveedor: agrupar facturas del mismo proveedor */
+    h += '<div class="flabel">\U0001F3ED Proveedor</div>' + selectProveedores('ct-prov', c.provId||'');
     h += '<div class="lbl" style="margin-top:14px">Datos de la factura</div>';
     h += '<div class="flabel">Monto en bolívares (Bs)</div><input class="inp" id="ct-bs" type="number" inputmode="decimal" min="0" step="0.01" value="'+(c.montoBs||'')+'" placeholder="176679.89" oninput="APP.calcAncla()">';
     h += '<div class="flabel">Tasa de la factura (Bs por US$)</div><input class="inp" id="ct-tasafac" type="number" inputmode="decimal" min="0" step="0.01" value="'+(c.tasaFactura||'')+'" placeholder="674.93" oninput="APP.calcAncla()">';
@@ -3689,6 +3695,8 @@ APP.guardarCuenta = function(id){
     if(usd) data.montoUSD = usd;
     var lim = (document.getElementById('ct-limbs')||{}).value||'';
     if(lim) data.limiteBs = lim;
+    var pv = (document.getElementById('ct-prov')||{}).value||'';
+    if(pv) data.provId = pv; else if(prev && prev.provId) data.provId = null;
   }
   /* si editan el monto, recalcular estado */
   data.estado = (data.abonado >= data.monto) ? 'pagada' : 'pendiente';
@@ -4865,6 +4873,317 @@ APP.aplicarAjusteReal = function(){
     renderDisponible();
     if(typeof cargarMovsDisp === 'function') cargarMovsDisp();
   }).catch(function(e){ toast('\u26A0\uFE0F No se pudo: '+String(e && e.message || e).slice(0,50)); });
+};
+
+
+/* ═══════════ PROVEEDORES ═══════════
+   Agrupan las cuentas por pagar. Cada factura guarda provId.
+   Vista con deuda total, facturas, abono global (reparte a las más viejas
+   primero) e historial de compras y pagos. */
+
+function provsOrdenados(){
+  return Object.keys(APP.provs||{}).sort(function(a,b){
+    return (APP.provs[a].nombre||'').localeCompare(APP.provs[b].nombre||'', 'es');
+  });
+}
+
+/* Selector de proveedor con opción de crear uno nuevo al vuelo */
+function selectProveedores(id, seleccionado){
+  var h = '<select class="inp" id="'+id+'" onchange="APP.onSelProv(this)">';
+  h += '<option value="">\u2014 Sin proveedor \u2014</option>';
+  provsOrdenados().forEach(function(pid){
+    h += '<option value="'+pid+'"'+(pid===seleccionado?' selected':'')+'>'+escapa(APP.provs[pid].nombre)+'</option>';
+  });
+  h += '<option value="__nuevo__">\u2795 Agregar nuevo proveedor\u2026</option>';
+  return h+'</select>';
+}
+
+APP.onSelProv = function(sel){
+  if(sel.value !== '__nuevo__') return;
+  var nombre = (prompt('Nombre del nuevo proveedor:')||'').trim();
+  if(!nombre){ sel.value = ''; return; }
+  /* ¿ya existe uno con ese nombre? */
+  var existe = provsOrdenados().filter(function(pid){
+    return (APP.provs[pid].nombre||'').toLowerCase() === nombre.toLowerCase();
+  })[0];
+  if(existe){ sel.value = existe; toast('Ese proveedor ya existía · seleccionado'); return; }
+  var ref = db.ref('proveedores').push();
+  ref.set({nombre:nombre, creado:Date.now(), creadoPor:APP.user.nombre}).then(function(){
+    log('proveedor', 'Creado · '+nombre);
+    /* agregar la opción al vuelo y seleccionarla */
+    var opt = document.createElement('option');
+    opt.value = ref.key; opt.textContent = nombre;
+    sel.insertBefore(opt, sel.querySelector('option[value="__nuevo__"]'));
+    sel.value = ref.key;
+    toast('\u2705 Proveedor "'+nombre+'" agregado');
+  }).catch(function(e){ sel.value = ''; toast('\u26A0\uFE0F No se creó: '+String(e && e.message||e).slice(0,40)); });
+};
+
+/* Agrupa las cuentas por pagar por proveedor. Devuelve array ordenado por deuda desc. */
+function agruparPorProveedor(){
+  var grupos = {};
+  Object.keys(APP.ctas||{}).forEach(function(id){
+    var c = APP.ctas[id];
+    if(!c || (c.tipo||'cobrar') !== 'pagar') return;
+    var key = c.provId || ('__sin__'+(c.nombre||'').toLowerCase());
+    if(!grupos[key]){
+      var nom = c.provId ? ((APP.provs[c.provId]||{}).nombre||'(proveedor borrado)') : (c.nombre||'Sin nombre');
+      grupos[key] = {key:key, provId:c.provId||null, nombre:nom, facturas:[],
+                     deuda:0, total:0, abonado:0, nPend:0, nPag:0};
+    }
+    var g = grupos[key];
+    g.facturas.push(id);
+    g.total += (c.monto||0);
+    g.abonado += (c.abonado||0);
+    if(c.estado === 'pagada') g.nPag++;
+    else { g.deuda += saldoCta(c); g.nPend++; }
+  });
+  return Object.keys(grupos).map(function(k){ return grupos[k]; })
+    .sort(function(a,b){ return b.deuda - a.deuda; });
+}
+
+APP.verProveedores = function(){
+  var grupos = agruparPorProveedor();
+  var totalDeuda = 0;
+  grupos.forEach(function(g){ totalDeuda += g.deuda; });
+  var h = '';
+  h += '<div class="tot-line big"><span>\U0001F4B8 Deuda total a proveedores</span><b style="color:var(--rojo)">'+fmtCOP(totalDeuda)+'</b></div>';
+  h += '<div class="sub" style="font-size:12px;color:var(--gris);margin-bottom:10px">'+grupos.filter(function(g){return g.deuda>0;}).length+' proveedores con saldo pendiente. Toca uno para ver sus facturas y abonar.</div>';
+  var conDeuda = grupos.filter(function(g){ return g.deuda > 0; });
+  var sinDeuda = grupos.filter(function(g){ return g.deuda <= 0; });
+  if(!conDeuda.length) h += '<div class="vacio" style="color:var(--ok);padding:12px">\u2705 No debes nada a ningún proveedor.</div>';
+  conDeuda.forEach(function(g){
+    h += '<div class="card" style="cursor:pointer" onclick="APP.detalleProveedor(\''+escapaAttr(g.key)+'\')">';
+    h += '<div class="cta-top"><b>\U0001F3ED '+escapa(g.nombre)+'</b><span class="badge venc">debe '+fmtCOP(g.deuda)+'</span></div>';
+    h += '<div class="cta-det">'+g.nPend+' factura'+(g.nPend!==1?'s':'')+' pendiente'+(g.nPend!==1?'s':'')+(g.nPag?' · '+g.nPag+' ya pagada'+(g.nPag!==1?'s':''):'')+'</div>';
+    h += '</div>';
+  });
+  if(sinDeuda.length){
+    h += '<div class="lbl" style="margin-top:14px">Al día (sin deuda)</div>';
+    sinDeuda.forEach(function(g){
+      h += '<div class="card" style="cursor:pointer;opacity:.7" onclick="APP.detalleProveedor(\''+escapaAttr(g.key)+'\')">';
+      h += '<div class="cta-top"><b>\U0001F3ED '+escapa(g.nombre)+'</b><span class="badge" style="background:var(--ok);color:#fff">\u2705 al día</span></div>';
+      h += '</div>';
+    });
+  }
+  h += '<button class="btn sec" style="margin-top:12px" onclick="APP.gestionProveedores()">\u2699\ufe0f Administrar proveedores</button>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+  abrirModal('\U0001F3ED Deuda por proveedor', h);
+};
+
+function escapaAttr(s){ return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+APP._provKeyActual = null;
+APP.detalleProveedor = function(key){
+  APP._provKeyActual = key;
+  var grupos = agruparPorProveedor();
+  var g = grupos.filter(function(x){ return x.key === key; })[0];
+  if(!g){ APP.verProveedores(); return; }
+  /* ordenar facturas: pendientes más viejas primero, pagadas al final */
+  var facs = g.facturas.slice().sort(function(a,b){
+    var ca = APP.ctas[a], cb = APP.ctas[b];
+    if((ca.estado==='pagada') !== (cb.estado==='pagada')) return ca.estado==='pagada' ? 1 : -1;
+    return (ca.creada||0) - (cb.creada||0);
+  });
+  var h = '';
+  h += '<div class="tot-line big"><span>Deuda actual</span><b style="color:'+(g.deuda>0?'var(--rojo)':'var(--ok)')+'">'+(g.deuda>0?fmtCOP(g.deuda):'\u2705 $0')+'</b></div>';
+  h += '<div class="tot-line"><span>Total facturado (histórico)</span><b>'+fmtCOP(g.total)+'</b></div>';
+  h += '<div class="tot-line"><span>Total abonado</span><b style="color:var(--ok)">'+fmtCOP(g.abonado)+'</b></div>';
+
+  if(g.deuda > 0){
+    h += '<button class="btn verde" style="margin-top:12px" onclick="APP.abonoGlobalProv(\''+escapaAttr(key)+'\')">\U0001F4B0 Abonar a la deuda total</button>';
+    h += '<div style="font-size:11px;color:var(--gris);margin:4px 2px 0">Reparte el pago entre las facturas más viejas primero.</div>';
+  }
+
+  h += '<div class="lbl" style="margin-top:16px">Facturas de este proveedor</div>';
+  facs.forEach(function(id){
+    var c = APP.ctas[id];
+    var b = badgeCta(c);
+    var saldo = saldoCta(c);
+    var pagada = c.estado === 'pagada';
+    h += '<div class="card" style="cursor:pointer'+(pagada?';opacity:.6':'')+'" onclick="APP.cerrarModal();APP.detalleCuenta(\''+id+'\')">';
+    h += '<div class="cta-top"><b>'+escapa(c.descripcion||c.nombre)+'</b><span class="badge '+b.cls+'">'+b.tx+'</span></div>';
+    h += '<div class="saldo-line"><span class="abonado">'+((c.abonado||0)>0?'Abonado '+fmtCOP(c.abonado)+' de '+fmtCOP(c.monto):fmtCOP(c.monto)+' · '+(c.fecha||''))+'</span>';
+    h += '<span class="saldo" style="color:'+(pagada?'var(--ok)':'var(--rojo)')+'">'+(pagada?'\u2705 pagada':'debe '+fmtCOP(saldo))+'</span></div>';
+    h += '</div>';
+  });
+
+  h += '<button class="btn sec" style="margin-top:12px" onclick="APP.verProveedores()">\u2190 Volver a proveedores</button>';
+  abrirModal('\U0001F3ED '+escapa(g.nombre), h);
+};
+
+/* Abono global: reparte el monto entre las facturas pendientes, más viejas primero */
+APP._abGlobalKey = null;
+APP.abonoGlobalProv = function(key){
+  APP._abGlobalKey = key;
+  var grupos = agruparPorProveedor();
+  var g = grupos.filter(function(x){ return x.key === key; })[0];
+  if(!g || g.deuda <= 0){ toast('Este proveedor no tiene deuda'); return; }
+  var h = '';
+  h += '<div class="sub" style="font-size:13px;margin-bottom:10px">Deuda total con <b>'+escapa(g.nombre)+'</b>: <b style="color:var(--rojo)">'+fmtCOP(g.deuda)+'</b></div>';
+  h += '<div class="flabel">Método de pago</div><div class="metodos" id="agp-mets">';
+  Object.keys(METS_DISP).forEach(function(m){
+    h += '<button type="button" id="agp-'+m+'" onclick="APP.pickMetGlobal(\''+m+'\')">'+METS_DISP[m].tx+'</button>';
+  });
+  h += '</div>';
+  h += '<div class="flabel" id="agp-monto-lbl">Monto (COP)</div><input class="inp" id="agp-monto" type="text" inputmode="numeric" placeholder="0" oninput="APP.fmtMiles(this)">';
+  h += '<div class="conv" id="agp-conv"></div>';
+  h += '<div class="sub" id="agp-disp" style="font-size:12px;color:var(--gris);margin-top:4px"></div>';
+  h += '<div class="flabel">Nota (opcional)</div><input class="inp" id="agp-nota" type="text" placeholder="Ej: abono semana">';
+  h += '<div class="vacio" id="agp-reparto" style="padding:10px;margin-top:10px;font-size:12px;display:none"></div>';
+  h += '<button class="btn verde" style="margin-top:12px" id="btn-agp" onclick="APP.guardarAbonoGlobal()">\U0001F4B0 Aplicar abono</button>';
+  h += '<button class="btn sec" onclick="APP.detalleProveedor(\''+escapaAttr(key)+'\')">Cancelar</button>';
+  abrirModal('\U0001F4B0 Abonar a '+escapa(g.nombre), h);
+  APP.pickMetGlobal('efcop');
+};
+
+APP._agpMet = 'efcop';
+APP.pickMetGlobal = function(k){
+  APP._agpMet = k;
+  Object.keys(METS_DISP).forEach(function(m){
+    var el = document.getElementById('agp-'+m);
+    if(el) el.classList.toggle('sel', m === k);
+  });
+  var mon = monDe(k);
+  var lbl = document.getElementById('agp-monto-lbl');
+  var inp = document.getElementById('agp-monto');
+  if(document.getElementById('agp-conv')) document.getElementById('agp-conv').innerHTML = '';
+  if(mon === 'COP'){
+    lbl.textContent = 'Monto (COP)';
+    inp.value=''; inp.type='text'; inp.setAttribute('inputmode','numeric'); inp.setAttribute('oninput','APP.fmtMiles(this)');
+  } else {
+    lbl.textContent = mon === 'USD' ? 'Monto (USD)' : 'Monto (Bs)';
+    inp.value=''; inp.type='number'; inp.step='0.01'; inp.min='0'; inp.setAttribute('inputmode','decimal'); inp.setAttribute('oninput','APP.convGlobal(this)');
+  }
+  var d = document.getElementById('agp-disp');
+  if(d) d.textContent = '\U0001F4BC Disponible en este método: '+fmtMon(k, (APP.dispS||{})[k]||0);
+};
+APP.convGlobal = function(inp){
+  var cv = document.getElementById('agp-conv');
+  if(!cv) return;
+  var v = parseFloat(inp.value)||0;
+  cv.innerHTML = v > 0 ? '\u2248 <b>'+fmtCOP(aCOP(APP._agpMet, v))+'</b> COP' : '';
+};
+
+APP._guardandoAgp = false;
+APP.guardarAbonoGlobal = function(){
+  if(APP._guardandoAgp) return;
+  var key = APP._abGlobalKey;
+  var k = APP._agpMet, mon = monDe(k);
+  var monto = (mon === 'COP') ? valMiles('agp-monto') : (parseFloat((document.getElementById('agp-monto')||{}).value)||0);
+  if(monto <= 0){ toast('Ingresa el monto'); return; }
+  var montoCOP = Math.round(aCOP(k, monto));
+
+  /* facturas pendientes del proveedor, más viejas primero */
+  var grupos = agruparPorProveedor();
+  var g = grupos.filter(function(x){ return x.key === key; })[0];
+  if(!g){ toast('Proveedor no encontrado'); return; }
+  var pend = g.facturas.filter(function(id){ return APP.ctas[id].estado !== 'pagada'; })
+    .sort(function(a,b){ return (APP.ctas[a].creada||0) - (APP.ctas[b].creada||0); });
+  if(!pend.length){ toast('No hay facturas pendientes'); return; }
+
+  var disp = (APP.dispS||{})[k]||0;
+  if(monto > disp){
+    if(!confirm('\u26A0\uFE0F En '+METS_DISP[k].tx+' solo hay '+fmtMon(k, disp)+' y vas a pagar '+fmtMon(k, monto)+'.\nEl saldo quedará negativo. ¿Continuar?')) return;
+  }
+
+  /* repartir montoCOP entre facturas (FIFO) */
+  var restante = montoCOP;
+  var upd = {};
+  var nota = ((document.getElementById('agp-nota')||{}).value||'').trim();
+  var repartidas = [];
+  for(var i=0; i<pend.length && restante > 0; i++){
+    var id = pend[i], c = APP.ctas[id];
+    var saldo = saldoCta(c);
+    if(saldo <= 0) continue;
+    var aplica = Math.min(saldo, restante);
+    var propMon = (mon === 'COP') ? aplica : Math.round(aplica / (aCOP(k,1)) * 100)/100;
+    var abono = {
+      monto: propMon, moneda: mon, montoCOP: aplica,
+      tasa: mon === 'USD' ? (APP.tasas.usd||0) : (mon === 'VES' ? (APP.tasas.ves||0) : 1),
+      metodo: k, origen: 'global',
+      nota: (nota ? nota+' · ' : '')+'abono global al proveedor',
+      ts: Date.now(), fecha: fechaOperativa(), usuario: APP.user.nombre
+    };
+    upd['cuentas/'+id+'/abonos/'+db.ref('cuentas/'+id+'/abonos').push().key] = abono;
+    var nuevoAb = (c.abonado||0) + aplica;
+    upd['cuentas/'+id+'/abonado'] = nuevoAb;
+    if(nuevoAb >= (c.monto||0)) upd['cuentas/'+id+'/estado'] = 'pagada';
+    repartidas.push({nombre:c.descripcion||c.nombre, aplica:aplica, pagada: nuevoAb >= (c.monto||0)});
+    restante -= aplica;
+  }
+  if(!repartidas.length){ toast('No se pudo repartir'); return; }
+
+  APP._guardandoAgp = true;
+  var btn = document.getElementById('btn-agp');
+  if(btn){ btn.disabled = true; btn.textContent = '\u23F3 Guardando…'; }
+  var aplicadoCOP = montoCOP - restante;
+  var aplicadoMon = (mon === 'COP') ? aplicadoCOP : Math.round(aplicadoCOP / aCOP(k,1) * 100)/100;
+
+  db.ref().update(upd).then(function(){
+    var deltas = {};
+    deltas[k] = -aplicadoMon;
+    return moverDisponible(deltas, 'abono-pagar', '\U0001F3ED Abono global a '+g.nombre+' · '+fmtMon(k, aplicadoMon)+' ('+repartidas.length+' fact.)');
+  }).then(function(){
+    log('abono-global', g.nombre+' · '+fmtMon(k, aplicadoMon)+' · '+repartidas.length+' facturas');
+    var pagadas = repartidas.filter(function(r){ return r.pagada; }).length;
+    var msg = '\u2705 Abono repartido en '+repartidas.length+' factura'+(repartidas.length!==1?'s':'');
+    if(pagadas) msg += ' · '+pagadas+' quedó'+(pagadas!==1?'aron':'')+' pagada'+(pagadas!==1?'s':'');
+    if(restante > 0) msg += ' · sobró '+fmtCOP(restante)+' (deuda saldada)';
+    toast(msg);
+    APP._guardandoAgp = false;
+    APP.detalleProveedor(key);
+  }).catch(function(e){
+    APP._guardandoAgp = false;
+    if(btn){ btn.disabled = false; btn.textContent = '\U0001F4B0 Aplicar abono'; }
+    toast('\u26A0\uFE0F No se guardó: '+String(e && e.message||e).slice(0,50));
+  });
+};
+
+/* Administrar proveedores: renombrar / eliminar */
+APP.gestionProveedores = function(){
+  var h = '';
+  var ids = provsOrdenados();
+  if(!ids.length) h += '<div class="vacio">Aún no hay proveedores. Se crean al registrar una factura por pagar.</div>';
+  ids.forEach(function(pid){
+    var p = APP.provs[pid];
+    /* contar facturas ligadas */
+    var n = 0;
+    Object.keys(APP.ctas||{}).forEach(function(cid){ if(APP.ctas[cid].provId === pid) n++; });
+    h += '<div class="card"><div class="cta-top"><b>\U0001F3ED '+escapa(p.nombre)+'</b><span class="badge">'+n+' fact.</span></div>';
+    h += '<div style="display:flex;gap:8px;margin-top:8px">';
+    h += '<button class="btn sec" style="flex:1;margin:0" onclick="APP.renombrarProv(\''+pid+'\')">\u270F\ufe0f Renombrar</button>';
+    if(APP.user.rol === 'admin' || APP.user.rol === 'supervisor')
+      h += '<button class="btn" style="flex:1;margin:0;background:var(--rojo);box-shadow:none" onclick="APP.borrarProv(\''+pid+'\')">\U0001F5D1\ufe0f Borrar</button>';
+    h += '</div></div>';
+  });
+  h += '<button class="btn sec" style="margin-top:12px" onclick="APP.verProveedores()">\u2190 Volver</button>';
+  abrirModal('\u2699\ufe0f Administrar proveedores', h);
+};
+APP.renombrarProv = function(pid){
+  var p = APP.provs[pid]; if(!p) return;
+  var nuevo = (prompt('Nuevo nombre para el proveedor:', p.nombre)||'').trim();
+  if(!nuevo || nuevo === p.nombre) return;
+  db.ref('proveedores/'+pid+'/nombre').set(nuevo).then(function(){
+    log('proveedor', 'Renombrado · '+p.nombre+' → '+nuevo);
+    toast('\u2705 Renombrado');
+    APP.gestionProveedores();
+  });
+};
+APP.borrarProv = function(pid){
+  var p = APP.provs[pid]; if(!p) return;
+  var n = 0;
+  Object.keys(APP.ctas||{}).forEach(function(cid){ if(APP.ctas[cid].provId === pid) n++; });
+  var aviso = n ? '\nLas '+n+' factura(s) ligadas NO se borran, solo quedan sin proveedor.' : '';
+  if(!confirm('¿Borrar el proveedor "'+p.nombre+'"?'+aviso)) return;
+  var upd = {};
+  upd['proveedores/'+pid] = null;
+  Object.keys(APP.ctas||{}).forEach(function(cid){ if(APP.ctas[cid].provId === pid) upd['cuentas/'+cid+'/provId'] = null; });
+  db.ref().update(upd).then(function(){
+    log('proveedor', 'Borrado · '+p.nombre);
+    toast('\U0001F5D1\ufe0f Proveedor borrado');
+    APP.gestionProveedores();
+  });
 };
 
 init();
