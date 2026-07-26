@@ -1440,6 +1440,15 @@ function llenarCategorias(selectId, tipo, seleccionada){
   lista.forEach(function(c){ h += '<option'+(c===seleccionada?' selected':'')+'>'+escapa(c)+'</option>'; });
   sel.innerHTML = h || '<option>💸 Otros</option>';
 }
+APP._tipoGastoFac = 'compras';
+APP.pickTipoGastoFac = function(id){
+  APP._tipoGastoFac = id;
+  TIPOS_GASTO.forEach(function(t){
+    var b = document.getElementById('ctg-'+t.id);
+    if(b) b.classList.toggle('sel', t.id === id);
+  });
+  llenarCategorias('ct-cat', id, null);
+};
 APP.pickTipoGasto = function(id){
   APP._tipoGastoSel = id;
   TIPOS_GASTO.forEach(function(t){
@@ -3614,6 +3623,14 @@ APP.modalCuenta = function(id){
   if(!esCob){
     /* proveedor: agrupar facturas del mismo proveedor */
     h += '<div class="flabel">\U0001F3ED Proveedor</div>' + selectProveedores('ct-prov', c.provId||'');
+    /* tipo de gasto + categoría: para que al pagar caiga bien en los informes */
+    var tgFac = normTipo(c.tipoGasto || 'compras');
+    h += '<div class="flabel">Tipo de gasto</div><div class="metodos" id="ct-tg-sel">';
+    TIPOS_GASTO.forEach(function(t){
+      h += '<button type="button" class="'+(t.id===tgFac?'sel':'')+'" id="ctg-'+t.id+'" onclick="APP.pickTipoGastoFac(\''+t.id+'\')">'+t.tx+'</button>';
+    });
+    h += '</div>';
+    h += '<div class="flabel">Categoría</div><select class="inp" id="ct-cat"></select>';
     h += '<div class="lbl" style="margin-top:14px">Datos de la factura</div>';
     h += '<div class="flabel">Monto en bolívares (Bs)</div><input class="inp" id="ct-bs" type="number" inputmode="decimal" min="0" step="0.01" value="'+(c.montoBs||'')+'" placeholder="176679.89" oninput="APP.calcAncla()">';
     h += '<div class="flabel">Tasa de la factura (Bs por US$)</div><input class="inp" id="ct-tasafac" type="number" inputmode="decimal" min="0" step="0.01" value="'+(c.tasaFactura||'')+'" placeholder="674.93" oninput="APP.calcAncla()">';
@@ -3634,7 +3651,7 @@ APP.modalCuenta = function(id){
   }
   h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar</button>';
   abrirModal(id ? '✏️ Editar cuenta' : (esCob?'🧾 Nueva cuenta por cobrar':'📤 Nueva cuenta por pagar'), h);
-  if(!esCob) APP.calcAncla();
+  if(!esCob){ APP.calcAncla(); var _tg = normTipo(c.tipoGasto||'compras'); APP._tipoGastoFac = _tg; llenarCategorias('ct-cat', _tg, c.categoria||null); }
 };
 APP._tipoCtaEdit = null;
 APP.pickTipoCta = function(t){
@@ -3697,6 +3714,9 @@ APP.guardarCuenta = function(id){
     if(lim) data.limiteBs = lim;
     var pv = (document.getElementById('ct-prov')||{}).value||'';
     if(pv) data.provId = pv; else if(prev && prev.provId) data.provId = null;
+    data.tipoGasto = APP._tipoGastoFac || 'compras';
+    var catF = (document.getElementById('ct-cat')||{}).value||'';
+    if(catF) data.categoria = catF;
   }
   /* si editan el monto, recalcular estado */
   data.estado = (data.abonado >= data.monto) ? 'pagada' : 'pendiente';
@@ -4475,6 +4495,45 @@ function facturasMes(ctas, mes){
   return R;
 }
 
+/* Gastos a crédito PAGADOS dentro del mes, agrupados por categoría.
+   Cuenta cada abono por su fecha de pago (no la fecha de la factura). */
+function creditoPorCategoria(ctas, mes){
+  var desde = mes+'-01', hasta = mes+'-31';
+  var porCat = {}; var total = 0;
+  Object.keys(ctas||{}).forEach(function(id){
+    var c = ctas[id];
+    if(!c || (c.tipo||'cobrar') !== 'pagar') return;
+    var cat = c.categoria || '\uD83D\uDCB8 Otros';
+    var ab = c.abonos||{};
+    Object.keys(ab).forEach(function(ak){
+      var a = ab[ak];
+      var f = a.fecha||'';
+      if(f < desde || f > hasta) return;
+      var monto = a.montoCOP||0;
+      porCat[cat] = (porCat[cat]||0) + monto;
+      total += monto;
+    });
+  });
+  return {porCat:porCat, total:total};
+}
+
+/* Combina gastos de caja (contado) + crédito pagado, por categoría */
+function consolidarCategorias(egrCatCaja, credCat){
+  var todas = {};
+  Object.keys(egrCatCaja||{}).forEach(function(c){
+    todas[c] = todas[c]||{contado:0, credito:0};
+    todas[c].contado += egrCatCaja[c]||0;
+  });
+  Object.keys(credCat||{}).forEach(function(c){
+    todas[c] = todas[c]||{contado:0, credito:0};
+    todas[c].credito += credCat[c]||0;
+  });
+  return Object.keys(todas).map(function(c){
+    return {cat:c, contado:todas[c].contado, credito:todas[c].credito, total:todas[c].contado+todas[c].credito};
+  }).filter(function(x){ return x.total > 0; })
+    .sort(function(a,b){ return b.total - a.total; });
+}
+
 APP._cmDatos = null;
 APP.generarCierreMes = function(){
   var mes = (document.getElementById('cm-mes')||{}).value||fechaOperativa().slice(0,7);
@@ -4503,9 +4562,17 @@ APP.generarCierreMes = function(){
     diasArr.forEach(function(f){ if(A.dias[f] > mejorDia.v) mejorDia = {f:f, v:A.dias[f]}; });
     var nDias = diasArr.length;
     var prom = nDias ? Math.round(ventas/nDias) : 0;
+    var cred = creditoPorCategoria(ctas, mes);
+    var catsConsol = consolidarCategorias(A.egrCat, cred.porCat);
+    /* Deuda de mercancía/gasto ya recibido este mes pero aún no pagado */
+    var deudaMes = F.pendTotal||0;
+    var utilidadAjust = utilidad - deudaMes;
+    var margenAjust = ventas>0 ? Math.round(utilidadAjust/ventas*100) : 0;
     APP._cmDatos = {mes:mes, prev:prev, A:A, Ap:Ap, F:F, costo:costo, ventas:ventas,
       otrosGastos:otrosGastos, utilidad:utilidad, margen:margen, utilidadPrev:utilidadPrev,
-      mejorDia:mejorDia, nDias:nDias, prom:prom};
+      mejorDia:mejorDia, nDias:nDias, prom:prom,
+      credTotal:cred.total, catsConsol:catsConsol,
+      deudaMes:deudaMes, utilidadAjust:utilidadAjust, margenAjust:margenAjust};
     renderCierreMesModal();
   }).catch(function(e){
     abrirModal('\uD83D\uDCC4 Cierre de Mes', '<div class="vacio">\u26A0\uFE0F '+escapa(String(e && e.message || e).slice(0,60))+'</div>');
@@ -4530,8 +4597,14 @@ function renderCierreMesModal(){
   h += '<div style="text-align:right;margin:-6px 0 8px">'+flechaComp(D.ventas, D.Ap.ventaTotal)+'</div>';
   h += '<div class="tot-line"><span>\uD83D\uDCE6 Costo (compras)</span><b style="color:var(--rojo)">- '+fmtCOP(D.costo)+'</b></div>';
   h += '<div class="tot-line"><span>\uD83E\uDDFE Otros gastos (fijos+variables)</span><b style="color:var(--rojo)">- '+fmtCOP(D.otrosGastos)+'</b></div>';
-  h += '<div class="tot-line big"><span>\uD83D\uDCC8 Utilidad estimada</span><b style="color:'+(D.utilidad>=0?'var(--ok)':'var(--rojo)')+'">'+fmtCOP(D.utilidad)+'</b></div>';
+  h += '<div class="tot-line big"><span>\uD83D\uDCC8 Utilidad por caja (lo pagado)</span><b style="color:'+(D.utilidad>=0?'var(--ok)':'var(--rojo)')+'">'+fmtCOP(D.utilidad)+'</b></div>';
   h += '<div style="text-align:right;margin:-6px 0 4px"><span style="font-size:11px;color:var(--gris)">margen '+D.margen+'%</span>'+flechaComp(D.utilidad, D.utilidadPrev)+'</div>';
+  if(D.deudaMes>0){
+    h += '<div class="tot-line"><span>\uD83D\uDCE6 Mercancía recibida sin pagar</span><b style="color:var(--rojo)">- '+fmtCOP(D.deudaMes)+'</b></div>';
+    h += '<div style="font-size:11px;color:var(--gris);margin:-4px 0 6px 4px">Ya la tienes/usaste, pero aún no ha salido el dinero.</div>';
+    h += '<div class="tot-line big"><span>\u2696\ufe0f Utilidad real (con lo que debes)</span><b style="color:'+(D.utilidadAjust>=0?'var(--ok)':'var(--rojo)')+'">'+fmtCOP(D.utilidadAjust)+'</b></div>';
+    h += '<div style="text-align:right;margin:-6px 0 4px"><span style="font-size:11px;color:var(--gris)">margen real '+D.margenAjust+'%</span></div>';
+  }
   h += '<div class="sub" style="font-size:11px;color:var(--gris);margin-bottom:10px">'+D.nDias+' d\u00edas con cierre \u00b7 promedio '+fmtCOP(D.prom)+'/d\u00eda'+(D.mejorDia.f?' \u00b7 mejor d\u00eda '+D.mejorDia.f.slice(8,10)+'/'+D.mejorDia.f.slice(5,7)+' ('+fmtCOP(D.mejorDia.v)+')':'')+'</div>';
 
   h += '<div class="lbl" style="margin-top:6px">\uD83E\uDDFE Facturas por pagar</div>';
@@ -4540,10 +4613,18 @@ function renderCierreMesModal(){
   h += '<div class="tot-line"><span>Pendientes del mes</span><b style="color:var(--rojo)">'+fmtCOP(F.pendTotal)+'</b></div>';
   if(F.arrastre) h += '<div class="tot-line"><span>Arrastre de meses previos</span><b style="color:var(--rojo)">'+fmtCOP(F.arrastre)+'</b></div>';
 
-  var cats = Object.keys(A.egrCat).map(function(k){ return {n:k, v:A.egrCat[k]}; }).sort(function(a,b){ return b.v-a.v; });
+  var cats = D.catsConsol||[];
   if(cats.length){
-    h += '<div class="lbl" style="margin-top:12px">\uD83D\uDCCA Gastos por categor\u00eda</div>';
-    cats.forEach(function(c){ if(c.v>0) h += '<div class="tot-line"><span>'+escapa(c.n)+'</span><b>'+fmtCOP(c.v)+'</b></div>'; });
+    h += '<div class="lbl" style="margin-top:12px">\uD83D\uDCCA Gastos por categor\u00eda (todo)</div>';
+    cats.forEach(function(c){
+      h += '<div class="tot-line"><span>'+escapa(c.cat)+'</span><b>'+fmtCOP(c.total)+'</b></div>';
+      if(c.contado>0 && c.credito>0){
+        h += '<div style="font-size:11px;color:var(--gris);margin:-4px 0 6px 4px">\u00b7 contado '+fmtCOP(c.contado)+' \u00b7 cr\u00e9dito '+fmtCOP(c.credito)+'</div>';
+      } else if(c.credito>0){
+        h += '<div style="font-size:11px;color:var(--gris);margin:-4px 0 6px 4px">\u00b7 todo a cr\u00e9dito</div>';
+      }
+    });
+    if(D.credTotal>0) h += '<div style="font-size:11px;color:var(--gris);margin-top:4px">Incluye '+fmtCOP(D.credTotal)+' de facturas a cr\u00e9dito pagadas este mes.</div>';
   }
 
   h += '<button class="btn" style="margin-top:16px" onclick="APP.pdfCierreMes()">\uD83D\uDCC4 Ver / Guardar PDF</button>';
@@ -4563,10 +4644,14 @@ APP.waCierreMes = function(){
   t.push('\uD83D\uDCB0 *Ventas:* '+fmtCOP(D.ventas));
   t.push('\uD83D\uDCE6 Costo (compras): -'+fmtCOP(D.costo));
   t.push('\uD83E\uDDFE Otros gastos: -'+fmtCOP(D.otrosGastos));
-  t.push('\uD83D\uDCC8 *Utilidad estimada: '+fmtCOP(D.utilidad)+'* (margen '+D.margen+'%)');
+  t.push('\uD83D\uDCC8 *Utilidad por caja: '+fmtCOP(D.utilidad)+'* (margen '+D.margen+'%)');
+  if(D.deudaMes>0){
+    t.push('\uD83D\uDCE6 Mercancía recibida sin pagar: -'+fmtCOP(D.deudaMes));
+    t.push('\u2696\uFE0F *Utilidad real (con lo que debes): '+fmtCOP(D.utilidadAjust)+'* (margen '+D.margenAjust+'%)');
+  }
   if(D.Ap.ventaTotal){
     var dv = D.ventas - D.Ap.ventaTotal;
-    t.push('   '+(dv>=0?'\u25B2':'\u25BC')+' '+fmtCOP(Math.abs(dv))+' vs '+nombreMes(D.prev));
+    t.push('   '+(dv>=0?'\u25B2':'\u25BC')+' '+fmtCOP(Math.abs(dv))+' en ventas vs '+nombreMes(D.prev));
   }
   t.push('');
   t.push('\uD83D\uDCCA *Promedio:* '+fmtCOP(D.prom)+'/d\u00eda');
@@ -4577,11 +4662,14 @@ APP.waCierreMes = function(){
   t.push('\uD83D\uDCC6 Pagadas cr\u00e9dito: '+fmtCOP(F.pagadasCredito));
   t.push('\uD83D\uDD34 Pendientes del mes: '+fmtCOP(F.pendTotal));
   if(F.arrastre) t.push('\u26A0\uFE0F Arrastre previo: '+fmtCOP(F.arrastre));
-  var cats = Object.keys(A.egrCat).map(function(k){ return {n:k, v:A.egrCat[k]}; }).sort(function(a,b){ return b.v-a.v; }).filter(function(c){ return c.v>0; });
+  var cats = D.catsConsol||[];
   if(cats.length){
     t.push('');
     t.push('\uD83D\uDCB8 *GASTOS POR CATEGOR\u00cdA*');
-    cats.slice(0,10).forEach(function(c){ t.push('\u2022 '+c.n+': '+fmtCOP(c.v)); });
+    cats.slice(0,12).forEach(function(c){
+      var extra = (c.contado>0 && c.credito>0) ? ' (cont '+fmtCOP(c.contado)+' + cr\u00e9d '+fmtCOP(c.credito)+')' : (c.credito>0 ? ' (cr\u00e9dito)' : '');
+      t.push('\u2022 '+c.cat+': '+fmtCOP(c.total)+extra);
+    });
   }
   t.push('');
   t.push('_Generado el '+fechaOperativa()+' por '+APP.user.nombre+'_');
@@ -4593,7 +4681,7 @@ APP.waCierreMes = function(){
 APP.pdfCierreMes = function(){
   var D = APP._cmDatos; if(!D) return;
   var A = D.A, F = D.F;
-  var cats = Object.keys(A.egrCat).map(function(k){ return {n:k, v:A.egrCat[k]}; }).sort(function(a,b){ return b.v-a.v; }).filter(function(c){ return c.v>0; });
+  var cats = D.catsConsol||[];
   var diasArr = Object.keys(A.dias).sort();
   function row(a,b,col){ return '<tr><td>'+a+'</td><td class="r" style="'+(col?'color:'+col:'')+'"><b>'+b+'</b></td></tr>'; }
   var comp = '';
@@ -4607,7 +4695,10 @@ APP.pdfCierreMes = function(){
     pendRows += '<tr><td>'+escapa(p.n)+(p.viejo?' <span class="viejo">(mes previo)</span>':'')+'</td><td class="r">'+fmtCOP(p.s)+'</td></tr>';
   });
   var catRows = '';
-  cats.forEach(function(c){ catRows += '<tr><td>'+escapa(c.n)+'</td><td class="r">'+fmtCOP(c.v)+'</td></tr>'; });
+  cats.forEach(function(c){
+    var sub = (c.contado>0 && c.credito>0) ? '<div class="viejo" style="color:#7A8580">contado '+fmtCOP(c.contado)+' \u00b7 cr\u00e9dito '+fmtCOP(c.credito)+'</div>' : (c.credito>0 ? '<div class="viejo" style="color:#7A8580">a cr\u00e9dito</div>' : '');
+    catRows += '<tr><td>'+escapa(c.cat)+sub+'</td><td class="r"><b>'+fmtCOP(c.total)+'</b></td></tr>';
+  });
   var diasBars = '';
   var maxD = 0; diasArr.forEach(function(f){ if(A.dias[f]>maxD) maxD=A.dias[f]; });
   diasArr.forEach(function(f){
@@ -4644,7 +4735,9 @@ APP.pdfCierreMes = function(){
   + '@media print{.noprint{display:none}body{padding:0}}'
   + '</style></head><body>'
   + '<div class="hd"><div class="mini">\uD83E\uDD90 Don Camaron \u00b7 La Fria</div><h1>Cierre de '+nombreMes(D.mes)+'</h1><div class="sub">Resumen para socios \u00b7 '+(A.primerDia||'')+' al '+(A.ultimoDia||'')+' \u00b7 '+D.nDias+' dias operados</div></div>'
-  + '<div class="big"><div class="lb">Utilidad estimada del mes</div><div class="util">'+fmtCOP(D.utilidad)+'</div><div class="comp">Margen '+D.margen+'% sobre ventas'+(D.Ap.ventaTotal?' \u00b7 '+(D.utilidad-D.utilidadPrev>=0?'\u25B2':'\u25BC')+' '+fmtCOP(Math.abs(D.utilidad-D.utilidadPrev))+' vs '+nombreMes(D.prev):'')+'</div></div>'
+  + '<div class="big"><div class="lb">Utilidad por caja (lo pagado)</div><div class="util">'+fmtCOP(D.utilidad)+'</div><div class="comp">Margen '+D.margen+'% sobre ventas'+(D.Ap.ventaTotal?' \u00b7 '+(D.utilidad-D.utilidadPrev>=0?'\u25B2':'\u25BC')+' '+fmtCOP(Math.abs(D.utilidad-D.utilidadPrev))+' vs '+nombreMes(D.prev):'')+'</div>'
+  + (D.deudaMes>0 ? '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #E8E1D5"><div class="lb">\uD83D\uDCE6 Mercancía recibida sin pagar: <b style="color:#C0392B">-'+fmtCOP(D.deudaMes)+'</b></div><div class="lb" style="margin-top:6px">\u2696\uFE0F Utilidad real (con lo que debes)</div><div class="util" style="font-size:26px;color:'+(D.utilidadAjust>=0?'#1E7D4E':'#C0392B')+'">'+fmtCOP(D.utilidadAjust)+'</div><div class="comp">Margen real '+D.margenAjust+'%</div></div>' : '')
+  + '</div>'
   + '<div class="grid">'
   + '<div class="kpi"><div class="v" style="color:#1E7D4E">'+fmtCOP(D.ventas)+'</div><div class="t">Ventas totales</div></div>'
   + '<div class="kpi"><div class="v" style="color:#C0392B">'+fmtCOP(D.costo)+'</div><div class="t">Costo (compras)</div></div>'
