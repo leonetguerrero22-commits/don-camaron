@@ -609,6 +609,7 @@ select.inp{appearance:none;-webkit-appearance:none}
     <button class="btn" onclick="APP.modalMovManual()">± Movimiento manual</button>
     <button class="btn" style="margin-top:8px;background:var(--noche);box-shadow:0 4px 14px rgba(59,91,165,.25)" onclick="APP.auditarDisponible()">🩺 Auditar saldos · buscar dinero fantasma</button>
     <button class="btn" style="margin-top:8px;background:var(--mar);box-shadow:0 4px 14px rgba(14,59,51,.25)" onclick="APP.reconstruirDisponible()">♻️ Reconstruir saldos desde cero</button>
+    <button class="btn" style="margin-top:8px;background:var(--ok);box-shadow:0 4px 14px rgba(30,125,78,.25)" onclick="APP.ajustarSaldoReal()">✅ Ajustar a saldo real · contar y cuadrar</button>
     <div class="card" style="margin-top:12px"><div class="lbl">Historial de movimientos</div><div id="dp-movs"><div class="cargando">Cargando…</div></div></div>
     <button class="btn sec" onclick="APP.abrirCuentas()">← Volver a cuentas</button>
   </div>
@@ -4784,6 +4785,85 @@ APP.aplicarReconstruccion = function(){
     APP.cerrarModal();
     renderDisponible();
     cargarMovsDisp();
+  }).catch(function(e){ toast('\u26A0\uFE0F No se pudo: '+String(e && e.message || e).slice(0,50)); });
+};
+
+
+/* ═══════════ AJUSTAR A SALDO REAL ═══════════
+   El admin cuenta lo que hay físicamente en cada método y lo escribe.
+   La app calcula la diferencia contra el saldo actual y la deja registrada
+   como un ajuste con la nota que el usuario ponga. Cada método en su moneda. */
+APP.ajustarSaldoReal = function(){
+  if(APP.user.rol !== 'admin'){ toast('Solo el admin puede ajustar los saldos'); return; }
+  var s = APP.dispS||{};
+  var h = '<div class="sub" style="font-size:12px;color:var(--gris);margin-bottom:10px">Escribe lo que hay REALMENTE en cada método (cuenta el efectivo, revisa el saldo del banco, etc.). Deja igual los que ya estén bien. La app calcula sola la diferencia.</div>';
+  Object.keys(METS_DISP).forEach(function(k){
+    var m = METS_DISP[k];
+    var actual = Math.round(((s[k]||0))*100)/100;
+    var suf = m.mon === 'USD' ? 'USD' : (m.mon === 'VES' ? 'Bs' : 'COP');
+    h += '<div class="flabel">'+m.tx+' <span style="color:var(--gris);font-weight:400">\u00b7 app dice '+fmtMon(k, actual)+'</span></div>';
+    h += '<div style="display:flex;align-items:center;gap:8px">';
+    h += '<input class="inp" id="asr-'+k+'" type="number" inputmode="decimal" step="any" value="'+actual+'" style="flex:1">';
+    h += '<span style="font-size:12px;color:var(--gris);min-width:34px">'+suf+'</span></div>';
+  });
+  h += '<div class="flabel" style="margin-top:12px">Motivo / nota del ajuste</div>';
+  h += '<input class="inp" id="asr-nota" type="text" placeholder="Ej: Conteo real \u00b7 dinero de otro negocio no registrado" value="Conteo real de saldos">';
+  h += '<button class="btn" style="margin-top:12px" onclick="APP.previewAjusteReal()">Ver diferencias antes de aplicar</button>';
+  h += '<button class="btn sec" onclick="APP.cerrarModal()">Cancelar</button>';
+  abrirModal('\u2705 Ajustar a saldo real', h);
+};
+
+APP._asrData = null;
+APP.previewAjusteReal = function(){
+  var s = APP.dispS||{};
+  var nota = ((document.getElementById('asr-nota')||{}).value||'').trim() || 'Conteo real de saldos';
+  var deltas = {}, filas = [], totCOPactual = 0, totCOPnuevo = 0;
+  var faltaInput = false;
+  Object.keys(METS_DISP).forEach(function(k){
+    var el = document.getElementById('asr-'+k);
+    if(!el){ faltaInput = true; return; }
+    var actual = Math.round(((s[k]||0))*100)/100;
+    var real = parseFloat(el.value);
+    if(isNaN(real)) real = actual;
+    real = Math.round(real*100)/100;
+    var d = Math.round((real-actual)*100)/100;
+    totCOPactual += aCOP(k, actual);
+    totCOPnuevo += aCOP(k, real);
+    if(Math.abs(d) > 0.001){ deltas[k] = d; filas.push({k:k, actual:actual, real:real, d:d}); }
+  });
+  APP._asrData = {deltas:deltas, nota:nota};
+  var h = '';
+  if(!filas.length){
+    h += '<div class="vacio" style="color:var(--ok);padding:12px">\u2705 No hay diferencias \u00b7 los saldos ya coinciden con lo que contaste. Nada que ajustar.</div>';
+    h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+    abrirModal('\u2705 Ajustar a saldo real', h);
+    return;
+  }
+  h += '<div class="lbl">Diferencias a aplicar</div>';
+  filas.forEach(function(f){
+    var col = f.d>0 ? 'var(--ok)' : 'var(--rojo)';
+    h += '<div class="tot-line"><span>'+METS_DISP[f.k].tx+'</span><b style="color:'+col+'">'+(f.d>0?'+':'')+fmtMon(f.k, f.d)+'</b></div>';
+    h += '<div style="text-align:right;font-size:11px;color:var(--gris);margin:-4px 0 6px">de '+fmtMon(f.k, f.actual)+' \u2192 '+fmtMon(f.k, f.real)+'</div>';
+  });
+  var difCOP = Math.round(totCOPnuevo - totCOPactual);
+  h += '<div class="tot-line big" style="margin-top:8px"><span>Total quedar\u00e1 en (a COP)</span><b>'+fmtCOP(Math.round(totCOPnuevo))+'</b></div>';
+  h += '<div class="tot-line"><span>Cambio total</span><b style="color:'+(difCOP>=0?'var(--ok)':'var(--rojo)')+'">'+(difCOP>=0?'+':'')+fmtCOP(difCOP)+'</b></div>';
+  h += '<div class="vacio" style="padding:10px;margin-top:10px;font-size:12px">Se registra UN ajuste con tu nota: "'+escapa(APP._asrData.nota)+'". Queda con tu nombre en el historial. El resto no se toca.</div>';
+  h += '<button class="btn" style="background:var(--ok)" onclick="APP.aplicarAjusteReal()">\u2705 Aplicar y cuadrar</button>';
+  h += '<button class="btn sec" onclick="APP.ajustarSaldoReal()">\u2190 Volver a editar</button>';
+  abrirModal('\u2705 Confirmar ajuste', h);
+};
+
+APP.aplicarAjusteReal = function(){
+  var D = APP._asrData; if(!D) return;
+  if(APP.user.rol !== 'admin'){ toast('Solo el admin puede aplicar'); return; }
+  if(!Object.keys(D.deltas).length){ toast('No hay diferencias'); APP.cerrarModal(); return; }
+  moverDisponible(D.deltas, 'ajuste', '\u2705 Ajuste a saldo real \u00b7 '+D.nota).then(function(){
+    log('ajuste-real', D.nota+' \u00b7 por '+APP.user.nombre);
+    toast('\u2705 Saldos cuadrados con la realidad');
+    APP.cerrarModal();
+    renderDisponible();
+    if(typeof cargarMovsDisp === 'function') cargarMovsDisp();
   }).catch(function(e){ toast('\u26A0\uFE0F No se pudo: '+String(e && e.message || e).slice(0,50)); });
 };
 
