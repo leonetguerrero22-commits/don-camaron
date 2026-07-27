@@ -608,7 +608,6 @@ select.inp{appearance:none;-webkit-appearance:none}
   <div class="wrap">
     <div class="card"><div class="lbl">Saldos por método</div><div id="dp-saldos"></div></div>
     <button class="btn" onclick="APP.modalMovManual()">± Movimiento manual</button>
-    <button class="btn" style="margin-top:8px;background:var(--noche);box-shadow:0 4px 14px rgba(59,91,165,.25)" onclick="APP.auditarDisponible()">🩺 Auditar saldos · buscar dinero fantasma</button>
     <button class="btn" style="margin-top:8px;background:var(--ok);box-shadow:0 4px 14px rgba(30,125,78,.25)" onclick="APP.ajustarSaldoReal()">✅ Cuadrar saldos · contar lo que hay de verdad</button>
     <div class="card" style="margin-top:12px"><div class="lbl">Historial de movimientos</div><div id="dp-movs"><div class="cargando">Cargando…</div></div></div>
     <button class="btn sec" onclick="APP.abrirCuentas()">← Volver a cuentas</button>
@@ -4230,7 +4229,7 @@ APP.verHistMetodo = function(k){
     h += '<div class="tot-line big"><span>Saldo actual</span><b>'+fmtMon(k, actual)+'</b></div>';
     h += '<div class="tot-line"><span>Suma de sus '+rows.length+' movimientos</span><b>'+fmtMon(k, run)+'</b></div>';
     if(Math.abs(dif) > 0.01){
-      h += '<div class="vacio" style="color:var(--rojo);padding:10px">\u26a0\ufe0f Hay <b>'+fmtMon(k, dif)+'</b> SIN respaldo en movimientos.<br>Usa 🩺 Auditar saldos.</div>';
+      h += '<div class="vacio" style="color:var(--rojo);padding:10px">\u26a0\ufe0f Hay <b>'+fmtMon(k, dif)+'</b> SIN respaldo en movimientos.<br>Usa \u2705 Cuadrar saldos para dejarlo exacto.</div>';
     }
     h += chartLineaSVG(rows.map(function(r){ return r.run; }));
     if(rows.length > 1) h += '<div style="font-size:10px;color:var(--gris);margin-top:2px">Evoluci\u00f3n del saldo, del movimiento m\u00e1s viejo al m\u00e1s reciente</div>';
