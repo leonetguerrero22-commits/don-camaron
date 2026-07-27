@@ -609,8 +609,7 @@ select.inp{appearance:none;-webkit-appearance:none}
     <div class="card"><div class="lbl">Saldos por método</div><div id="dp-saldos"></div></div>
     <button class="btn" onclick="APP.modalMovManual()">± Movimiento manual</button>
     <button class="btn" style="margin-top:8px;background:var(--noche);box-shadow:0 4px 14px rgba(59,91,165,.25)" onclick="APP.auditarDisponible()">🩺 Auditar saldos · buscar dinero fantasma</button>
-    <button class="btn" style="margin-top:8px;background:var(--mar);box-shadow:0 4px 14px rgba(14,59,51,.25)" onclick="APP.reconstruirDisponible()">♻️ Reconstruir saldos desde cero</button>
-    <button class="btn" style="margin-top:8px;background:var(--ok);box-shadow:0 4px 14px rgba(30,125,78,.25)" onclick="APP.ajustarSaldoReal()">✅ Ajustar a saldo real · contar y cuadrar</button>
+    <button class="btn" style="margin-top:8px;background:var(--ok);box-shadow:0 4px 14px rgba(30,125,78,.25)" onclick="APP.ajustarSaldoReal()">✅ Cuadrar saldos · contar lo que hay de verdad</button>
     <div class="card" style="margin-top:12px"><div class="lbl">Historial de movimientos</div><div id="dp-movs"><div class="cargando">Cargando…</div></div></div>
     <button class="btn sec" onclick="APP.abrirCuentas()">← Volver a cuentas</button>
   </div>
@@ -4919,7 +4918,8 @@ APP.aplicarReconstruccion = function(){
 APP.ajustarSaldoReal = function(){
   if(APP.user.rol !== 'admin'){ toast('Solo el admin puede ajustar los saldos'); return; }
   var s = APP.dispS||{};
-  var h = '<div class="sub" style="font-size:12px;color:var(--gris);margin-bottom:10px">Escribe lo que hay REALMENTE en cada método (cuenta el efectivo, revisa el saldo del banco, etc.). Deja igual los que ya estén bien. La app calcula sola la diferencia.</div>';
+  var h = '<div class="nota" style="background:#E8F6F0;border-color:#B8E0CC;color:#0E5F3A;margin-bottom:12px"><b>Así cuadras los saldos:</b><br>1️⃣ Cuenta el efectivo real en la gaveta<br>2️⃣ Revisa el saldo real de Bancolombia, Zelle, Bs<br>3️⃣ Escríbelo abajo — la app calcula la diferencia y cuadra sola</div>';
+  h += '<div class="sub" style="font-size:12px;color:var(--gris);margin-bottom:10px">Deja igual los métodos que ya estén bien. De aquí en adelante, cada cierre y pago se suma y resta solo sobre esta base real.</div>';
   Object.keys(METS_DISP).forEach(function(k){
     var m = METS_DISP[k];
     var actual = Math.round(((s[k]||0))*100)/100;
