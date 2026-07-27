@@ -1932,6 +1932,10 @@ APP.guardarCierre = function(){
         otros: (cn.otros||0)
       };
       var tN = d.turno === 'man' ? '☀️ mañana' : '🌙 noche';
+      /* BLINDAJE: guardamos el "recibo" exacto de lo que este cierre metió al
+         Disponible, para que al reabrir se devuelva ESTE número al centavo,
+         sin recalcular fórmulas (así nunca queda residuo). */
+      db.ref('caja/turnos/'+APP.turnoActivo+'/aporteDisponible').set(deltas).catch(function(){});
       moverDisponible(deltas, 'cierre', '🔒 Cierre '+(d.fecha||'')+' · '+tN+' · '+(d.apertura.cajera||''))
         .catch(function(e){ toast('⚠️ Cierre guardado, pero el Disponible no se actualizó'); });
       APP._cierreVisto = {clave: APP.turnoActivo, turno: d.turno, fecha: d.fecha, cierre: cierre};
@@ -2353,20 +2357,28 @@ APP.reabrirTurno = function(i){
   var clave = d.fecha+'_'+d.turno;
   var tN = d.turno === 'man' ? '\u2600\ufe0f Ma\u00f1ana' : '🌙 Noche';
   if(!confirm('\u00bfReabrir el turno '+tN+' del '+d.fecha+'?\\n\\n\u2022 La cajera podr\u00e1 volver a registrar ingresos y egresos\\n\u2022 Habr\u00e1 que hacerle el cierre otra vez\\n\u2022 El Disponible se revierte AUTOM\u00c1TICAMENTE: se resta lo que este cierre sum\u00f3, para que al cerrar de nuevo no se cuente doble\\n\\nEl cierre actual queda guardado como respaldo.')) return;
-  /* Revertir del Disponible lo que este cierre sum\u00f3 (misma f\u00f3rmula del cierre, signo contrario) */
+  /* BLINDAJE: si el cierre guardó su recibo (aporteDisponible), devolvemos
+     EXACTAMENTE ese monto. Si es un cierre viejo sin recibo, recalculamos. */
   var ci = d.cierre, cn = ci.conteo||{}, ap = d.apertura||{};
-  var deltasRev = {
-    efcop: -((cn.ef_cop||0) - (ap.fondoCOP||0)),
-    efusd: -((cn.ef_usd||0) - (ap.fondoUSD||0)),
-    efves: -(cn.ef_ves||0),
-    bancol: -((cn.bancol||0)+(cn.nequi||0)),
-    zelle: -(cn.zelle||0),
-    bs: -(cn.bs||0),
-    otros: -(cn.otros||0)
-  };
+  var aporte = d.aporteDisponible;
+  var deltasRev = {};
+  if(aporte && typeof aporte === 'object'){
+    Object.keys(aporte).forEach(function(k){ deltasRev[k] = -(aporte[k]||0); });
+  } else {
+    deltasRev = {
+      efcop: -((cn.ef_cop||0) - (ap.fondoCOP||0)),
+      efusd: -((cn.ef_usd||0) - (ap.fondoUSD||0)),
+      efves: -(cn.ef_ves||0),
+      bancol: -(cn.bancol||0),
+      zelle: -(cn.zelle||0),
+      bs: -(cn.bs||0),
+      otros: -(cn.otros||0)
+    };
+  }
   var upd = {};
   upd['caja/turnos/'+clave+'/estado'] = 'abierta';
   upd['caja/turnos/'+clave+'/cierre'] = null;
+  upd['caja/turnos/'+clave+'/aporteDisponible'] = null;
   upd['caja/turnos/'+clave+'/reabierto'] = {
     por: APP.user.nombre, ts: Date.now(), cierrePrevio: d.cierre, disponibleRevertido: true
   };
@@ -2492,6 +2504,16 @@ APP.guardarEditCierre = function(){
     ventaAnterior: ci.ventaTurno||0
   });
   db.ref('caja/turnos/'+clave+'/cierre').set(cierreNuevo).then(function(){
+    /* BLINDAJE: actualizar el recibo aporteDisponible con la nueva foto,
+       para que si luego se reabre, se devuelva el monto correcto */
+    db.ref('caja/turnos/'+clave+'/aporteDisponible').once('value').then(function(sn){
+      var prev = sn.val();
+      if(prev && typeof prev === 'object'){
+        var nuevo = {};
+        Object.keys(prev).forEach(function(k){ nuevo[k] = Math.round(((prev[k]||0) + (deltas[k]||0))*100)/100; });
+        db.ref('caja/turnos/'+clave+'/aporteDisponible').set(nuevo).catch(function(){});
+      }
+    }).catch(function(){});
     var hayDelta = Object.keys(deltas).some(function(k){ return Math.abs(deltas[k]) > 0.001; });
     if(!hayDelta) return;
     return moverDisponible(deltas, 'ajuste', '🛠️ Corrección del cierre '+clave+' · '+motivo);
