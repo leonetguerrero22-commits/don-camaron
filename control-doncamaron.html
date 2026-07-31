@@ -582,8 +582,25 @@ select.inp{appearance:none;-webkit-appearance:none}
   </div>
   <div class="wrap">
     <div class="cats" id="inf-periodos"></div>
-    <button class="btn" style="margin:2px 0 12px;background:var(--mar);box-shadow:0 4px 14px rgba(14,59,51,.25)" onclick="APP.cierreMes()">📄 Cierre de Mes para socios</button>
+    <button class="btn" style="background:var(--mar);box-shadow:none;margin:2px 0 12px" onclick="APP.abrirSalud()">🩺 Salud del negocio · análisis completo</button>
+    <button class="btn" style="margin:0 0 12px;background:var(--mar);box-shadow:0 4px 14px rgba(14,59,51,.25)" onclick="APP.cierreMes()">📄 Cierre de Mes para socios</button>
+    <button class="btn" style="background:var(--mar-2);box-shadow:none;margin-bottom:12px" onclick="APP.informeInventario()">📦 Inventario · valor y ganancia</button>
     <div id="inf-cont"><div class="cargando">Cargando datos…</div></div>
+  </div>
+</div>
+
+<!-- ══════════ SALUD DEL NEGOCIO ══════════ -->
+<div class="screen" id="s-salud">
+  <div class="hd">
+    <button class="salir" onclick="APP.logout()">Salir</button>
+    <div class="mini" id="sl-fecha"></div>
+    <h1>🩺 Salud del negocio</h1>
+    <div class="sub">Todo lo que necesitas para decidir, en una vista</div>
+  </div>
+  <div class="wrap" style="margin-top:4px">
+    <div id="sl-cont"><div class="cargando">Haciendo el chequeo…</div></div>
+    <button class="btn" style="background:#25D366;box-shadow:none" onclick="APP.compartirSalud()">📲 Compartir chequeo por WhatsApp</button>
+    <button class="btn sec" onclick="APP.abrirInformes()">← Volver a informes</button>
   </div>
 </div>
 
@@ -2973,7 +2990,7 @@ function renderLinea(){
         var e = estadoProd(p);
         var falta = Math.max(0, (p.minimo||0)-(p.linea||0));
         var sub = e==='r' ? 'AGOTADO' : (e==='a' ? 'faltan '+fmtQty(falta) : 'OK');
-        var click = puedeAlmacen() ? ' onclick="APP.modalProducto(\''+id+'\')" style="cursor:pointer"' : '';
+        var click = puedeAlmacen() ? ' onclick="APP.kardexProducto(\''+id+'\')" style="cursor:pointer"' : '';
         var esDup = dup[id];
         var dupTx = esDup ? '<span class="dup-badge">⚠️ DUPLICADO</span>' : '';
         h += '<div class="item"'+click+'><div class="dot '+e+'"></div>';
@@ -3179,7 +3196,7 @@ function renderAlmacen(){
         var costoTx = (p.costo>0) ? fmtCOP(p.costo)+' / '+escapa(p.unidad) : 'sin costo';
         var esDup = dup[id];
         var dupTx = esDup ? '<span class="dup-badge">⚠️ DUPLICADO</span>' : '';
-        h += '<div class="item" onclick="APP.modalProducto(\''+id+'\')" style="cursor:pointer"><div class="dot '+e+'"></div>';
+        h += '<div class="item" onclick="APP.kardexProducto(\''+id+'\')" style="cursor:pointer"><div class="dot '+e+'"></div>';
         h += '<div class="tx"><b>'+escapa(p.nombre)+dupTx+'</b><span>'+costoTx+' · línea: '+fmtQty(p.linea)+'</span></div>';
         h += '<div class="qty '+(e==='v'?'':e)+'">'+fmtQty(alm)+' '+escapa(p.unidad)+'<small>bodega</small></div></div>';
       });
@@ -3317,6 +3334,150 @@ APP.guardarMerma = function(){
     toast('📉 Merma registrada');
     APP.cerrarModal();
   }).catch(function(e){ toast('⚠️ No se guardó: '+String(e && e.message || e).slice(0,50)); });
+};
+APP.kardexProducto = function(id){
+  var p = APP.prods[id];
+  if(!p) return;
+  db.ref('inventario/movimientos').orderByKey().limitToLast(300).once('value').then(function(snap){
+    var movs = snap.val()||{};
+    var lista = [];
+    Object.keys(movs).forEach(function(k){
+      var m = movs[k];
+      var esDeEste = (m.prodId === id)
+        || (Array.isArray(m.prodIds) && m.prodIds.indexOf(id) >= 0)
+        || ((m.detalle||'').indexOf(p.nombre) >= 0);
+      if(esDeEste) lista.push(m);
+    });
+    lista.sort(function(a,b){ return (a.ts||0)-(b.ts||0); });
+    var TIPOMOV = {
+      compra:   {ic:'🛒', dir:'in',  tx:'Entró mercancía'},
+      merma:    {ic:'📉', dir:'out', tx:'Merma / pérdida'},
+      despacho: {ic:'📦', dir:'out', tx:'Despacho a línea'},
+      'despacho-revertido':{ic:'↩️', dir:'in', tx:'Despacho revertido'},
+      venta:    {ic:'🛒', dir:'out', tx:'Venta'},
+      conteo:   {ic:'✏️', dir:'neu', tx:'Ajuste por conteo'},
+      revision: {ic:'📋', dir:'neu', tx:'Revisión física'},
+      req:      {ic:'📄', dir:'neu', tx:'Requisición'}
+    };
+    function cantDe(m){
+      if(typeof m.cant === 'number') return m.cant;
+      if(m.items && m.items[id] && typeof m.items[id].cant === 'number') return m.items[id].cant;
+      var mm = /([\d.,]+)\s*(kg|gr|und|paq|lt|gal|caja|docena|bolsa)/i.exec(m.detalle||'');
+      if(mm) return parseFloat(mm[1].replace(/\./g,'').replace(',','.'))||0;
+      return 0;
+    }
+    var stockAhora = (p.almacen||0) + (p.linea||0);
+    var totalIn = 0, totalOut = 0;
+    var puntos = lista.map(function(m){
+      var info = TIPOMOV[m.tipo] || {dir:'neu'};
+      var cant = cantDe(m);
+      var delta = info.dir==='in' ? cant : (info.dir==='out' ? -cant : 0);
+      if(delta > 0) totalIn += delta; else if(delta < 0) totalOut += -delta;
+      return {ts:m.ts||0, delta:delta, m:m, info:info, cant:cant};
+    });
+    var acumulado = stockAhora;
+    for(var i = puntos.length-1; i >= 0; i--){
+      puntos[i].stockDespues = acumulado;
+      acumulado = Math.round((acumulado - puntos[i].delta)*100)/100;
+      puntos[i].stockAntes = acumulado;
+    }
+    puntos.forEach(function(pt){
+      pt.alerta = null;
+      if(pt.m.tipo === 'merma' && pt.stockAntes > 0 && pt.cant > pt.stockAntes*0.2){
+        pt.alerta = 'Merma alta: '+fmtQty(pt.cant)+' '+escapa(p.unidad)+' ('+Math.round(pt.cant/pt.stockAntes*100)+'% del stock)';
+      }
+    });
+    var alertasGlobales = [];
+    puntos.forEach(function(pt){ if(pt.alerta) alertasGlobales.push({fecha:pt.m.fecha, txt:pt.alerta}); });
+    var valCosto = stockAhora * (p.costo||0);
+    var valVenta = stockAhora * (p.venta||0);
+    var margen = (p.venta||0) > 0 ? Math.round(((p.venta||0)-(p.costo||0))/(p.venta||0)*100) : 0;
+    var h = '';
+    h += '<div class="card" style="background:linear-gradient(160deg,var(--mar),var(--mar-2));color:#fff;border:none">';
+    h += '<div style="font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:1px">Stock ahora</div>';
+    h += '<div style="font-size:26px;font-weight:800;letter-spacing:-.03em">'+fmtQty(stockAhora)+' '+escapa(p.unidad)+'</div>';
+    h += '<div style="display:flex;gap:16px;margin-top:6px;font-size:12px;opacity:.9"><span>🏬 Bodega: <b>'+fmtQty(p.almacen||0)+'</b></span><span>🍳 Línea: <b>'+fmtQty(p.linea||0)+'</b></span></div>';
+    h += '</div>';
+    if(puntos.length >= 2){
+      var vals = puntos.map(function(pt){ return pt.stockDespues; });
+      var maxV = Math.max.apply(null, vals.concat([stockAhora]));
+      var minV = Math.min.apply(null, vals.concat([0]));
+      if(maxV === minV) maxV = minV + 1;
+      var W = 320, H = 110, pad = 8;
+      var pts = puntos.map(function(pt, xi){
+        var x = pad + (xi/(puntos.length-1))*(W-2*pad);
+        var y = pad + (1 - (pt.stockDespues - minV)/(maxV - minV))*(H-2*pad);
+        return Math.round(x*10)/10+','+Math.round(y*10)/10;
+      });
+      var poly = pts.join(' ');
+      var area = poly+' '+(W-pad)+','+(H-pad)+' '+pad+','+(H-pad);
+      h += '<div class="card"><div class="lbl">📉 Cómo se movió el stock</div>';
+      h += '<svg viewBox="0 0 '+W+' '+(H+6)+'" style="width:100%;height:auto">';
+      h += '<defs><linearGradient id="kg-'+id.slice(-4)+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--coral)" stop-opacity="0.22"/><stop offset="100%" stop-color="var(--coral)" stop-opacity="0"/></linearGradient></defs>';
+      h += '<polygon points="'+area+'" fill="url(#kg-'+id.slice(-4)+')"/>';
+      h += '<polyline points="'+poly+'" fill="none" stroke="var(--coral)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+      puntos.forEach(function(pt, xi){
+        var coord = pts[xi].split(',');
+        var col = pt.info.dir==='in' ? 'var(--ok)' : (pt.info.dir==='out' ? 'var(--rojo)' : 'var(--gris)');
+        var r = pt.alerta ? 5 : 3;
+        h += '<circle cx="'+coord[0]+'" cy="'+coord[1]+'" r="'+r+'" fill="'+col+'"'+(pt.alerta?' stroke="#fff" stroke-width="1.5"':'')+'/>';
+      });
+      h += '</svg>';
+      var f0 = puntos[0].m.fecha||'', f1 = puntos[puntos.length-1].m.fecha||'hoy';
+      h += '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--gris);margin-top:2px"><span>'+escapa(f0)+'</span><span>'+escapa(f1)+'</span></div>';
+      h += '</div>';
+    }
+    if(alertasGlobales.length){
+      h += '<div style="background:#FEF3E2;border:1px solid #F5C97A;border-radius:14px;padding:12px 14px;margin-bottom:14px">';
+      h += '<div style="display:flex;gap:10px;align-items:flex-start"><span style="font-size:18px">🚨</span><div style="flex:1">';
+      h += '<div style="font-size:12.5px;font-weight:800;color:#B45309">'+alertasGlobales.length+' posible'+(alertasGlobales.length>1?'s':'')+' fallo'+(alertasGlobales.length>1?'s':'')+' detectado'+(alertasGlobales.length>1?'s':'')+'</div>';
+      alertasGlobales.slice(0,4).forEach(function(a){
+        h += '<div style="font-size:11.5px;color:#8A6212;margin-top:4px;line-height:1.4">• '+escapa(a.fecha||'')+': '+a.txt+'</div>';
+      });
+      h += '</div></div></div>';
+    }
+    h += '<div style="display:flex;gap:10px;margin-bottom:14px">';
+    h += '<div style="flex:1;background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:12px;text-align:center"><div style="font-size:9px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.5px">Entró</div><div style="font-size:17px;font-weight:800;color:var(--ok);letter-spacing:-.02em">+'+fmtQty(totalIn)+'</div></div>';
+    h += '<div style="flex:1;background:var(--card);border:1px solid var(--linea);border-radius:14px;padding:12px;text-align:center"><div style="font-size:9px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:.5px">Salió</div><div style="font-size:17px;font-weight:800;color:var(--rojo);letter-spacing:-.02em">−'+fmtQty(totalOut)+'</div></div>';
+    h += '</div>';
+    h += '<div class="tot-line"><span>💵 Valor a costo</span><b>'+fmtCOP(valCosto)+'</b></div>';
+    h += '<div class="tot-line"><span>🏷️ Valor de venta</span><b>'+fmtCOP(valVenta)+'</b></div>';
+    h += '<div class="tot-line"><span>📈 Ganancia si se vende</span><b style="color:var(--ok)">'+fmtCOP(valVenta-valCosto)+' ('+margen+'%)</b></div>';
+    h += '<div class="lbl" style="margin-top:16px">📜 Movimiento a movimiento · '+puntos.length+'</div>';
+    if(puntos.length){
+      h += '<div style="font-size:11px;color:var(--gris);margin-bottom:12px">🟢 entra &nbsp; 🔴 sale &nbsp; ⚪ ajuste</div>';
+      h += '<div style="position:relative;padding-left:4px">';
+      var rev = puntos.slice().reverse();
+      rev.forEach(function(pt, idx){
+        var info = pt.info;
+        var col = info.dir==='in' ? 'var(--ok)' : (info.dir==='out' ? 'var(--rojo)' : 'var(--gris)');
+        var flecha = info.dir==='in' ? '↑' : (info.dir==='out' ? '↓' : '•');
+        var esUlt = idx === rev.length-1;
+        var tieneAlerta = !!pt.alerta;
+        var bg = tieneAlerta ? '#FFF7F5' : 'var(--card)';
+        var bd = tieneAlerta ? '#F5C6C0' : 'var(--linea)';
+        var colBorde = tieneAlerta ? 'var(--rojo)' : col;
+        h += '<div style="position:relative;padding:0 0 '+(esUlt?'0':'14px')+' 24px">';
+        if(!esUlt) h += '<div style="position:absolute;left:8px;top:18px;bottom:0;width:2px;background:var(--linea)"></div>';
+        h += '<div style="position:absolute;left:0;top:2px;width:18px;height:18px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800">'+flecha+'</div>';
+        h += '<div style="background:'+bg+';border:1px solid '+bd+';border-left:3px solid '+colBorde+';border-radius:11px;padding:10px 12px">';
+        if(tieneAlerta){
+          h += '<div style="font-size:11px;font-weight:800;color:var(--rojo);text-transform:uppercase;letter-spacing:.3px">🚨 '+escapa(pt.alerta)+'</div>';
+        } else {
+          h += '<div style="font-size:11px;font-weight:800;color:'+col+';text-transform:uppercase;letter-spacing:.3px">'+info.ic+' '+info.tx+'</div>';
+        }
+        h += '<div style="font-size:12.5px;font-weight:600;margin-top:3px;line-height:1.4">'+escapa(pt.m.detalle||'')+(pt.cant?' · quedó en '+fmtQty(pt.stockDespues)+' '+escapa(p.unidad):'')+'</div>';
+        h += '<div style="font-size:10px;color:var(--gris);margin-top:4px">'+escapa(fechaLegible ? fechaLegible(pt.m.fecha) : (pt.m.fecha||''))+' · '+horaStr(pt.m.ts)+' · '+escapa(pt.m.usuario||'')+'</div>';
+        h += '</div></div>';
+      });
+      h += '</div>';
+    } else {
+      h += '<div class="vacio">Sin movimientos registrados aún</div>';
+    }
+    h += '<button class="btn sec" style="margin-top:14px" onclick="APP.modalProducto(\''+id+'\')">✏️ Editar producto</button>';
+    h += '<button class="btn sec" onclick="APP.cerrarModal()">Cerrar</button>';
+    abrirModal('📜 '+escapa(p.nombre), h);
+  });
 };
 APP.modalProducto = function(id){
   if(!puedeAlmacen()){ return; }
@@ -5613,6 +5774,284 @@ APP.borrarProv = function(pid){
     APP.gestionProveedores();
   });
 };
+
+APP.informeInventario = function(){
+  abrirModal('\uD83D\uDCE6 Inventario', '<div class="cargando">Calculando valor y movimiento\u2026</div>');
+  var r = rangoInf();
+  db.ref('caja/turnos').orderByKey().startAt(r.desde).once('value').then(function(res){
+    var turnos = res.val()||{};
+    /* 1) VALOR DEL STOCK HOY por ubicacion (bodega / linea) */
+    var totCosto=0, totVenta=0, nItems=0, bajos=0, valBodega=0, valLinea=0;
+    Object.keys(APP.prods||{}).forEach(function(id){
+      var p = APP.prods[id];
+      if(!p) return;
+      var vcB = (p.almacen||0)*(p.costo||0), vcL = (p.linea||0)*(p.costo||0);
+      valBodega += vcB; valLinea += vcL;
+      var stock = (p.almacen||0)+(p.linea||0);
+      totCosto += stock*(p.costo||0); totVenta += stock*(p.venta||0); nItems++;
+      if(estadoProd(p) !== 'v') bajos++;
+    });
+    var ganancia = totVenta - totCosto;
+    var margen = totVenta>0 ? Math.round(ganancia/totVenta*100) : 0;
+    /* 2) MOVIMIENTO DEL PERIODO */
+    var comprasPer = 0, ventasPer = 0;
+    Object.keys(turnos).forEach(function(k){
+      var d = turnos[k];
+      if(!d || d.estado !== 'cerrada' || !d.cierre) return;
+      var f = d.fecha||'';
+      if(f < r.desde || f > r.hasta) return;
+      var ci = d.cierre;
+      ventasPer += (ci.ventaTurno||0);
+      var et = ci.egresosPorTipo||{};
+      comprasPer += (et.compras||0) + (et.insumo||0);
+    });
+    var h = '';
+    h += '<div class="card" style="background:linear-gradient(160deg,var(--mar),var(--mar-2));color:#fff;border:none">';
+    h += '<div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:1px">\uD83D\uDCE6 Valor del inventario HOY</div>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px">';
+    h += '<div><div style="font-size:10px;opacity:.75">A COSTO</div><div style="font-size:20px;font-weight:800">'+fmtCOP(totCosto)+'</div></div>';
+    h += '<div style="text-align:right"><div style="font-size:10px;opacity:.75">VALOR VENTA</div><div style="font-size:20px;font-weight:800">'+fmtCOP(totVenta)+'</div></div>';
+    h += '</div>';
+    h += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.2);display:flex;justify-content:space-between;align-items:baseline">';
+    h += '<span style="font-size:12px;opacity:.9">\uD83D\uDCC8 Ganancia potencial</span>';
+    h += '<b style="font-size:17px">'+fmtCOP(ganancia)+' <span style="font-size:12px;opacity:.85">('+margen+'%)</span></b></div>';
+    h += '<div style="font-size:10px;opacity:.7;margin-top:6px">'+nItems+' productos \u00b7 '+bajos+' con stock bajo</div>';
+    h += '</div>';
+    /* desglose por ubicacion */
+    h += '<div class="lbl">Valor por ubicaci\u00f3n (a costo)</div>';
+    h += '<div class="tot-line"><span>\uD83C\uDFEC En bodega</span><b>'+fmtCOP(valBodega)+'</b></div>';
+    h += '<div class="tot-line"><span>\uD83C\uDF73 En l\u00ednea</span><b>'+fmtCOP(valLinea)+'</b></div>';
+    /* movimiento del periodo */
+    h += '<div class="lbl" style="margin-top:16px">\uD83D\uDCCA Movimiento del per\u00edodo</div>';
+    h += '<div style="font-size:11px;color:var(--gris);margin-bottom:8px">'+r.tx+'</div>';
+    h += '<div class="tot-line"><span>\uD83D\uDED2 Compras / insumos</span><b style="color:var(--rojo)">'+fmtCOP(comprasPer)+'</b></div>';
+    h += '<div class="tot-line"><span>\uD83D\uDCB0 Ventas</span><b style="color:var(--ok)">'+fmtCOP(ventasPer)+'</b></div>';
+    var brutaPer = ventasPer - comprasPer;
+    h += '<div class="tot-line big"><span>Diferencia venta \u2212 compras</span><b style="color:'+(brutaPer>=0?'var(--ok)':'var(--rojo)')+'">'+fmtCOP(brutaPer)+'</b></div>';
+    h += '<div style="font-size:11px;color:var(--gris);margin-top:6px;line-height:1.5">\uD83D\uDCA1 Compara lo que entr\u00f3 en ventas contra lo que gastaste en mercanc\u00eda. No es la ganancia neta final (faltan gastos fijos), pero te dice si est\u00e1s comprando m\u00e1s de lo que vendes.</div>';
+    h += '<button class="btn sec" style="margin-top:14px" onclick="APP.cerrarModal()">Cerrar</button>';
+    abrirModal('\uD83D\uDCE6 Inventario', h);
+  }).catch(function(e){
+    abrirModal('\uD83D\uDCE6 Inventario', '<div class="vacio">\u26A0\uFE0F '+escapa(String(e && e.message || e).slice(0,60))+'</div>');
+  });
+};
+
+APP.abrirSalud = function(){
+  APP.goScreen('s-salud');
+  document.getElementById('sl-fecha').textContent = 'Chequeo al '+fechaLegible(fechaOperativa())+' · '+horaStr(Date.now());
+  var desde60 = fechaHace(60);
+  Promise.all([
+    db.ref('caja/turnos').orderByKey().startAt(desde60).once('value'),
+    db.ref('disponible/saldos').once('value')
+  ]).then(function(res){
+    var turnos = res[0].val()||{};
+    APP.dispS = res[1].val()||APP.dispS||{};
+    renderSalud(turnos, fechaHace(30));
+  }).catch(function(e){
+    document.getElementById('sl-cont').innerHTML = '<div class="vacio">⚠️ No se pudo hacer el chequeo<br>'+escapa(String(e && e.message || e).slice(0,60))+'</div>';
+  });
+};
+function renderSalud(turnos, desde){
+  var s = APP.dispS||{};
+  /* 1) plata disponible */
+  var dispTotal = 0;
+  var dispFilas = [];
+  Object.keys(METS_DISP).forEach(function(k){
+    var v = s[k]||0;
+    if(!v && k === 'otros') return;
+    dispTotal += aCOP(k, v);
+    dispFilas.push({k:k, v:v});
+  });
+  /* 2) inventario */
+  var invCosto = 0, invVenta = 0, agotados = 0, bajos = 0;
+  prodsOrdenados().forEach(function(id){
+    var p = APP.prods[id];
+    var tot = (p.almacen||0)+(p.linea||0);
+    invCosto += tot*(p.costo||0);
+    invVenta += tot*(p.venta||p.costo||0);
+    var e = estadoProd(p);
+    if(e === 'r') agotados++; else if(e === 'a') bajos++;
+  });
+  /* 3) cuentas */
+  var deben = 0, debemos = 0, vencidasCob = 0, vencidasPag = 0;
+  Object.keys(APP.ctas||{}).forEach(function(id){
+    var c = APP.ctas[id];
+    if(c.estado === 'pagada') return;
+    var b = badgeCta(c);
+    if((c.tipo||'cobrar') === 'cobrar'){ deben += saldoCta(c); if(b.cls==='venc') vencidasCob++; }
+    else { debemos += saldoCta(c); if(b.cls==='venc') vencidasPag++; }
+  });
+  /* 4) ventanas comparativas: día a día de los últimos 60 (cierres + histórico) */
+  var porDia = {}, egrDia = {}, nCierres = 0;
+  Object.keys(turnos).forEach(function(k){
+    var d = turnos[k];
+    if(!d || d.estado !== 'cerrada' || !d.cierre) return;
+    var f = d.fecha||'';
+    porDia[f] = (porDia[f]||0)+(d.cierre.ventaTurno||0);
+    egrDia[f] = (egrDia[f]||0)+(d.cierre.egresos||0);
+    if(f >= desde) nCierres++;
+  });
+  function sumaEntre(mapa, d1, d2){ /* d1 inclusive, d2 exclusive; d2 null = hoy */
+    var t = 0;
+    Object.keys(mapa).forEach(function(f){
+      if(f >= d1 && (!d2 || f < d2)) t += mapa[f];
+    });
+    return t;
+  }
+  var f7 = fechaHace(7), f14 = fechaHace(14), f30 = desde, f60 = fechaHace(60);
+  var venta7 = sumaEntre(porDia, f7, null), ventaPrev7 = sumaEntre(porDia, f14, f7);
+  var venta30 = sumaEntre(porDia, f30, null), ventaPrev30 = sumaEntre(porDia, f60, f30);
+  var egr7 = sumaEntre(egrDia, f7, null), egrPrev7 = sumaEntre(egrDia, f14, f7);
+  var egr30 = sumaEntre(egrDia, f30, null), egrPrev30 = sumaEntre(egrDia, f60, f30);
+  var dias30 = {};
+  Object.keys(porDia).forEach(function(f){ if(f >= f30) dias30[f] = porDia[f]; });
+  var nDias = Object.keys(dias30).length;
+  var promedio = nDias ? Math.round(venta30/nDias) : 0;
+  /* promedio por día de la semana (para saber cuál rinde y cuál flojea) */
+  var DIAS_SEM = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var porSem = {};
+  Object.keys(dias30).forEach(function(f){
+    var dw = new Date(f+'T12:00:00').getDay();
+    if(!porSem[dw]) porSem[dw] = {t:0, n:0};
+    porSem[dw].t += dias30[f]; porSem[dw].n++;
+  });
+  var mejorDia = null, peorDia = null;
+  Object.keys(porSem).forEach(function(dw){
+    var prom = porSem[dw].t/porSem[dw].n;
+    if(!mejorDia || prom > mejorDia.p) mejorDia = {d:DIAS_SEM[dw], p:prom};
+    if(!peorDia || prom < peorDia.p) peorDia = {d:DIAS_SEM[dw], p:prom};
+  });
+  function pctCambio(ahora, antes){
+    if(antes <= 0) return null;
+    return Math.round((ahora-antes)/antes*100);
+  }
+  /* 6) patrimonio operativo */
+  var patrimonio = dispTotal + invCosto + deben - debemos;
+
+  var h = '';
+  /* ═ tarjeta principal ═ */
+  h += '<div class="card" style="border-color:var(--coral);background:linear-gradient(180deg,#EAF7F6,#fff)">';
+  h += '<div class="lbl">💎 Patrimonio operativo hoy</div>';
+  h += '<div style="font-size:26px;font-weight:800;color:var(--mar)">'+fmtCOP(patrimonio)+'</div>';
+  h += '<div style="font-size:11px;color:var(--gris);margin-top:4px">Disponible + inventario a costo + lo que te deben − lo que debes</div>';
+  h += '<div style="margin-top:10px">';
+  h += '<div class="tot-line"><span>💼 Plata disponible</span><b>'+fmtCOP(dispTotal)+'</b></div>';
+  h += '<div class="tot-line"><span>📦 Mercancía (a costo)</span><b>'+fmtCOP(invCosto)+'</b></div>';
+  h += '<div class="tot-line"><span>🧾 Te deben</span><b style="color:var(--ok)">+'+fmtCOP(deben)+'</b></div>';
+  h += '<div class="tot-line"><span>📤 Debes</span><b style="color:var(--rojo)">−'+fmtCOP(debemos)+'</b></div>';
+  h += '</div></div>';
+
+  function semaforo(icono, tx, nivel){
+    var col = nivel === 'ok' ? 'var(--ok)' : (nivel === 'warn' ? '#B45309' : 'var(--rojo)');
+    var bg = nivel === 'ok' ? '#E7F5EC' : (nivel === 'warn' ? '#FFF3DC' : '#FDECEA');
+    return '<div style="display:flex;gap:10px;align-items:flex-start;background:'+bg+';border-radius:12px;padding:10px 12px;margin-bottom:8px"><span style="font-size:16px">'+icono+'</span><span style="font-size:12px;font-weight:700;color:'+col+';line-height:1.45">'+tx+'</span></div>';
+  }
+  /* ═ 🧠 tendencias: cómo vamos, en palabras ═ */
+  h += '<div class="card"><div class="lbl">🧠 ¿Cómo vamos? (tendencias)</div>';
+  var chS = pctCambio(venta7, ventaPrev7);
+  if(chS !== null && ventaPrev7 > 100000){
+    if(chS >= 8) h += semaforo('📈','VENTAS SUBIENDO: esta semana vendiste '+fmtCOP(venta7)+', un <b>+'+chS+'%</b> más que la anterior ('+fmtCOP(ventaPrev7)+'). ¡Lo que estén haciendo, síganlo haciendo!', 'ok');
+    else if(chS <= -8) h += semaforo('📉','VENTAS BAJANDO: esta semana '+fmtCOP(venta7)+' vs '+fmtCOP(ventaPrev7)+' la anterior (<b>'+chS+'%</b>). Revisa: ¿faltó producto, subieron precios, día flojo?', 'bad');
+    else h += semaforo('➡️','Ventas estables esta semana: '+fmtCOP(venta7)+' ('+(chS>=0?'+':'')+chS+'% vs la anterior)', 'ok');
+  }
+  var chM = pctCambio(venta30, ventaPrev30);
+  if(chM !== null && ventaPrev30 > 500000){
+    if(chM >= 5) h += semaforo('🚀','El mes va MEJOR que el anterior: '+fmtCOP(venta30)+' vs '+fmtCOP(ventaPrev30)+' (<b>+'+chM+'%</b>)', 'ok');
+    else if(chM <= -5) h += semaforo('🔻','El mes va POR DEBAJO del anterior: '+fmtCOP(venta30)+' vs '+fmtCOP(ventaPrev30)+' (<b>'+chM+'%</b>). Mira en Informes qué días y métodos cayeron', 'warn');
+  }
+  var chE = pctCambio(egr7, egrPrev7);
+  if(chE !== null && egrPrev7 > 50000 && chE >= 25){
+    h += semaforo('💸','GASTOS DISPARADOS: esta semana '+fmtCOP(egr7)+' en egresos, <b>+'+chE+'%</b> vs la anterior ('+fmtCOP(egrPrev7)+'). Revisa el top de categorías en Informes', 'bad');
+  } else if(chE !== null && egrPrev7 > 50000 && chE <= -15){
+    h += semaforo('👏','Gastos controlados: '+chE+'% menos que la semana pasada', 'ok');
+  }
+  if(mejorDia && peorDia && mejorDia.d !== peorDia.d && peorDia.p > 0){
+    var ratio = Math.round(mejorDia.p/peorDia.p*10)/10;
+    h += semaforo('📅','Tu mejor día es el <b>'+mejorDia.d+'</b> (promedio '+fmtCOP(Math.round(mejorDia.p))+') y el más flojo el <b>'+peorDia.d+'</b> ('+fmtCOP(Math.round(peorDia.p))+')'+(ratio>=1.8?' — vende '+ratio+'x más. ¿Promoción para levantar el '+peorDia.d+'?':''), ratio>=2.5?'warn':'ok');
+  }
+  if(chS === null && chM === null){
+    h += semaforo('🌱','Aún no hay suficientes días registrados para comparar tendencias — con dos semanas de cierres este análisis se enciende solo', 'ok');
+  }
+  h += '</div>';
+
+  /* ═ semáforos de decisión ═ */
+  h += '<div class="card"><div class="lbl">🚦 Para decidir hoy</div>';
+  if(debemos > 0){
+    var cobertura = Math.round(dispTotal/debemos*100);
+    if(cobertura >= 100) h += semaforo('✅','Con lo disponible ('+fmtCOP(dispTotal)+') cubres TODO lo que debes y te sobran '+fmtCOP(dispTotal-debemos), 'ok');
+    else if(cobertura >= 60) h += semaforo('⚠️','Lo disponible cubre el '+cobertura+'% de tus deudas. Prioriza cobrar lo que te deben ('+fmtCOP(deben)+')', 'warn');
+    else h += semaforo('🚨','Lo disponible solo cubre el '+cobertura+'% de lo que debes. Cuidado con comprometerte a más pagos', 'bad');
+  } else {
+    h += semaforo('✅','No tienes deudas pendientes con proveedores', 'ok');
+  }
+  if(vencidasPag) h += semaforo('🚨', vencidasPag+' factura'+(vencidasPag>1?'s':'')+' por pagar VENCIDA'+(vencidasPag>1?'S':'')+' — revisa Cuentas para no dañar el crédito con proveedores', 'bad');
+  if(vencidasCob) h += semaforo('⚠️', vencidasCob+' cliente'+(vencidasCob>1?'s':'')+' con deuda vencida — mándales el estado de cuenta por WhatsApp', 'warn');
+  if(agotados) h += semaforo('🚨', agotados+' producto'+(agotados>1?'s':'')+' AGOTADO'+(agotados>1?'S':'')+' en línea — ventas que se pierden hoy mismo', 'bad');
+  else if(bajos) h += semaforo('⚠️', bajos+' producto'+(bajos>1?'s':'')+' bajo mínimo — genera la requisición antes del servicio', 'warn');
+  else h += semaforo('✅','La línea está completa para trabajar', 'ok');
+  if(nDias >= 5){
+    var margen = venta30 > 0 ? Math.round((venta30-egr30)/venta30*100) : 0;
+    if(margen >= 30) h += semaforo('✅','De cada $100 vendidos en 30 días, te quedan $'+margen+' después de egresos de caja', 'ok');
+    else if(margen >= 10) h += semaforo('⚠️','Los egresos se comen el '+(100-margen)+'% de la venta — revisa el top de categorías en Informes', 'warn');
+    else h += semaforo('🚨','Los egresos casi igualan la venta ('+(100-margen)+'%). Urge revisar gastos en Informes', 'bad');
+  }
+  h += '</div>';
+
+  /* ═ disponible por método ═ */
+  h += '<div class="card"><div class="lbl">💼 Dónde está la plata</div>';
+  h += barras(dispFilas.map(function(x){
+    return {tx: METS_DISP[x.k].tx, val: Math.max(0, aCOP(x.k, x.v))};
+  }).sort(function(a,b){ return b.val-a.val; }), 'var(--noche)');
+  var negativos = dispFilas.filter(function(x){ return x.v < 0; });
+  negativos.forEach(function(x){
+    h += '<div style="font-size:11px;font-weight:700;color:var(--rojo)">⚠️ '+METS_DISP[x.k].tx+' está en negativo: '+fmtMon(x.k, x.v)+'</div>';
+  });
+  h += '</div>';
+
+  /* ═ inventario ═ */
+  h += '<div class="card"><div class="lbl">📦 La mercancía</div>';
+  h += '<div class="tot-line"><span>Valor a costo (lo invertido)</span><b>'+fmtCOP(invCosto)+'</b></div>';
+  h += '<div class="tot-line"><span>Si se vendiera todo</span><b style="color:var(--ok)">'+fmtCOP(invVenta)+'</b></div>';
+  h += '<div class="tot-line big"><span>Ganancia potencial en la cava</span><b style="color:var(--coral)">'+fmtCOP(invVenta-invCosto)+'</b></div>';
+  h += '</div>';
+
+  /* ═ últimos 30 días ═ */
+  h += '<div class="card"><div class="lbl">📈 Últimos 30 días</div>';
+  h += '<div class="tot-line"><span>Venta total ('+nCierres+' cierres)</span><b style="color:var(--ok)">'+fmtCOP(venta30)+'</b></div>';
+  h += '<div class="tot-line"><span>Promedio por día</span><b>'+fmtCOP(promedio)+'</b></div>';
+  h += '<div class="tot-line"><span>Egresos de caja</span><b style="color:var(--rojo)">'+fmtCOP(egr30)+'</b></div>';
+  h += '<div style="font-size:10px;color:var(--gris);margin-top:6px">El detalle con gráficos por día, método y categoría está en 📊 Informes.</div>';
+  h += '</div>';
+
+  APP._salud = {patrimonio:patrimonio, disp:dispTotal, inv:invCosto, invVenta:invVenta, deben:deben, debemos:debemos,
+                venta30:venta30, egr30:egr30, promedio:promedio, agotados:agotados, bajos:bajos,
+                vencidasCob:vencidasCob, vencidasPag:vencidasPag,
+                venta7:venta7, chS:chS, chM:chM, chE:chE,
+                mejorDia:mejorDia, peorDia:peorDia};
+  document.getElementById('sl-cont').innerHTML = h;
+}
+
+APP.compartirSalud = function(){
+  var d = APP._salud;
+  if(!d){ toast('Espera a que cargue el chequeo'); return; }
+  var t = [];
+  t.push('🩺 *DON CAMARÓN · Salud del negocio*');
+  t.push('📅 '+fechaLegible(fechaOperativa()));
+  t.push('────────────────');
+  t.push('💎 *Patrimonio operativo: '+fmtCOP(d.patrimonio)+'*');
+  t.push('💼 Disponible: '+fmtCOP(d.disp));
+  t.push('📦 Mercancía a costo: '+fmtCOP(d.inv)+' (vendida valdría '+fmtCOP(d.invVenta)+')');
+  t.push('🧾 Nos deben: '+fmtCOP(d.deben)+(d.vencidasCob?' ('+d.vencidasCob+' vencidas ⚠️)':''));
+  t.push('📤 Debemos: '+fmtCOP(d.debemos)+(d.vencidasPag?' ('+d.vencidasPag+' vencidas 🚨)':''));
+  t.push('────────────────');
+  t.push('📈 Últimos 30 días: venta '+fmtCOP(d.venta30)+' · egresos '+fmtCOP(d.egr30)+' · promedio/día '+fmtCOP(d.promedio));
+  if(d.chS !== null && d.chS !== undefined) t.push((d.chS>=0?'📈':'📉')+' Semana: '+fmtCOP(d.venta7)+' ('+(d.chS>=0?'+':'')+d.chS+'% vs anterior)');
+  if(d.chM !== null && d.chM !== undefined) t.push('🗓️ Mes vs anterior: '+(d.chM>=0?'+':'')+d.chM+'%');
+  if(d.mejorDia && d.peorDia && d.mejorDia.d !== d.peorDia.d) t.push('📅 Mejor día: '+d.mejorDia.d+' · más flojo: '+d.peorDia.d);
+  if(d.agotados) t.push('🚨 '+d.agotados+' productos agotados en línea');
+  compartirTexto(t.join('\n'));
+};
+
 
 init();
 </script>
